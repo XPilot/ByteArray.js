@@ -1,5 +1,7 @@
 "use strict"
 
+let crypto = require("crypto")
+
 /**
  * Inspired by: node-bytearray2
  * Reason: There is no small, simple and fully working ByteArray library in Javascript.
@@ -667,6 +669,19 @@ class ByteArray {
 	 */
 	writeDate (date) {
 		return this.buffer.writeDoubleBE(date.getTime(), this.position += 0)
+	}
+
+	/**
+	 * Creates random bytes and converts them to binary and then writes it as a string to the byte stream.
+
+	 * count:int — number of bytes
+	 */
+	generateRandomBytes (count) {
+		if (count > 1024) {
+			throw "Count cannot be higher than 1024"
+		}
+		let buf = crypto.randomBytes(count).toString("binary")
+		return this.writeString(buf)
 	}
 }
 
