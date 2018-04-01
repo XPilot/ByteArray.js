@@ -50,6 +50,10 @@ Converts the byte array to a string. If the data in the array begins with a Unic
 ```
 Returns current class information.
 ```
+#### generateRandomBytes
+```
+Creates random bytes and converts them to binary and then writes it as a string to the byte stream.
+```
 
 # Reading methods
 #### readBoolean
