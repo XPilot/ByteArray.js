@@ -1,11 +1,9 @@
 "use strict"
 
-let crypto = require("crypto")
+let crypto = require("crypto") // Used for generateRandomBytes
 
 /**
  * Inspired by: node-bytearray2
- * Reason: There is no small, simple and fully working ByteArray library in Javascript.
- * Equivalent to Actionscript 3 ByteArray -> https://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/flash/utils/ByteArray.html
  * Credits: Zaseth
  * For contact, add me on Discord: Zaseth#7550
 **/
@@ -14,7 +12,7 @@ class ByteArray {
 	constructor (buff) {
 		this.position = 0
 		this.byteLength = this.position || 0
-		if (buff instanceof ByteArray) {
+		if (buff instanceof ByteArray) { // Thanks to node-bytearray2
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
 			this.buffer = buff
@@ -23,6 +21,11 @@ class ByteArray {
 		}
 	}
 
+	/**
+	 * Checks if x is a string.
+
+	 * x:String — String
+	 */
 	axCoerceString (x) {
 		if (typeof x === "string") {
 			return x
@@ -50,11 +53,14 @@ class ByteArray {
 		return this.buffer.length
 	}
 
+	/**
+	 * v:int — Value to set position to.
+	 */
 	set length (v) {
 		this.buffer.length = v
 	}
 	
-	skip (n) { // move
+	skip (n) { // Move
 		this.position += n
 	}
 
@@ -63,7 +69,7 @@ class ByteArray {
 	}
 
 	/**
-     * Set position to 0.
+     * Sets position to 0.
 	 */
 	reset () {
 		this.position = 0
@@ -83,6 +89,8 @@ class ByteArray {
 
 	/**
 	 * Convert array number to ByteArray.
+
+	 * a:Array — Array of bytes to convert.
 	 */
 	fromArray (a) {
 		let ba = new ByteArray(a.length)
@@ -117,7 +125,7 @@ class ByteArray {
 	 * count:int — number of bytes
 	 */
 	generateRandomBytes (count) {
-		if (count > 1024) {
+		if (count > 1024) { // Max buffer size
 			throw "Count cannot be higher than 1024"
 		}
 		let buf = crypto.randomBytes(count).toString("binary")
@@ -129,9 +137,9 @@ class ByteArray {
 	 * compares an integer value in this byte array with another integer value and,
 	 * if they match, swaps those bytes with another value.
 
-	 * byteIndex:int — the index position (in bytes) from which the integer to compare is read,
-	   and to which the newValue value is written if the comparison results in a match.
-	   This value must be a multiple of 4.
+     * byteIndex:int — the index position (in bytes) from which the integer to compare is read,
+     * and to which the newValue value is written if the comparison results in a match.
+     * This value must be a multiple of 4.
      * expectedValue:int — the value that is expected to match the contents of the byte array at the specified index.
      * newValue:int — the new value that replaces the contents of the byte array at the specified index if the comparison results in a match.
      */
@@ -148,8 +156,8 @@ class ByteArray {
 	 * compares this byte array's length with a provided value and,
 	 * if they match, changes the length of this byte array.
 
-	 * expectedLength:int — the expected value of the ByteArray's length property.
-	   If the specified value and the actual value match, the byte array's length is changed.
+     * expectedLength:int — the expected value of the ByteArray's length property.
+     * If the specified value and the actual value match, the byte array's length is changed.
      * newLength:int — the new length value for the byte array if the comparison succeeds.
      */
 	atomicCompareAndSwapLength (expectedLength, newLength) {
@@ -167,11 +175,10 @@ class ByteArray {
 	}
 
 	/**
-	 * Clears the contents of the byte array and resets the length and position properties to 0.
-	 * Calling this method explicitly frees up the memory used by the ByteArray instance.
+	 * Clears the contents of the byte array clearing the byte stream and resets the length and position properties to 0.
 	 */
 	clear () {
-		this.buffer = new Buffer(1024)
+		this.buffer = new Buffer(1024) // In my case, we just fully clear it and size it again
 		this.reset()
 	}
 
@@ -380,6 +387,7 @@ class ByteArray {
 	 * length:int
 	 */
 	toString (encoding, offset, length) {
+		encoding = this.axCoerceString(encoding)
 		return this.buffer.toString(encoding || 'utf8', offset || 0, length || this.length)
 	}
 
@@ -475,7 +483,7 @@ class ByteArray {
 	 * offset:uint (default = 0) — A zero-based index indicating the position into the array to begin writing.
 	 * length:uint (default = 0) — An unsigned integer indicating how far into the buffer to write.
 	 */
-	writeBytes (bytes, offset, length) {
+	writeBytes (bytes, offset, length) { // Let's just not assign a default value yet...
 		if (bytes == undefined) {
 			throw new Error("Invalid type.")
 		}
@@ -488,7 +496,7 @@ class ByteArray {
 			length = 0
 		}
 		if (offset !== this.clamp(offset, 0, bytes.length) ||
-			offset + length !== this.clamp(offset + length, 0, bytes.length)) {
+			offset + length !== this.clamp(offset + length, 0, bytes.length)) { // Expensive check
 			throw new Error("[EOFError]: There is no sufficient data available.")
 		}
 		if (length === 0) {
@@ -933,7 +941,7 @@ class ByteArray {
 		let currentPosition = this.position
 		this.position = position
 		let ba = new ByteArray()
-		this.writeBytes(ba.fromArray(value), position)
+		this.writeBytes(ba.fromArray(value), position) // Value is an array!
 		this.position = currentPosition
 	}
 
