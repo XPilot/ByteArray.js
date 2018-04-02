@@ -137,12 +137,12 @@ class ByteArray {
 	 * compares an integer value in this byte array with another integer value and,
 	 * if they match, swaps those bytes with another value.
 
-     * byteIndex:int — the index position (in bytes) from which the integer to compare is read,
-     * and to which the newValue value is written if the comparison results in a match.
-     * This value must be a multiple of 4.
-     * expectedValue:int — the value that is expected to match the contents of the byte array at the specified index.
-     * newValue:int — the new value that replaces the contents of the byte array at the specified index if the comparison results in a match.
-     */
+	 * byteIndex:int — the index position (in bytes) from which the integer to compare is read,
+	 * and to which the newValue value is written if the comparison results in a match.
+	 * This value must be a multiple of 4.
+	 * expectedValue:int — the value that is expected to match the contents of the byte array at the specified index.
+	 * newValue:int — the new value that replaces the contents of the byte array at the specified index if the comparison results in a match.
+	 */
 	atomicCompareAndSwapIntAt (byteIndex, expectedValue, newValue) {
 		let byte = this.buffer[byteIndex]
 		if (byte === expectedValue) {
@@ -159,7 +159,7 @@ class ByteArray {
 	 * expectedLength:int — the expected value of the ByteArray's length property.
 	 * If the specified value and the actual value match, the byte array's length is changed.
 	 * newLength:int — the new length value for the byte array if the comparison succeeds.
-     */
+	 */
 	atomicCompareAndSwapLength (expectedLength, newLength) {
 		let prevLength = this.buffer.length
 		if (prevLength !== expectedLength) {
