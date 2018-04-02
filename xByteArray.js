@@ -23,6 +23,15 @@ class ByteArray {
 		}
 	}
 
+	axCoerceString (x) {
+		if (typeof x === "string") {
+			return x
+		} else if (x == undefined) {
+			return null
+		}
+		return x + ""
+	}
+
 	get bytesAvailable () {
 		//let ba = this.length - this.position // 1024
 		//if (ba == 0) {
@@ -169,9 +178,12 @@ class ByteArray {
 	 */
 	readBytes (bytes, offset = 0, length = 0) {
 		if (offset < 0 || length < 0) {
-			throw "Read error - Out of bounds"
+			throw new Error("[EOFError]: There is no sufficient data available.")
 		}
 		length = length || bytes.length
+		if (bytes.length < offset + length) {
+			bytes.length = offset + length
+		}
 		for (var i = offset; i < length && this.bytesAvailable > 0; i++) {
 			bytes.writeByte(this.readByte())
 		}
@@ -205,6 +217,7 @@ class ByteArray {
 	 * charSet:String — The string denoting the character set to use to interpret the bytes.
 	 */
 	readMultiByte (length, charSet) {
+		charSet = this.axCoerceString(charSet)
 		if (charSet.toLowerCase() == "unicode") {
 			return this.readUnicode(length)
 		} else if (charSet.toLowerCase() == "gb2312") {
@@ -365,17 +378,29 @@ class ByteArray {
 
 	/**
 	 * Reads a string from the byte stream.
+
+	 * length:int — Position of written string.
 	 */
-	readString () {
-		return this.readStringCore(this.buffer, 0)
-	}
-	readStringCore (buffer, info) {
-		let offset = info.offset
-		let length = buffer.readUInt16BE(offset)
-		this.bytesUsed(info, 2)
-		offset = info.offset
-		this.bytesUsed(info, length)
-		return buffer.toString("utf8", buffer)
+	readString (length) {
+		let end = this.position + length
+		let chars = []
+		while (this.position < end) {
+			let c = this.buffer[this.position++]
+			if (c < 128) {
+				chars.push(c)
+			} else if (c < 192) {
+				continue
+			} else if (c < 224) {
+				let c2 = this.buffer[this.position++]
+				chars.push(((c & 31) << 6) | (c2 & 63))
+			} else if (c < 240) {
+				let c2 = this.buffer[this.position++]
+				let c3 = this.buffer[this.position++]
+				chars.push(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63))
+			}
+		}
+		let result = String.fromCharCode.apply(null, chars)
+		return result
 	}
 
 	/**
@@ -430,12 +455,32 @@ class ByteArray {
 	 * offset:uint (default = 0) — A zero-based index indicating the position into the array to begin writing.
 	 * length:uint (default = 0) — An unsigned integer indicating how far into the buffer to write.
 	 */
-	writeBytes (bytes, offset = 0, length) {
-		length = length || bytes.length
+	writeBytes (bytes, offset, length) {
+		if (bytes == undefined) {
+			throw new Error("Invalid type.")
+		}
+		offset = offset >>> 0
+		length = length >>> 0
+		if (arguments.length < 2) {
+			offset = 0
+		}
+		if (arguments.length < 3) {
+			length = 0
+		}
+		if (offset !== this.clamp(offset, 0, bytes.length) ||
+			offset + length !== this.clamp(offset + length, 0, bytes.length)) {
+			throw new Error("[EOFError]: There is no sufficient data available.")
+		}
+		if (length === 0) {
+			length = bytes.length - offset
+		}
 		bytes.reset()
 		for (var i = offset; i < length && this.bytesAvailable > 0; i++) {
 			this.writeByte(bytes.readByte())
 		}
+	}
+	clamp (value, min, max) {
+		return Math.max(min, Math.min(max, value))
 	}
 
 	/**
@@ -472,6 +517,8 @@ class ByteArray {
 	 * charset:String — The charset of the string
 	 */
 	writeMultiByte (v, charSet) { // <- This is all writable
+		v = this.axCoerceString(v)
+		charSet = this.axCoerceString(charSet)
 		if (charSet.toLowerCase() == "unicode") {
 			return this.writeUnicode(v)
 		} else if (charSet.toLowerCase() == "gb2312") {
@@ -565,6 +612,7 @@ class ByteArray {
 	 * value:String — The string value to be written.
 	 */
 	writeUTF (v) {
+		v = this.axCoerceString(v)
 		let byteLength
 		let offset
 		offset = offset < 0 ? this.buffer.length + offset : (offset === 0 ? 0 : offset || this.position || 0)
@@ -583,6 +631,7 @@ class ByteArray {
 	 * value:String — The string value to be written.
 	 */
 	writeUTFBytes (v) {
+		v = this.axCoerceString(v)
 		this.ensureWrite(this.position + v.length * 4) // <- Let's just be sure
 		let count = 0
 		for (var i = 0; i < v.length; i++) {
@@ -626,18 +675,24 @@ class ByteArray {
 
 	 * value:String — The string value to be written.
 	 */
-	writeString (v) { // Writable: true
-		return this.writeStringCore(this.buffer, v, this.position += Buffer.byteLength(v))
-	}
-	writeStringCore (buffer, v, info) {
-		let offset = info.offset
-		let length = Buffer.byteLength(v, "utf8")
-		buffer.writeUInt16BE(length, offset)
-		this.bytesUsed(info, 2)
-		offset = info.offset
-		this.bytesUsed(info, length)
-		let b = buffer.write(v, offset, length, "utf8")
-		return b
+	writeString (v) {
+		v = this.axCoerceString(v)
+		let oldLength = this.buffer.length
+		for (var i = 0; i < v.length; i++) {
+			let c = v.charCodeAt(i)
+			if (c < 128) {
+				this.writeByte(c)
+			} else if (c < 2048) {
+				this.writeByte((c >> 6) | 192)
+				this.writeByte((c & 63) | 128)
+			} else {
+				this.writeByte((c >> 12) | 224)
+				this.writeByte(((c >> 6) & 63) | 128)
+				this.writeByte((c & 63) | 128)
+			}
+		}
+		let length = this.buffer.length - oldLength
+		return length
 	}
 
 	/**
