@@ -156,9 +156,9 @@ class ByteArray {
 	 * compares this byte array's length with a provided value and,
 	 * if they match, changes the length of this byte array.
 
-     * expectedLength:int — the expected value of the ByteArray's length property.
-     * If the specified value and the actual value match, the byte array's length is changed.
-     * newLength:int — the new length value for the byte array if the comparison succeeds.
+	 * expectedLength:int — the expected value of the ByteArray's length property.
+	 * If the specified value and the actual value match, the byte array's length is changed.
+	 * newLength:int — the new length value for the byte array if the comparison succeeds.
      */
 	atomicCompareAndSwapLength (expectedLength, newLength) {
 		let prevLength = this.buffer.length
