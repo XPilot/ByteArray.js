@@ -53,17 +53,8 @@ class ByteArray {
 	set length (v) {
 		this.buffer.length = v
 	}
-
-	/**
-	 * Taken from an AMF library,
-	 * used for write & read string.
-	 */
-	bytesUsed (info, n) {
-	    info += n
-	    info += n
-	}
-
-	skip (n) {
+	
+	skip (n) { // move
 		this.position += n
 	}
 
@@ -100,6 +91,19 @@ class ByteArray {
 		}
 		ba.reset()
 		return ba
+	}
+
+	/**
+	 * Creates random bytes and converts them to binary and then writes it as a string to the byte stream.
+
+	 * count:int — number of bytes
+	 */
+	generateRandomBytes (count) {
+		if (count > 1024) {
+			throw "Count cannot be higher than 1024"
+		}
+		let buf = crypto.randomBytes(count).toString("binary")
+		return this.writeString(buf)
 	}
 
 	/**
@@ -292,8 +296,6 @@ class ByteArray {
 
 	/**
 	 * Reads an unsigned 32-bit integer from the byte stream.
-
-	 * Solve the problem of reading a negative integer when reading an integer.
 	 */
 	readUnsignedInt () {
 		return this.buffer.readUInt32BE(this.position += 4)
@@ -677,6 +679,9 @@ class ByteArray {
 	 */
 	writeString (v) {
 		v = this.axCoerceString(v)
+		if (v == null) {
+			v = ""
+		}
 		let oldLength = this.buffer.length
 		for (var i = 0; i < v.length; i++) {
 			let c = v.charCodeAt(i)
@@ -692,6 +697,7 @@ class ByteArray {
 			}
 		}
 		let length = this.buffer.length - oldLength
+		this.position = this.position += v.length
 		return length
 	}
 
@@ -727,16 +733,294 @@ class ByteArray {
 	}
 
 	/**
-	 * Creates random bytes and converts them to binary and then writes it as a string to the byte stream.
-
-	 * count:int — number of bytes
+	 * The following contains a modified ByteArray.
 	 */
-	generateRandomBytes (count) {
-		if (count > 1024) {
-			throw "Count cannot be higher than 1024"
+	inRange (position) {
+		if (position >= 0 && position < 1024) {
+			return true
+		} else {
+			throw "[EOFError]: There is no sufficient data available."
 		}
-		let buf = crypto.randomBytes(count).toString("binary")
-		return this.writeString(buf)
+	}
+	inRangeAt (position, length) {
+		if (position >= 0 && (position + (length - 1) < 1024)) {
+			return true
+		} else {
+			throw "[EOFError]: There is no sufficient data available."
+		}
+	}
+
+	readBooleanAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let boolean = this.readBoolean()
+		this.position = currentPosition
+		return boolean
+	}
+
+	readByteAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let byte = this.readByte()
+		this.position = currentPosition
+		return byte
+	}
+
+	readBytesAt (position, length) {
+		this.inRangeAt(position, length)
+		let currentPosition = this.position
+		this.position = position
+		let ba = new ByteArray()
+		this.readBytes(ba, 0, length)
+		return ba
+	}
+
+	readDoubleAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let double = this.readDouble()
+		this.position = currentPosition
+		return double
+	}
+
+	readFloatAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let float = this.readFloat()
+		this.position = currentPosition
+		return float
+	}
+
+	readIntAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let int = this.readInt()
+		this.position = currentPosition
+		return int
+	}
+
+	readMultiByteAt (position, length, charSet) {
+		this.inRangeAt(position, length)
+		let currentPosition = this.position
+		this.position = position
+		let multi = this.readMultiByte(length, charSet)
+		this.position = currentPosition
+		return multi
+	}
+
+	readShortAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let short = this.readShort()
+		this.position = currentPosition
+		return short
+	}
+
+	readUnsignedByteAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let ubyte = this.readUnsignedByte()
+		this.position = currentPosition
+		return ubyte
+	}
+
+	readUnsignedIntAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let uint = this.readUnsignedInt()
+		this.position = currentPosition
+		return uint
+	}
+
+	readUnsignedShortAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let ushort = this.readUnsignedShort()
+		this.position = currentPosition
+		return ushort
+	}
+
+	readUTFAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let utf = this.readUTF()
+		this.position = currentPosition
+		return utf
+	}
+
+	readUTFBytesAt (position, length) {
+		this.inRangeAt(position, length)
+		let currentPosition = this.position
+		this.position = position
+		let utfb = this.readUTFBytes(length)
+		this.position = currentPosition
+		return utfb
+	}
+
+	readStringAt (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let str = this.readString()
+		this.position = currentPosition
+		return str
+	}
+
+	readInt64At (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let int64 = this.readInt64()
+		this.position = currentPosition
+		return int64
+	}
+
+	readUnsignedInt64At (position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let uint64 = this.readUnsignedInt64()
+		this.position = currentPosition
+		return uint64
+	}
+
+	writeBooleanAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeBoolean(value)
+		this.position = currentPosition
+	}
+
+	writeByteAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeByte(value)
+		this.position = currentPosition
+	}
+
+	writeBytesAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		let ba = new ByteArray()
+		this.writeBytes(ba.fromArray(value), position)
+		this.position = currentPosition
+	}
+
+	writeDoubleAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeDouble(value)
+		this.position = currentPosition
+	}
+
+	writeFloatAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeFloat(value)
+		this.position = currentPosition
+	}
+
+	writeIntAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeInt(value)
+		this.position = currentPosition
+	}
+
+	writeMultiByteAt (value, position, charSet) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeMultiByte(value, charSet)
+		this.position = currentPosition
+	}
+
+	writeShortAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeShort(value)
+		this.position = currentPosition
+	}
+
+	writeUnsignedByteAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeUnsignedByte(value)
+		this.position = currentPosition
+	}
+
+	writeUnsignedIntAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeUnsignedInt(value)
+		this.position = currentPosition
+	}
+
+	writeUnsignedShortAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeUnsignedShort(value)
+		this.position = currentPosition
+	}
+
+	writeUTFAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeUTF(value)
+		this.position = currentPosition
+	}
+
+	writeUTFBytesAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeUTFBytes(value)
+		this.position = currentPosition
+	}
+
+	writeStringAt (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeString(value)
+		this.position = currentPosition
+	}
+
+	writeInt64At (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeInt64(value)
+		this.position = currentPosition
+	}
+
+	writeUnsignedInt64At (value, position) {
+		this.inRange(position)
+		let currentPosition = this.position
+		this.position = position
+		this.writeUnsignedInt64(value)
+		this.position = currentPosition
 	}
 }
 
