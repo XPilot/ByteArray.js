@@ -55,7 +55,22 @@ Returns current class information.
 ```
 Creates random bytes and converts them to binary and then writes it as a string to the byte stream.
 ```
-
+#### escapeMultiByte
+```
+Returns an escaped copy of the input string encoded as either UTF-8 or system code page.
+```
+#### unescapeMultiByte
+```
+Returns an unescaped copy of the input string.
+```
+#### toArray
+```
+Convert ByteArray to array number.
+```
+#### fromArray
+```
+Convert array number to ByteArray.
+```
 # Reading methods
 #### readBoolean
 ```
@@ -125,6 +140,25 @@ Reads an unsigned 64-bit integer from the byte stream.
 ```
 Reads an IEEE 754 double-precision (64-bit) floating-point number from the byte stream and converts it into a date.
 ```
+#### Read at methods
+```
+readBooleanAt
+readByteAt
+readBytesAt
+readDoubleAt
+readFloatAt
+readIntAt
+readMultiByteAt
+readShortAt
+readUnsignedByteAt
+readUnsignedIntAt
+readUnsignedShortAt
+readUTFAt
+readUTFBytesAt
+readStringAt
+readInt64At
+readUnsignedInt64At
+```
 # Writing methods
 #### writeBoolean
 ```
@@ -193,6 +227,25 @@ Writes an unsigned 64-bit integer to the byte stream.
 #### writeDate
 ```
 Writes an IEEE 754 double-precision (64-bit) floating-point date to the byte stream.
+```
+#### Write at methods
+```
+writeBooleanAt
+writeByteAt
+writeBytesAt
+writeDoubleAt
+writeFloatAt
+writeIntAt
+writeMultiByteAt
+writeShortAt
+writeUnsignedByteAt
+writeUnsignedIntAt
+writeUnsignedShortAt
+writeUTFAt
+writeUTFBytesAt
+writeStringAt
+writeInt64At
+writeUnsignedInt64At
 ```
 # Tests and examples
 #### Tests
