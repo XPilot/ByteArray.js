@@ -94,6 +94,24 @@ class ByteArray {
 	}
 
 	/**
+	 * Returns an escaped copy of the input string encoded as either UTF-8 or system code page.
+
+	 * value:String — The string to be escaped.
+	 */
+	escapeMultiByte (value) {
+		return encodeURIComponent(value)
+	}
+
+	/**
+	 * Returns an unescaped copy of the input string.
+
+	 * value:String — The escaped string to be unescaped.
+	 */
+	unescapeMultiByte (value) {
+		return decodeURIComponent(value)
+	}
+
+	/**
 	 * Creates random bytes and converts them to binary and then writes it as a string to the byte stream.
 
 	 * count:int — number of bytes
@@ -733,7 +751,7 @@ class ByteArray {
 	}
 
 	/**
-	 * The following contains a modified ByteArray.
+	 * Read & Write at methods
 	 */
 	inRange (position) {
 		if (position >= 0 && position < 1024) {
