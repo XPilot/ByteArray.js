@@ -12,7 +12,7 @@ class ByteArray {
 	constructor (buff) {
 		this.position = 0
 		this.byteLength = this.position || 0
-		if (buff instanceof ByteArray) { // Thanks to node-bytearray2
+		if (buff instanceof ByteArray) { // Thanks to node-bytearray2 for this entire if statement
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
 			this.buffer = buff
@@ -22,9 +22,21 @@ class ByteArray {
 	}
 
 	/**
+	 * New in xByteArray as of 3 April.
+	 * Used to check the reading functions.
+	 */
+	validate (len) {
+		if (this.buffer.length > 0 && this.position + len <= this.buffer.length) {
+			return true
+		} else {
+			throw "[EOFError]: There is no sufficient data available."
+		}
+	}
+
+	/**
 	 * Checks if x is a string.
 
-	 * x:String — String
+	 * x:String — String.
 	 */
 	axCoerceString (x) {
 		if (typeof x === "string") {
@@ -35,20 +47,24 @@ class ByteArray {
 		return x + ""
 	}
 
+	/**
+	 * The number of bytes of data available for reading from the current position in the byte array to the end of the array.
+	 */
 	get bytesAvailable () {
-		//let ba = this.length - this.position // 1024
-		//if (ba == 0) {
-			//throw "[EOFError]: There is no sufficient data available."
-		//} else {
-			//return ba
-		//}
-		return this.length - this.position // <- Unchecked bytesAvailable
+		return this.length - this.position
 	}
 
+	/**
+	 * Checks if the buffer is actually a buffer,
+	 * and if the length is higher than 0.
+	 */
 	get availableStream () {
 		return Buffer.isBuffer(this.buffer) && this.length > 0
 	}
 
+	/**
+	 * Returns the current buffer length.
+	 */
 	get length () {
 		return this.buffer.length
 	}
@@ -99,6 +115,18 @@ class ByteArray {
 		}
 		ba.reset()
 		return ba
+	}
+
+	/**
+	 * Convert int number to ByteArray.
+
+	 * n:int — Byte to convert.
+	 */
+	intToByteArray (n) {
+		while (n > 0) {
+			this.writeByte(n & 255)
+			n >>= 8
+		}
 	}
 
 	/**
@@ -186,6 +214,9 @@ class ByteArray {
 	 * Reads a Boolean value from the byte stream. A single byte is read, and true is returned if the byte is nonzero, false otherwise.
 	 */
 	readBoolean () {
+		if (!this.validate(1)) {
+			return null
+		}
 		return Boolean(this.buffer.readInt8(this.position++) & 0xFF) ? true : false
 	}
 
@@ -193,6 +224,9 @@ class ByteArray {
 	 * Reads a signed byte from the byte stream.
 	 */
 	readByte () {
+		if (!this.validate(1)) {
+			return null
+		}
 		return this.buffer.readInt8(this.position++)
 	}
 
@@ -205,9 +239,18 @@ class ByteArray {
 	 * offset:uint (default = 0) — The offset (position) in bytes at which the read data should be written.
 	 * length:uint (default = 0) — The number of bytes to read. The default value of 0 causes all available data to be read.
 	 */
-	readBytes (bytes, offset = 0, length = 0) { // I've seen people saying that length = -1 or setting length to this.bytesAvailable???
+	readBytes (bytes, offset = 0, length = 0) {
+		if (!this.validate(length)) {
+			return null
+		}
 		if (offset < 0 || length < 0) {
 			throw new Error("[EOFError]: There is no sufficient data available.")
+		}
+		if (offset === 0) {
+			offset = 0
+		}
+		if (length === 0) {
+			length = 0
 		}
 		length = length || bytes.length
 		if (bytes.length < offset + length) {
@@ -222,6 +265,9 @@ class ByteArray {
 	 * Reads an IEEE 754 double-precision (64-bit) floating-point number from the byte stream.
 	 */
 	readDouble () {
+		if (!this.validate(8)) {
+			return null
+		}
 		return this.buffer.readDoubleBE(this.position += 8)
 	}
 
@@ -229,6 +275,9 @@ class ByteArray {
 	 * Reads an IEEE 754 single-precision (32-bit) floating-point number from the byte stream.
 	 */
 	readFloat () {
+		if (!this.validate(4)) {
+			return null
+		}
 		return this.buffer.readFloatBE(this.position += 4)
 	}
 
@@ -236,6 +285,9 @@ class ByteArray {
 	 * Reads a signed 32-bit integer from the byte stream.
 	 */
 	readInt () {
+		if (!this.validate(4)) {
+			return null
+		}
 		return this.buffer.readInt32BE(this.position += 4)
 	}
 
@@ -247,6 +299,9 @@ class ByteArray {
 	 */
 	readMultiByte (length, charSet) {
 		charSet = this.axCoerceString(charSet)
+		if (!this.validate(length)) {
+			return null
+		}
 		if (length < 0) {
 			throw new Error("[EOFError]: There is no sufficient data available.")
 		}
@@ -312,6 +367,9 @@ class ByteArray {
 	 * Reads a signed 16-bit integer from the byte stream.
 	 */
 	readShort () {
+		if (!this.validate(2)) {
+			return null
+		}
 		return this.buffer.readInt16BE(this.position += 2)
 	}
 
@@ -319,6 +377,9 @@ class ByteArray {
 	 * Reads an unsigned byte from the byte stream.
 	 */
 	readUnsignedByte () {
+		if (!this.validate(1)) {
+			return null
+		}
 		return this.buffer.readUInt8(this.position++)
 	}
 
@@ -326,6 +387,9 @@ class ByteArray {
 	 * Reads an unsigned 32-bit integer from the byte stream.
 	 */
 	readUnsignedInt () {
+		if (!this.validate(4)) {
+			return null
+		}
 		return this.buffer.readUInt32BE(this.position += 4)
 	}
 
@@ -333,13 +397,19 @@ class ByteArray {
 	 * Reads an unsigned 16-bit integer from the byte stream.
 	 */
 	readUnsignedShort () {
+		if (!this.validate(2)) {
+			return null
+		}
 		return this.buffer.readUInt16BE(this.position += 2)
 	}
 
 	/**
 	 * Reads a UTF-8 string from the byte stream.
 	 */
-	readUTF () {
+	readUTF () { // <- Some people think that if the length is higher than 0, use readUTFBytes to read the length?
+		if (!this.validate(2)) {
+			return null
+		}
 		let len
 		let offset
 		offset = offset < 0 ? this.buffer.length + offset : (offset === 0 ? 0 : offset || this.position || 0)
@@ -361,6 +431,9 @@ class ByteArray {
 	 * length:uint — An unsigned short indicating the length of the UTF-8 bytes.
 	 */
 	readUTFBytes (length) {
+		if (!this.validate(length)) {
+			return null
+		}
 		let offset
 		offset = offset < 0 ? this.buffer.length + offset : (offset === 0 ? 0 : offset || this.position || 0)
 		if (this.buffer.length <= offset) {
