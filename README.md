@@ -3,6 +3,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 2 April, xByteArray supports reading & writing values at a specific position from and to the byte stream.**
 
+**As of 3 April, xByteArray now provides a validation on all reading methods before reading from the byte stream.**
+
 - Properties
 - Standalone methods
 - Reading methods
