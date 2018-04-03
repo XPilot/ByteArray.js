@@ -205,7 +205,7 @@ class ByteArray {
 	 * offset:uint (default = 0) — The offset (position) in bytes at which the read data should be written.
 	 * length:uint (default = 0) — The number of bytes to read. The default value of 0 causes all available data to be read.
 	 */
-	readBytes (bytes, offset = 0, length = 0) {
+	readBytes (bytes, offset = 0, length = 0) { // I've seen people saying that length = -1 or setting length to this.bytesAvailable???
 		if (offset < 0 || length < 0) {
 			throw new Error("[EOFError]: There is no sufficient data available.")
 		}
@@ -247,6 +247,9 @@ class ByteArray {
 	 */
 	readMultiByte (length, charSet) {
 		charSet = this.axCoerceString(charSet)
+		if (length < 0) {
+			throw new Error("[EOFError]: There is no sufficient data available.")
+		}
 		if (charSet.toLowerCase() == "unicode") {
 			return this.readUnicode(length)
 		} else if (charSet.toLowerCase() == "gb2312") {
@@ -641,14 +644,45 @@ class ByteArray {
 	 */
 	writeUTF (v) {
 		v = this.axCoerceString(v)
-		let byteLength
-		let offset
-		offset = offset < 0 ? this.buffer.length + offset : (offset === 0 ? 0 : offset || this.position || 0)
-		byteLength = Buffer.byteLength(v)
-		this.buffer.writeUInt16BE(byteLength, offset)
-		offset += 2
-		this.buffer.write(v, offset)
-		this.position = offset + byteLength
+		let bytearr = []
+		let strlen = v.length
+		let utflen = 0
+		for (var i = 0; i < strlen; i++) {
+			let c1 = v.charCodeAt(i)
+			if (c1 < 128) {
+				utflen++
+				bytearr.push(c1)
+			} else if (c1 > 127 && c1 < 2048) {
+				utflen += 2
+				bytearr.push(192 | (c1 >> 6))
+				bytearr.push(128 | (c1 & 63))
+			} else if ((c1 & 0xF800) !== 0xD800) {
+				utflen += 3
+				bytearr.push(224 | (c1 >> 12))
+				bytearr.push(128 | ((c1 >> 6) & 63))
+				bytearr.push(128 | (c1 & 63))
+			} else {
+				utflen += 4
+				if ((c1 & 0xFC00) !== 0xD800) {
+					throw new RangeError('Unmatched trail surrogate at ' + i)
+				}
+				let c2 = v.charCodeAt(i++)
+				if ((c2 & 0xFC00) !== 0xDC00) {
+					throw new RangeError('Unmatched lead surrogate at ' + (i - 1))
+				}
+				c1 = ((c1 & 0x3FF) << 10) + (c2 & 0x3FF) + 0x10000
+				bytearr.push(240 | (c1 >> 18))
+				bytearr.push(128 | ((c1 >> 12) & 63))
+				bytearr.push((c1 >> 6) & 63)
+				bytearr.push(128 | (c1 & 63))
+			}
+		}
+		bytearr.unshift(utflen & 255)
+		bytearr.unshift((utflen >>> 8) & 255)
+		for (var j = 0; j < bytearr.length; j++) {
+			this.writeByte(bytearr[j])
+		}
+		return utflen + 2
 	}
 
 	/**
@@ -705,9 +739,6 @@ class ByteArray {
 	 */
 	writeString (v) {
 		v = this.axCoerceString(v)
-		if (v == null) {
-			v = ""
-		}
 		let oldLength = this.buffer.length
 		for (var i = 0; i < v.length; i++) {
 			let c = v.charCodeAt(i)
