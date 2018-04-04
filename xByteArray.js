@@ -33,6 +33,10 @@ class ByteArray {
 		}
 	}
 
+	eof () {
+		return this.position >= this.buffer.length
+	}
+
 	/**
 	 * Checks if x is a string.
 
@@ -227,7 +231,7 @@ class ByteArray {
 		if (!this.validate(1)) {
 			return null
 		}
-		return this.buffer.readInt8(this.position++)
+		return this.position < this.length ? this.buffer.readInt8(this.position++) : 0
 	}
 
 	/**
@@ -370,7 +374,8 @@ class ByteArray {
 		if (!this.validate(2)) {
 			return null
 		}
-		return this.buffer.readInt16BE(this.position += 2)
+		let w = this.buffer.readInt16BE(this.position += 2)
+		return w >= 32768 ? w - 65536 : w
 	}
 
 	/**
@@ -486,6 +491,9 @@ class ByteArray {
 	 * length:int — Position of written string.
 	 */
 	readString (length) {
+		if (!this.validate(length)) {
+			return null
+		}
 		let end = this.position + length
 		let chars = []
 		while (this.position < end) {
@@ -511,6 +519,9 @@ class ByteArray {
 	 * Reads a 64-bit integer from the byte stream.
 	 */
 	readInt64 () {
+		if (!this.validate(4)) {
+			return null
+		}
 		/* We are using += 4 twice, because we read 2 values in once both having 4 bytes in the byte stream :) */
 		return this.buffer.readInt32BE(this.position += 4) | this.buffer.readInt32BE(this.position += 4)
 	}
@@ -519,6 +530,9 @@ class ByteArray {
 	 * Reads an unsigned 64-bit integer from the byte stream.
 	 */
 	readUnsignedInt64 () {
+		if (!this.validate(4)) {
+			return null
+		}
 		/* We are using += 4 twice, because we read 2 values in once both having 4 bytes in the byte stream :) */
 		return this.buffer.readUInt32BE(this.position += 4) | this.buffer.readUInt32BE(this.position += 4)
 	}
@@ -527,7 +541,18 @@ class ByteArray {
 	 * Reads an IEEE 754 double-precision (64-bit) floating-point number from the byte stream and converts it into a date.
 	 */
 	readDate () {
+		if (!this.validate(4)) {
+			return null
+		}
 		return new Date(this.buffer.readDoubleBE(this.buffer, this.position += 4))
+	}
+
+	readLong () {
+		return this.readShort() * 65536 + this.readShort()
+	}
+
+	readFixed () {
+		return this.readLong() / 65536
 	}
 
 	/**
@@ -860,6 +885,14 @@ class ByteArray {
 	 */
 	writeDate (date) {
 		return this.buffer.writeDoubleBE(date.getTime(), this.position += 0)
+	}
+
+	writeLong (v) {
+		return this.writeShort(v >>> 16 & 65535) | this.writeShort(v & 65535)
+	}
+
+	writeFixed (v) {
+		return this.writeLong(Math.round(v * 65536))
 	}
 
 	/**
