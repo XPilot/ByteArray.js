@@ -7,6 +7,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 4 April, I added a new example for writing a dictionary object. You can find it at the bottom of this readme.**
 
+**As of 4 April, I added another example for writing an ECMA array.**
+
 - Properties
 - Standalone methods
 - Reading methods
@@ -468,4 +470,38 @@ class Dictionary extends ByteArray {
 }
 let p1 = new Dictionary({words:["John","a"]})
 console.log(p1)
+```
+#### writeECMAArray example
+```
+
+function writeECMAArray (contents) {
+	let container = new ByteArray()
+	let size = 0
+	let count = 0
+	for (var s in contents) count++
+	container.writeByte(0x08) // Type
+    container.writeUnsignedInt(count) // Number of elements
+    size += 1 + 4
+    for (var key in contents) {
+    	container.writeShort(key.length)
+    	container.writeUTFBytes(key)
+    	size += 2 + key.length
+    	if (typeof contents[key] === "number") {
+    		size += container.writeDouble(contents[key])
+    	} else if (typeof contents[key] === "string") {
+    		size += container.writeString(contents[key])
+    	} else {
+    		throw "Unknown type in ECMA array:" + typeof contents[key]
+    	}
+    }
+    container.writeByte(0x00)
+    container.writeByte(0x00)
+    container.writeByte(0x09)
+    size += 3
+    return size
+}
+
+console.log(writeECMAArray({
+	haxor : 1337
+}))
 ```
