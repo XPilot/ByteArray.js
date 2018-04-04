@@ -5,6 +5,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 3 April, xByteArray now provides a validation on all reading methods before reading from the byte stream.**
 
+**As of 4 April, I added a new example for writing a dictionary object. You can find it at the bottom of this readme.**
+
 - Properties
 - Standalone methods
 - Reading methods
@@ -437,4 +439,33 @@ function ByteArrayExample () {
 		console.log(e)
 	}
 }
+```
+#### writeDictionary example
+```
+class Dictionary extends ByteArray {
+	constructor (dictionary) {
+		super()
+		this._dictionary = dictionary
+		this._words = this._dictionary.words
+		this._length = this._words.length
+		if (this._words !== "") {
+			this.writeDictionary()
+		} else {
+			throw "Empty dictionary."
+		}
+	}
+
+	writeDictionary () {
+		if (this._length < 0) {
+			throw "Empty dictionary."
+		}
+		let ba = new ByteArray()
+		ba.writeUTFBytes(this._words)
+		ba.byteLength += this._length
+		let xd = new ByteArray(ba)
+		xd.readUTFBytes(ba.position)
+	}
+}
+let p1 = new Dictionary({words:["John","a"]})
+console.log(p1)
 ```
