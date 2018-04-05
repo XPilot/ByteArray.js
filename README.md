@@ -9,6 +9,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 4 April, I added another example for writing an ECMA array.**
 
+**As of 5 April, I added a custom writeString.**
+
 - Properties
 - Standalone methods
 - Reading methods
@@ -504,4 +506,32 @@ function writeECMAArray (contents) {
 console.log(writeECMAArray({
 	haxor : 1337
 }))
+```
+#### custom writeString
+```
+function writeCustomString (length) {
+	let result = ""
+	let ulen = 0
+	let c
+	let c2
+	while (length > 0) {
+		c = this.buffer[this.position]
+		if (c < 0x80) {
+			result += String.fromCharCode(c)
+			this.position++
+			length--
+		} else {
+			ulen = c - 0x80
+			this.position++
+			length -= ulen
+			while (ulen > 0) {
+				c = this.buffer[this.position++]
+				c2 = this.buffer[this.position++]
+				result += String.fromCharCode((c2 << 8) | c)
+				ulen--
+			}
+		}
+	}
+	return result
+}
 ```
