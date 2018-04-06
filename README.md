@@ -535,3 +535,50 @@ function writeCustomString (length) {
 	return result
 }
 ```
+#### writeVector
+```
+class Vector {
+	constructor (x, y) {
+		this.x = Number.isInteger(x)
+		this.y = Number.isInteger(y)
+		this.type = "uint"
+		this.ba = new ByteArray()
+		if (this.x && this.type === "int") {
+			this.writeVectorInt(x)
+		} else {
+			this.writeVectorFloat(x)
+		}
+		if (this.y && this.type === "int") {
+			this.writeVectorInt(y)
+		} else {
+			this.writeVectorFloat(y)
+		}
+
+		if (this.x && this.type === "uint") {
+			this.writeVectorUInt(x)
+		} else {
+			this.writeVectorFloat(x)
+		}
+		if (this.y && this.type === "uint") {
+			this.writeVectorUInt(y)
+		} else {
+			this.writeVectorFloat(y)
+		}
+	}
+
+	writeVectorInt (v) {
+		return this.ba.writeInt(v)
+	}
+
+	writeVectorUInt (v) {
+		return this.ba.writeUnsignedInt(v)
+	}
+
+	writeVectorFloat (v) {
+		return this.ba.writeFloat(v)
+	}
+}
+
+let p1 = new Vector(5,5.5)
+console.log(p1)
+```
