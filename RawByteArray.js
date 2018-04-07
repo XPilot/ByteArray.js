@@ -28,25 +28,25 @@ class RawByteArray {
 		if (value < 0) {
 			value = 0xFF + value + 1
 		}
-		this.buffer[this.position] = (value & 0xFF)
 		this.position++
+		this.buffer[this.position] = (value & 0xFF)
 	}
 
 	writeInt16BE (value) {
 		value = Math.floor(value)
 		this.checkInt(value, this.position, 2, 0x7fff, -0x8000)
+		this.position += 2
 		this.buffer[this.position] = (value >>> 8)
 		this.buffer[this.position + 1] = (value & 0xFF)
-		this.position += 2
 	}
 
 	writeInt24BE (value) {
 		value = Math.floor(value)
 		this.checkInt(value, this.position, 3, 0x7fffff, -0x800000)
+		this.position += 3
 		this.buffer[this.position] = (value >>> 16)
 		this.buffer[this.position + 1] = (value >>> 8)
 		this.buffer[this.position + 2] = (value & 0xFF)
-		this.position += 3
 	}
 
 	writeInt32BE (value) {
@@ -55,11 +55,11 @@ class RawByteArray {
 		if (value < 0) {
 			value = 0xFFFFFFFF + value + 1
 		}
+		this.position += 4
 		this.buffer[this.position] = (value >>> 24)
 		this.buffer[this.position + 1] = (value >>> 16)
 		this.buffer[this.position + 2] = (value >>> 8)
 		this.buffer[this.position + 3] = (value & 0xFF)
-		this.position += 4
 	}
 
 	writeString (value) {
@@ -70,28 +70,28 @@ class RawByteArray {
 	writeInt16LE (value) {
 		value = Math.floor(value)
 		this.checkInt(value, this.position, 2, 0x7fff, -0x8000)
+		this.position += 2
 		this.buffer[this.position] = (value & 0xFF)
 		this.buffer[this.position + 1] = (value >>> 8 & 0xFF)
-		this.position += 2
 	}
 
 	writeInt24LE (value) {
 		value = Math.floor(value)
 		this.checkInt(value, this.position, 3, 0x7fffff, -0x800000)
+		this.position += 3
 		this.buffer[this.position] = (value & 0xFF)
 		this.buffer[this.position + 1] = (value >>> 8)
 		this.buffer[this.position + 2] = (value >>> 16)
-		this.position += 3
 	}
 
 	writeInt32LE (value) {
 		value = Math.floor(value)
 		this.checkInt(value, this.position, 4, 0x7fffffff, -0x80000000)
+		this.position += 4
 		this.buffer[this.position] = (value & 0xFF)
 		this.buffer[this.position + 1] = (value >>> 8)
 		this.buffer[this.position + 2] = (value >>> 16)
 		this.buffer[this.position + 3] = (value >>> 24)
-		this.position += 4
 	}
 
 	readInt8 () {
@@ -103,33 +103,33 @@ class RawByteArray {
 	readInt16BE () {
 		this.checkOffset(this.position, 2, this.buffer.length)
 		let byte1, byte2, int
+		this.position += 2
 		byte1 = this.buffer[this.position]
 		byte2 = this.buffer[this.position + 1]
 		int = byte1 << 8 | byte2
-		this.position += 2
 		return int
 	}
 
 	readInt24BE () {
 		this.checkOffset(this.position, 3, this.buffer.length)
 		let byte1, byte2, byte3, int
+		this.position += 3
 		byte1 = this.buffer[this.position]
 		byte2 = this.buffer[this.position + 1]
 		byte3 = this.buffer[this.position + 2]
 		int = byte1 << 16 | byte2 << 8 | byte3
-		this.position += 3
 		return int
 	}
 
 	readInt32BE () {
 		this.checkOffset(this.position, 4, this.buffer.length)
 		let byte1, byte2, byte3, byte4, int
+		this.position += 4
 		byte1 = this.buffer[this.position]
 		byte2 = this.buffer[this.position + 1]
 		byte3 = this.buffer[this.position + 2]
 		byte4 = this.buffer[this.position + 3]
 		int = byte1 << 24 | byte2 << 16 | byte3 << 8 | byte4
-		this.position += 4
 		return int
 	}
 
@@ -142,33 +142,33 @@ class RawByteArray {
 	readInt16LE () {
 		this.checkOffset(this.position, 2, this.buffer.length)
 		let byte1, byte2, int
+		this.position += 2
 		byte1 = this.buffer[this.position + 1]
 		byte2 = this.buffer[this.position]
 		int = byte2 | byte1 << 8
-		this.position += 2
 		return int
 	}
 
 	readInt24LE () {
 		this.checkOffset(this.position, 3, this.buffer.length)
 		let byte1, byte2, byte3, int
+		this.position += 3
 		byte1 = this.buffer[this.position]
 		byte2 = this.buffer[this.position + 1]
 		byte3 = this.buffer[this.position + 2]
 		int = byte1 | byte2 << 8 | byte3 << 16
-		this.position += 3
 		return int
 	}
 
 	readInt32LE () {
 		this.checkOffset(this.position, 4, this.buffer.length)
 		let byte1, byte2, byte3, byte4, int
+		this.position += 4
 		byte1 = this.buffer[this.position]
 		byte2 = this.buffer[this.position + 1]
 		byte3 = this.buffer[this.position + 2]
 		byte4 = this.buffer[this.position + 3]
 		int = byte1 | byte2 << 8 | byte3 << 16 | byte4 << 24
-		this.position += 4
 		return int
 	}
 }
