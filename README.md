@@ -13,7 +13,7 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 7 April, I added a small example of a Java ByteArray.**
 
-**AS of 7 April, xByteArray now supports raw writing and reading of SIGNED bytes. This update also contains a readString without assigning the length. You can find it in RawByteArray.**
+**As of 7 April, xByteArray now supports raw writing and reading of SIGNED bytes. This update also contains a readString without assigning the length. You can find it in RawByteArray.**
 
 - Properties
 - Standalone methods
