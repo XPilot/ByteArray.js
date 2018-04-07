@@ -11,6 +11,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 5 April, I added a custom writeString.**
 
+**As of 6 April, I added a small example of a Java ByteArray.**
+
 - Properties
 - Standalone methods
 - Reading methods
