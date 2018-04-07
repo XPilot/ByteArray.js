@@ -134,6 +134,17 @@ class ByteArray {
 	}
 
 	/**
+	 * Utility to make and pad a ByteArray.
+	 */
+	makeByteArray (padding = 0) {
+		let ba = new ByteArray()
+		for (var i = 0; i < padding; i++) {
+			ba.writeByte(0)
+		}
+		return ba
+	}
+
+	/**
 	 * Returns an escaped copy of the input string encoded as either UTF-8 or system code page.
 
 	 * value:String — The string to be escaped.
@@ -221,7 +232,7 @@ class ByteArray {
 		if (!this.validate(1)) {
 			return null
 		}
-		return Boolean(this.buffer.readInt8(this.position++) & 0xFF) ? true : false
+		return Boolean(this.buffer.readInt8(this.updatePosition(1)) & 0xFF) ? true : false
 	}
 
 	/**
@@ -231,7 +242,7 @@ class ByteArray {
 		if (!this.validate(1)) {
 			return null
 		}
-		return this.position < this.length ? this.buffer.readInt8(this.position++) : 0
+		return this.position < this.length ? this.buffer.readInt8(this.updatePosition(1)) : 0
 	}
 
 	/**
@@ -248,7 +259,7 @@ class ByteArray {
 			return null
 		}
 		if (offset < 0 || length < 0) {
-			throw new Error("[EOFError]: There is no sufficient data available.")
+			throw "Read error - Out of bounds"
 		}
 		if (offset === 0) {
 			offset = 0
@@ -256,6 +267,7 @@ class ByteArray {
 		if (length === 0) {
 			length = 0
 		}
+		this.ensureWrite(offset + length)
 		length = length || bytes.length
 		if (bytes.length < offset + length) {
 			bytes.length = offset + length
@@ -272,7 +284,7 @@ class ByteArray {
 		if (!this.validate(8)) {
 			return null
 		}
-		return this.buffer.readDoubleBE(this.position += 8)
+		return this.buffer.readDoubleBE(this.updatePosition(8))
 	}
 
 	/**
@@ -282,7 +294,7 @@ class ByteArray {
 		if (!this.validate(4)) {
 			return null
 		}
-		return this.buffer.readFloatBE(this.position += 4)
+		return this.buffer.readFloatBE(this.updatePosition(4))
 	}
 
 	/**
@@ -292,7 +304,7 @@ class ByteArray {
 		if (!this.validate(4)) {
 			return null
 		}
-		return this.buffer.readInt32BE(this.position += 4)
+		return this.buffer.readInt32BE(this.updatePosition(4))
 	}
 
 	/**
@@ -374,7 +386,7 @@ class ByteArray {
 		if (!this.validate(2)) {
 			return null
 		}
-		let w = this.buffer.readInt16BE(this.position += 2)
+		let w = this.buffer.readInt16BE(this.updatePosition(2))
 		return w >= 32768 ? w - 65536 : w
 	}
 
@@ -385,7 +397,7 @@ class ByteArray {
 		if (!this.validate(1)) {
 			return null
 		}
-		return this.buffer.readUInt8(this.position++)
+		return this.buffer.readUInt8(this.updatePosition(1))
 	}
 
 	/**
@@ -395,7 +407,7 @@ class ByteArray {
 		if (!this.validate(4)) {
 			return null
 		}
-		return this.buffer.readUInt32BE(this.position += 4)
+		return this.buffer.readUInt32BE(this.updatePosition(4))
 	}
 
 	/**
@@ -405,7 +417,7 @@ class ByteArray {
 		if (!this.validate(2)) {
 			return null
 		}
-		return this.buffer.readUInt16BE(this.position += 2)
+		return this.buffer.readUInt16BE(this.updatePosition(2))
 	}
 
 	/**
@@ -523,7 +535,7 @@ class ByteArray {
 			return null
 		}
 		/* We are using += 4 twice, because we read 2 values in once both having 4 bytes in the byte stream :) */
-		return this.buffer.readInt32BE(this.position += 4) | this.buffer.readInt32BE(this.position += 4)
+		return this.buffer.readInt32BE(this.updatePosition(4)) | this.buffer.readInt32BE(this.updatePosition(4))
 	}
 
 	/**
@@ -534,7 +546,7 @@ class ByteArray {
 			return null
 		}
 		/* We are using += 4 twice, because we read 2 values in once both having 4 bytes in the byte stream :) */
-		return this.buffer.readUInt32BE(this.position += 4) | this.buffer.readUInt32BE(this.position += 4)
+		return this.buffer.readUInt32BE(this.updatePosition(4)) | this.buffer.readUInt32BE(this.updatePosition(4))
 	}
 
 	/**
@@ -544,7 +556,7 @@ class ByteArray {
 		if (!this.validate(4)) {
 			return null
 		}
-		return new Date(this.buffer.readDoubleBE(this.buffer, this.position += 4))
+		return new Date(this.buffer.readDoubleBE(this.buffer, this.updatePosition(4)))
 	}
 
 	readLong () {
@@ -553,7 +565,7 @@ class ByteArray {
 
 	readFixed () {
 		return this.readLong() / 65536
-	}
+	}	
 
 	/**
 	 * Writes a Boolean value. A single byte is written according to the value parameter, either 1 if true or 0 if false.
@@ -562,7 +574,8 @@ class ByteArray {
 	 * If the parameter is true, the method writes a 1; if false, the method writes a 0.
 	 */
 	writeBoolean (v) { // Writable: true
-		return this.buffer.writeInt8(Number(v), this.position++)
+		this.ensureWrite(this.position + 1)
+		return this.buffer.writeInt8(Number(v), this.updatePosition(1))
 	}
 
 	/**
@@ -571,7 +584,8 @@ class ByteArray {
 	 * value:int — A 32-bit integer. The low 8 bits are written to the byte stream.
 	 */
 	writeByte (v) { // Writable: true
-		return this.buffer.writeInt8(v, this.position++)
+		this.ensureWrite(this.position + 1)
+		return this.buffer.writeInt8(v, this.updatePosition(1))
 	}
 
 	/**
@@ -603,6 +617,7 @@ class ByteArray {
 		if (length === 0) {
 			length = bytes.length - offset
 		}
+		this.ensureWrite(this.position + length)
 		bytes.reset()
 		for (var i = offset; i < length && this.bytesAvailable > 0; i++) {
 			this.writeByte(bytes.readByte())
@@ -618,7 +633,8 @@ class ByteArray {
 	 * value:Number — A double-precision (64-bit) floating-point number.
 	 */
 	writeDouble (v) { // Writable: true
-		return this.buffer.writeDoubleBE(v, this.position += 8)
+		this.ensureWrite(this.position + 8)
+		return this.buffer.writeDoubleBE(v, this.updatePosition(8))
 	}
 
 	/**
@@ -627,7 +643,8 @@ class ByteArray {
 	 * value:Number — A single-precision (32-bit) floating-point number.
 	 */
 	writeFloat (v) { // Writable: true
-		return this.buffer.writeFloatBE(v, this.position += 4)
+		this.ensureWrite(this.position + 4)
+		return this.buffer.writeFloatBE(v, this.updatePosition(4))
 	}
 
 	/**
@@ -636,7 +653,8 @@ class ByteArray {
 	 * value:int — An integer to write to the byte stream.
 	 */
 	writeInt (v) { // Writable: true
-		return this.buffer.writeInt32BE(v, this.position += 4)
+		this.ensureWrite(this.position + 4)
+		return this.buffer.writeInt32BE(v, this.updatePosition(4))
 	}
 
 	/**
@@ -648,6 +666,7 @@ class ByteArray {
 	writeMultiByte (v, charSet) { // <- This is all writable
 		v = this.axCoerceString(v)
 		charSet = this.axCoerceString(charSet)
+		this.ensureWrite(this.position + v.length * 2)
 		if (charSet.toLowerCase() == "unicode") {
 			return this.writeUnicode(v)
 		} else if (charSet.toLowerCase() == "gb2312") {
@@ -702,7 +721,8 @@ class ByteArray {
 	 * value:int — 32-bit integer, whose low 16 bits are written to the byte stream.
 	 */
 	writeShort (v) { // Writable: true
-		return this.buffer.writeInt16BE(v, this.position += 2)
+		this.ensureWrite(this.position + 2)
+		return this.buffer.writeInt16BE(v, this.updatePosition(2))
 	}
 
 	/**
@@ -711,7 +731,8 @@ class ByteArray {
 	 * value:uint — An unsigned integer to write to the byte stream.
 	 */
 	writeUnsignedByte (v) { // Writable: true
-		return this.buffer.writeUInt8(v, this.position++)
+		this.ensureWrite(this.position + 1)
+		return this.buffer.writeUInt8(v, this.updatePosition(1))
 	}
 
 	/**
@@ -720,7 +741,8 @@ class ByteArray {
 	 * value:uint — An unsigned integer to write to the byte stream.
 	 */
 	writeUnsignedInt (v) { // Writable: true
-		return this.buffer.writeUInt32BE(v, this.position += 4)
+		this.ensureWrite(this.position + 4)
+		return this.buffer.writeUInt32BE(v, this.updatePosition(4))
 	}
 
 	/**
@@ -729,7 +751,14 @@ class ByteArray {
 	 * value:uint — An unsigned integer to write to the byte stream.
 	 */
 	writeUnsignedShort (v) { // Writable: true
-		return this.buffer.writeUInt16BE(v, this.position += 2)
+		this.ensureWrite(this.position + 2)
+		return this.buffer.writeUInt16BE(v, this.updatePosition(2))
+	}
+
+	updatePosition (n) {
+		let a = this.position
+		this.position += n
+		return a
 	}
 
 	/**
@@ -745,6 +774,7 @@ class ByteArray {
 		let bytearr = []
 		let strlen = v.length
 		let utflen = 0
+		this.ensureWrite(this.position + v.length * 4)
 		for (var i = 0; i < strlen; i++) {
 			let c1 = v.charCodeAt(i)
 			if (c1 < 128) {
@@ -792,7 +822,7 @@ class ByteArray {
 	 */
 	writeUTFBytes (v) {
 		v = this.axCoerceString(v)
-		this.ensureWrite(this.position + v.length * 4) // <- Let's just be sure
+		this.ensureWrite(this.position + v.length * 4)
 		let count = 0
 		for (var i = 0; i < v.length; i++) {
 			let c = v.charCodeAt(i)
