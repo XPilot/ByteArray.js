@@ -169,17 +169,6 @@ readStringAt
 readInt64At
 readUnsignedInt64At
 ```
-#### Raw read methds
-```
-readInt8
-readInt16BE
-readInt24BE
-readInt32BE
-readString
-readInt16LE
-readInt24LE
-readInt32LE
-```
 # Writing methods
 #### writeBoolean
 ```
@@ -267,17 +256,6 @@ writeUTFBytesAt
 writeStringAt
 writeInt64At
 writeUnsignedInt64At
-```
-#### Raw write methds
-```
-writeInt8
-writeInt16BE
-writeInt24BE
-writeInt32BE
-writeString
-writeInt16LE
-writeInt24LE
-writeInt32LE
 ```
 # Tests and examples
 #### Tests
