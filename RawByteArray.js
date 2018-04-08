@@ -132,11 +132,6 @@ class RawByteArray {
 		this.writeUInt32BE(low)
 	}
 
-	writeIntString (value) {
-		this.writeInt8(this.offset += value.length)
-		this.buffer.write(value, this.offset, this.offset, "utf8")
-	}
-
 	writeUIntBE (value, byteLength) {
 		value = +value
 		this.offset = this.offset >>> 0
@@ -229,11 +224,6 @@ class RawByteArray {
 		this.writeUInt32BE(low)
 	}
 
-	writeUIntString (value) {
-		this.writeUInt8(this.offset += value.length)
-		this.buffer.write(value, this.offset, this.offset, "utf8")
-	}
-
 	readIntBE (byteLength) {
 		this.offset = this.offset >>> 0
 		byteLength = byteLength >>> 0
@@ -318,15 +308,79 @@ class RawByteArray {
 		return (val & 0x8000000000000000) ? val | 0x7FFFFFFFFFFFFFFF : val
 	}
 
-	readIntString () {
-		this.offset = this.readInt8(0, this.offset++)
-		let length = this.offset
-		return this.buffer.toString("utf8", this.offset, this.offset + length)
+	readUIntBE (byteLength) {
+		let i = byteLength
+		this.offset = this.offset >>> 0
+		byteLength = byteLength >>> 0
+		this.checkOffset(this.offset, byteLength, this.buffer.length)
+		let val = this.buffer[this.offset + --byteLength]
+		let mul = 1
+		while (byteLength > 0 && (mul *= 0x100)) {
+			val += this.buffer[this.offset + --byteLength] * mul
+		}
+		this.offset += i
+		return val
 	}
 
-	readUIntString () {
-		this.offset = this.readUInt8(0, this.offset++)
-		let length = this.offset
-		return this.buffer.toString("utf8", this.offset, this.offset + length)
+	readUInt8 () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 1, this.buffer.length)
+		return this.buffer[this.offset++]
+	}
+
+	readUInt16BE () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 2, this.buffer.length)
+		let val = (this.buffer[this.offset] << 8) | this.buffer[this.offset + 1]
+		this.offset += 2
+		return val
+	}
+
+	readUInt24BE () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 3, this.buffer.length)
+		let val = (this.buffer[this.offset] << 16) | (this.buffer[this.offset + 1] << 8) + (this.buffer[this.offset + 2])
+		this.offset += 3
+		return val
+	}
+
+	readUInt32BE () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 4, this.buffer.length)
+		let val = (this.buffer[this.offset] * 0x1000000) + (this.buffer[this.offset + 1] << 16) | (this.buffer[this.offset + 2] << 8) | (this.buffer[this.offset + 3])
+		this.offset += 4
+		return val
+	}
+
+	readUInt40BE () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 5, this.buffer.length)
+		let val = (this.buffer[this.offset] * 0x100000000) + (this.buffer[this.offset + 1] * 0x1000000) + (this.buffer[this.offset + 2] * 0x10000) + (this.buffer[this.offset + 3] * 0x100) + (this.buffer[this.offset + 4])
+		this.offset += 5
+		return val
+	}
+
+	readUInt48BE () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 6, this.buffer.length)
+		let val = (this.buffer[this.offset] * 0x100 + this.buffer[this.offset + 1]) * 0x100000000 + this.buffer[this.offset + 2] * 0x1000000 + this.buffer[this.offset + 3] * 0x10000 + this.buffer[this.offset + 4] * 0x100 + this.buffer[this.offset + 5]
+		this.offset += 6
+		return val
+	}
+
+	readUInt56BE () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 7, this.buffer.length)
+		let val = ((this.readUInt8() || 0) << 16 | this.readUInt16BE()) * (1 << 16) * (1 << 16) + this.readUInt32BE()
+		return val
+	}
+
+	readUInt64BE () {
+		this.offset = this.offset >>> 0
+		this.checkOffset(this.offset, 8, this.buffer.length)
+		let val = this.readUInt32BE() * (1 << 16) * (1 << 16) + this.readUInt32BE()
+		return val
 	}
 }
+
+module.exports = RawByteArray
