@@ -13,6 +13,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 8 April, xByteArray now supports raw writing and reading bytes. You can find it in RawByteArray, which is still under development.**
 
+**As of 9 April, I added an advanced example of a serializer to write raw data. rawByteArray is currently still in development and almost finished. The current status: little-endian int & little-endian uint to be done.**
+
 - Properties
 - Standalone methods
 - Reading methods
