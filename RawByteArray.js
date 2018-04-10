@@ -658,7 +658,7 @@ class RawByteArray {
 		value = +value
 		this.offset = this.offset >>> 0
 		byteLength = byteLength >>> 0
-		let maxBytes = Math.pow(2, * * byteLength) - 1
+		let maxBytes = Math.pow(2, 8 * byteLength) - 1
 		this.checkInt(this.buffer, value, this.offset, byteLength, maxBytes, 0)
 		let mul = 1
 		let i = 0
