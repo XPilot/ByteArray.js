@@ -17,6 +17,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 10 April, I updated RawByteArray, where reading little-endian integers isn't added yet.**
 
+**As of 10 April, I added an example for Int64. I might use this later.**
+
 - Properties
 - Standalone methods
 - Reading methods
