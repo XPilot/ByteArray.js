@@ -38,14 +38,14 @@ class IntArray {
 		let h = Math.floor(v / 0x100000000)
 		let l = v - h * 0x100000000
 		return (this.writeInt8(h) |
-			   (this.writeInt32(l)))
+		       (this.writeInt32(l)))
 	}
 
 	writeInt48 (v) {
 		let h = Math.floor(v / 0x100000000)
 		let l = v - h * 0x100000000
 		return (this.writeInt16(h) |
-			   (this.writeInt32(l)))
+		       (this.writeInt32(l)))
 	}
 
 	writeInt56 (v) {
@@ -54,15 +54,15 @@ class IntArray {
 		let m = t - h * 0x10000
 		let l = v - t * 0x100000000
 		return (this.writeInt8(h) |
-			   (this.writeInt16(m)) |
-			   (this.writeInt32(l)))
+		       (this.writeInt16(m)) |
+		       (this.writeInt32(l)))
 	}
 
 	writeInt64 (v) {
 		let h = Math.floor(v / 0x100000000)
 		let l = v - h * 0x100000000
 		return (this.writeInt32(h) |
-			   (this.writeInt32(l)))
+		       (this.writeInt32(l)))
 	}
 
 	readInt8 () {
@@ -71,8 +71,8 @@ class IntArray {
 
 	readInt16 () {
 		return (this.readData[this.offset + 1] |
-			   (this.readData[this.offset] << 8) |
-			   (this.offset += 2))
+		       (this.readData[this.offset] << 8) |
+		       (this.offset += 2))
 	}
 
 	readInt24 () {
