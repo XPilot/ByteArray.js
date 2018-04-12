@@ -19,6 +19,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 10 April, I added an example for Int64. I might use this later.**
 
+**As of 12 April, xByteArray now supports reading and writing integers without a buffer. It can be found in: IntArray.**
+
 - Properties
 - Standalone methods
 - Reading methods
