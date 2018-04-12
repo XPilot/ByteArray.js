@@ -10,28 +10,28 @@ class IntArray {
 
 	writeInt8 (v) {
 		return ((this.data[this.offset] = v) |
-			   (this.offset += 1))
+		       (this.offset += 1))
 	}
 
 	writeInt16 (v) {
 		return ((this.data[this.offset] = v >>> 8) |
-			   (this.data[this.offset + 1] = v) |
-			   (this.offset += 2))
+		       (this.data[this.offset + 1] = v) |
+		       (this.offset += 2))
 	}
 
 	writeInt24 (v) {
 		return ((this.data[this.offset] = v >>> 16) |
-			   (this.data[this.offset + 1] = v >>> 8) |
-			   (this.data[this.offset + 2] = v) |
-			   (this.offset += 3))
+		       (this.data[this.offset + 1] = v >>> 8) |
+		       (this.data[this.offset + 2] = v) |
+		       (this.offset += 3))
 	}
 
 	writeInt32 (v) {
 		return ((this.data[this.offset] = v >>> 24) |
-			   (this.data[this.offset + 1] = v >>> 16) |
-			   (this.data[this.offset + 2] = v >>> 8) |
-			   (this.data[this.offset + 3] = v) |
-			   (this.offset += 4))
+		       (this.data[this.offset + 1] = v >>> 16) |
+		       (this.data[this.offset + 2] = v >>> 8) |
+		       (this.data[this.offset + 3] = v) |
+		       (this.offset += 4))
 	}
 
 	writeInt40 (v) {
