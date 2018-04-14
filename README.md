@@ -23,6 +23,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 12 April, I added an example for packet writing, inspired by SmartFoxServer.**
 
+**As of 14 April, I added an example for writing an 8-integer in the browser. You can find it in examples/writeInt8.html.**
+
 - Properties
 - Standalone methods
 - Reading methods
