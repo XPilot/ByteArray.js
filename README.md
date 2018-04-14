@@ -1,5 +1,5 @@
 # xByteArray
-xByteArray provides methods and properties to optimize reading, writing, and working with binary data. xByteArray is created, because Javascript doesn't contain methods similar to Actionscript's ByteArray. **xByteArray is big-endian based, but RawByteArray contains little-endian methods.**
+xByteArray provides methods and properties to optimize reading, writing, and working with binary data. xByteArray is created, because Javascript doesn't contain methods similar to Actionscript's ByteArray. **xByteArray is big-endian based, but RawByteArray supports little-endian methods.**
 
 **As of 2 April, xByteArray supports reading & writing values at a specific position from and to the byte stream.**
 
