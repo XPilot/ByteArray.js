@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Writing integers in the browser</title>
+</head>
+<body>
+	<input type="text" id="integer">
+	<button onclick="writeInteger()">Write Integer</button>
+	<script>
+		function writeInteger () {
+			let text = document.getElementById("integer").value
+			let offset = 0
+			let data = []
+			if (text > 65535) {
+				document.write("Your integer is higher than 65535.<br>")
+			}
+			let int = ((data[offset] = text >>> 8) | (data[offset + 1] = text) | (offset += 2))
+			document.write("Current offset: " + offset + "<br>")
+			document.write("Current byte stream: " + data + "<br>")
+			document.write("Written integer: " + text + "<br>")
+		}
+	</script>
+	<p><a href="/index.html">Return to home</a></p>
+</body>
+</html>
