@@ -25,6 +25,8 @@ xByteArray provides methods and properties to optimize reading, writing, and wor
 
 **As of 14 April, I added an example for writing an 8-integer in the browser. You can find it in examples/writeInt8.html.**
 
+**As of 14 April, I removed writeInt8 and added full browser support for writing 8, 16 and 32 byte integers. This example uses express.js and you can find it in the folder ''Browser-Demo''.**
+
 - Properties
 - Standalone methods
 - Reading methods
