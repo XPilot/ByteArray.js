@@ -1,3 +1,5 @@
+"use strict"
+
 const Values = { // Values to fit offset
 	Int8: 1,
 	DoubleBE: 8,
@@ -6,12 +8,42 @@ const Values = { // Values to fit offset
 	Int16BE: 2
 }
 
+class NumberUtils {
+	static NumberEncode (ToEncodeNumber) {
+		if (ToEncodeNumber < 0)
+			return 0x00
+		else if (ToEncodeNumber < 26)
+			return 0x41 + ToEncodeNumber
+		else if (ToEncodeNumber < 52)
+			return 0x61 + (ToEncodeNumber - 26)
+		else if (ToEncodeNumber < 62)
+			return 0x30 + (ToEncodeNumber - 52)
+		else if (ToEncodeNumber == 62)
+			return 0x2b
+		else if (ToEncodeNumber == 63)
+			return 0x2f
+	}
+
+	static NumberDecode (ToDecodeNumber) {
+		if (0x41 <= ToDecodeNumber && ToDecodeNumber <= 0x5a)
+			return ToDecodeNumber - 0x41
+		else if (0x61 <= ToDecodeNumber && ToDecodeNumber <= 0x7a)
+			return ToDecodeNumber - 0x61 + 26
+		else if (0x30 <= ToDecodeNumber && ToDecodeNumber <= 0x39)
+			return ToDecodeNumber - 0x30 + 52
+		else if (ToDecodeNumber == 0x2b)
+			return 62
+		else if (ToDecodeNumber == 0x2f)
+			return 63
+	}
+}
+
 class ByteArray {
 	constructor (buff) {
 		this.offset = 0
 		this.byteLength = this.offset || 0
-		if (buff instanceof ByteArray) {
-			this.buffer = buff.buffer
+		if (buff instanceof ByteArray) { // If the parameters type is ByteArray
+			this.buffer = buff.buffer // Handle it as a new instance to READ
 		} else if (buff instanceof Buffer) {
 			this.buffer = buff
 		} else {
@@ -59,9 +91,9 @@ class ByteArray {
 		return Array.from({length: length}, (x,i) => i)
 	}
 
-	updatePosition (n) {
+	updatePosition (n) { // Clean way of setting position correctly
 		let a = this.offset
-		this.offset += n // Huge fix for offset
+		this.offset += n
 		return a
 	}
 
@@ -74,12 +106,14 @@ class ByteArray {
 	}
 
 	readBytes (bytes, offset = 0, length = 0) {
-		if (offset === 0 || length === 0 || offset < 0 || length < 0)
+		if (offset == 0 || length == 0)
 			offset = 0
 		    length = 0
-		offset = offset || 0
+		if (offset < 0 || length < 0)
+			return
 		length = length || bytes.length
-		for (var i = 0; i < length; i++) {
+		offset = offset || 0
+		for (var i = offset; i < length; i++) {
 			bytes.writeByte(this.readByte())
 		}
 	}
@@ -173,11 +207,13 @@ class ByteArray {
 	}
 
 	writeBytes (bytes, offset = 0, length = 0) {
-		if (offset === 0 || length === 0 || offset < 0 || length < 0)
+		if (offset == 0 || length == 0)
 			offset = 0
 		    length = 0
-		offset = offset || 0
+		if (offset < 0 || length < 0)
+			return
 		length = length || bytes.length
+		offset = offset || 0
 		for (var i = offset; i < length && this.bytesAvailable > 0; i++) {
 			this.writeByte(bytes.readByte())
 		}
@@ -242,28 +278,28 @@ class ByteArray {
 	}
 
 	writeByteArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
 		values.forEach(value => {
 			this.writeByte(value)
 		})
 	}
 
 	writeShortArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
 		values.forEach(value => {
 			this.writeShort(value)
 		})
 	}
 
 	writeIntArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
 		values.forEach(value => {
 			this.writeInt(value)
 		})
 	}
 
 	writeCharArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
 		values.forEach(value => {
 			this.writeChar(value)
 		})
@@ -274,22 +310,23 @@ class ByteArray {
 	*/
 
 	writeUnsignedInt29 (value) {
-		if (128 > value)
+		if (128 > value) {
 			this.writeByte(value)
-		else if (16384 > value)
-			this.writeByte(value >> 7 & 127 | 128)
-		    this.writeByte(value & 127)
-		else if (2097152 > value)
-			this.writeByte(value >> 14 & 127 | 128)
+		} else if (16384 > value) {
 		    this.writeByte(value >> 7 & 127 | 128)
-		    this.writeByte(value & 127)
-		else if (1073741824 > value)
+			this.writeByte(value & 127)
+		} else if (2097152 > value) {
+			this.writeByte(value >> 14 & 127 | 128)
+			this.writeByte(value >> 7 & 127 | 128)
+			this.writeByte(value & 127)
+		} else if (1073741824 > value) {
 			this.writeByte(value >> 22 & 127 | 128)
-		    this.writeByte(value >> 15 & 127 | 128)
-		    this.writeByte(value >> 8 & 127 | 128)
-		    this.writeByte(value & 255)
-		else
+			this.writeByte(value >> 15 & 127 | 128)
+			this.writeByte(value >> 8 & 127 | 128)
+			this.writeByte(value & 255)
+		} else {
 			throw new RangeError("Integer out of range: " + value)
+		}
 	}
 
 	writeInt29 (value) {
@@ -319,6 +356,26 @@ class ByteArray {
 				this.writeUnsignedByte(value & 0x7F)
 			}
 		}
+	}
+
+	writeUnsignedInt30 (value) {
+		if (value < 0 || value >= 1073741824) {
+			throw new Error("Integer is higher than 1073741824")
+		}
+		this.writeByte(value >>> 24)
+		this.writeByte((value >> 16) & 255)
+		this.writeByte((value >> 8) & 255)
+		this.writeByte(value & 255)
+	}
+
+	writeInt30 (value) {
+		if (value < -1073741824 || value >= 1073741824) {
+			throw new Error("Integer must be between -1073741824 and 1073741824 but got " + value + " instead")
+		}
+		this.writeUnsignedByte(value >>> 24)
+		this.writeUnsignedByte((value >> 16) & 255)
+		this.writeUnsignedByte((value >> 8) & 255)
+		this.writeUnsignedByte(value & 255)
 	}
 
 	readUnsignedInt29 () {
@@ -363,33 +420,28 @@ class ByteArray {
 		return data
 	}
 
-	NumberEncode (ToEncodeNumber) {
-		if (ToEncodeNumber < 0)
-			return 0x00
-		else if (ToEncodeNumber < 26)
-			return 0x41 + ToEncodeNumber
-		else if (ToEncodeNumber < 52)
-			return 0x61 + (ToEncodeNumber - 26)
-		else if (ToEncodeNumber < 62)
-			return 0x30 + (ToEncodeNumber - 52)
-		else if (ToEncodeNumber == 62)
-			return 0x2b
-		else if (ToEncodeNumber == 63)
-			return 0x2f
+	readUnsignedInt30 () {
+		let ch1 = this.readByte()
+		let ch2 = this.readByte()
+		let ch3 = this.readByte()
+		let ch4 = this.readByte()
+		if (((null ? ch1 : ch4)) >= 64)
+			throw new RangeError("Overflow")
+		return ((ch4 | (ch3 << 8)) | (ch2 << 16)) | (ch1 << 24)
 	}
 
-	NumberDecode (ToDecodeNumber) {
-		if (0x41 <= ToDecodeNumber && ToDecodeNumber <= 0x5a)
-			return ToDecodeNumber - 0x41
-		else if (0x61 <= ToDecodeNumber && ToDecodeNumber <= 0x7a)
-			return ToDecodeNumber - 0x61 + 26
-		else if (0x30 <= ToDecodeNumber && ToDecodeNumber <= 0x39)
-			return ToDecodeNumber - 0x30 + 52
-		else if (ToDecodeNumber == 0x2b)
-			return 62
-		else if (ToDecodeNumber == 0x2f)
-			return 63
+	readInt30 () {
+		let ch4 = this.readUnsignedByte()
+		let ch3 = this.readUnsignedByte()
+		let ch2 = this.readUnsignedByte()
+		let ch1 = this.readUnsignedByte()
+		if(((ch4 & 128) == 0) != ((ch4 & 64) == 0))
+			throw new RangeError("Overflow")
+		return ((ch1 | (ch2 << 8)) | (ch3 << 16)) | (ch4 << 24)
 	}
 }
 
-module.exports = ByteArray
+module.exports = {
+	ByteArray,
+	NumberUtils
+}
