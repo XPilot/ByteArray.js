@@ -74,10 +74,10 @@ class ByteArray {
 	}
 
 	readBytes (bytes, offset = 0, length = 0) {
-		if (offset === 0)
+		if (offset === 0 || length === 0 || offset < 0 || length < 0)
 			offset = 0
-		if (length === 0)
-			length = 0
+		    length = 0
+		offset = offset || 0
 		length = length || bytes.length
 		for (var i = 0; i < length; i++) {
 			bytes.writeByte(this.readByte())
