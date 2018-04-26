@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # ByteArray
 ByteArray provides methods and properties to optimize reading, writing, and working with binary data. This also includes writing 29 unsigned integers, signed integers and reading 29 unsigned integers or signed integers (AMF).
 =======
