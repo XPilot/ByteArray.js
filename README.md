@@ -62,7 +62,7 @@ Reads an IEEE 754 single-precision (32-bit) floating-point number from the byte 
 ```
 Reads a signed 32-bit integer from the byte stream.
 ```
-#### readMultiByte (unicode, gb2312, ascii, utf8)
+#### readMultiByte
 ```
 Reads a multibyte string of specified length from the byte stream using the specified character set.
 ```
@@ -94,14 +94,6 @@ Reads a sequence of UTF-8 bytes specified by the  `length`  parameter from the b
 ```
 Reads a string from the byte stream.
 ```
-### readInt64
-```
-Reads a 64-bit integer from the byte stream.
-```
-#### readUnsignedInt64
-```
-Reads an unsigned 64-bit integer from the byte stream.
-```
 #### readDate
 ```
 Reads an IEEE 754 double-precision (64-bit) floating-point number from the byte stream and converts it into a date.
@@ -131,7 +123,7 @@ Writes an IEEE 754 single-precision (32-bit) floating-point number to the byte s
 ```
 Writes a 32-bit signed integer to the byte stream.
 ```
-#### writeMultiByte (unicode, gb2312, ascii, utf8)
+#### writeMultiByte
 ```
 Writes a multibyte string to the byte stream using the specified character set.
 ```
@@ -162,14 +154,6 @@ Writes a UTF-8 string to the byte stream. Similar to the  `writeUTF()`  method, 
 #### writeString
 ```
 Writes a string to the byte stream.
-```
-#### writeInt64
-```
-Writes a 64-bit integer to the byte stream.
-```
-#### writeUnsignedInt64
-```
-Writes an unsigned 64-bit integer to the byte stream.
 ```
 #### writeDate
 ```
