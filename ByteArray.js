@@ -357,27 +357,7 @@ class ByteArray {
 			}
 		}
 	}
-
-	writeUnsignedInt30 (value) {
-		if (value < 0 || value >= 1073741824) {
-			throw new Error("Integer is higher than 1073741824")
-		}
-		this.writeByte(value >>> 24)
-		this.writeByte((value >> 16) & 255)
-		this.writeByte((value >> 8) & 255)
-		this.writeByte(value & 255)
-	}
-
-	writeInt30 (value) {
-		if (value < -1073741824 || value >= 1073741824) {
-			throw new Error("Integer must be between -1073741824 and 1073741824 but got " + value + " instead")
-		}
-		this.writeUnsignedByte(value >>> 24)
-		this.writeUnsignedByte((value >> 16) & 255)
-		this.writeUnsignedByte((value >> 8) & 255)
-		this.writeUnsignedByte(value & 255)
-	}
-
+	
 	readUnsignedInt29 () {
 		let b = this.readByte() & 255
 		if (b < 127)
@@ -418,26 +398,6 @@ class ByteArray {
 			}
 		}
 		return data
-	}
-
-	readUnsignedInt30 () {
-		let ch1 = this.readByte()
-		let ch2 = this.readByte()
-		let ch3 = this.readByte()
-		let ch4 = this.readByte()
-		if (((null ? ch1 : ch4)) >= 64)
-			throw new RangeError("Overflow")
-		return ((ch4 | (ch3 << 8)) | (ch2 << 16)) | (ch1 << 24)
-	}
-
-	readInt30 () {
-		let ch4 = this.readUnsignedByte()
-		let ch3 = this.readUnsignedByte()
-		let ch2 = this.readUnsignedByte()
-		let ch1 = this.readUnsignedByte()
-		if(((ch4 & 128) == 0) != ((ch4 & 64) == 0))
-			throw new RangeError("Overflow")
-		return ((ch1 | (ch2 << 8)) | (ch3 << 16)) | (ch4 << 24)
 	}
 }
 
