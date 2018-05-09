@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 const Values = {
 	Int8: 1,
@@ -9,14 +9,14 @@ const Values = {
 	MAX_BUFFER_SIZE: 4096,
 	BIG_ENDIAN: true,
 	LITTLE_ENDIAN: false
-}
+};
 
 class ByteArray {
 	constructor (buff) {
-		this.offset = 0
-		this.byteLength = this.offset || 0
-		this.endian = Values.BIG_ENDIAN
-		this.references = []
+		this.offset = 0;
+		this.byteLength = this.offset || 0;
+		this.endian = Values.BIG_ENDIAN;
+		this.references = [];
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -62,13 +62,13 @@ class ByteArray {
 	}
 
 	updatePosition (n) {
-		let a = this.offset
-		this.offset += n
+		let a = this.offset;
+		this.offset += n;
 		return a
 	}
 
 	readBoolean () {
-		return Boolean(this.buffer.readInt8(this.updatePosition(Values.Int8)) & 0xFF) ? true : false
+		return Boolean(this.buffer.readInt8(this.updatePosition(Values.Int8)) & 0xFF);
 	}
 
 	readByte () {
@@ -76,15 +76,15 @@ class ByteArray {
 	}
 
 	readBytes (bytes, offset = 0, length = 0) {
-		if (offset == undefined) {
+		if (offset === undefined) {
 			offset = 0
 		}
-		if (length == undefined || length == 0) {
+		if (length === undefined || length === 0) {
 			length = this.bytesAvailable
 		}
-		let endOffset = offset + length
+		let endOffset = offset + length;
 		for (let i = offset; i < endOffset; i++) {
-			bytes[i] = this.readByte()
+			bytes[i] = this.readByte();
 			console.log(bytes[i])
 		}
 	}
@@ -108,7 +108,7 @@ class ByteArray {
 	}
 
 	readMultiByte (length, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
-		let offset = this.updatePosition(length)
+		let offset = this.updatePosition(length);
 		return this.buffer.toString(charset || "utf8", offset, offset + length)
 	}
 
@@ -135,12 +135,12 @@ class ByteArray {
 	}
 
 	readUTF () {
-		let length = this.readByte()
+		let length = this.readByte();
 		return this.buffer.toString("utf8", this.offset, this.offset + length)
 	}
 
 	readUTFBytes (length) {
-		let offset = this.updatePosition(length)
+		let offset = this.updatePosition(length);
 		return this.buffer.toString("utf8", offset, offset + length)
 	}
 
@@ -179,14 +179,14 @@ class ByteArray {
 	}
 
 	writeBytes (bytes, offset = 0, length = 0) {
-		if (offset == undefined || offset < 0 || offset >= bytes.length) {
+		if (offset === undefined || offset < 0 || offset >= bytes.length) {
 			offset = 0
 		}
-		let endOffset
-		if (length == undefined || length == 0) {
+		let endOffset;
+		if (length === undefined || length === 0) {
 			endOffset = bytes.length
 		} else {
-			endOffset = offset + length
+			endOffset = offset + length;
 			if (endOffset < 0 || endOffset > bytes.length) {
 				endOffset = bytes.length
 			}
@@ -221,7 +221,7 @@ class ByteArray {
 	}
 
 	writeMultiByte (str, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
-		let length = Buffer.byteLength(str)
+		let length = Buffer.byteLength(str);
 		return this.buffer.write(str, this.updatePosition(length), length, charset || "utf8")
 	}
 
@@ -248,13 +248,13 @@ class ByteArray {
 	}
 
 	writeUTF (str) {
-		let length = Buffer.byteLength(str)
-		this.writeByte(length)
+		let length = Buffer.byteLength(str);
+		this.writeByte(length);
 		return this.buffer.write(str, this.offset, this.offset += length, "utf8")
 	}
 
 	writeUTFBytes (str) {
-		let length = Buffer.byteLength(str)
+		let length = Buffer.byteLength(str);
 		return this.buffer.write(str, this.offset, this.offset += length, "utf8")
 	}
 
@@ -263,47 +263,47 @@ class ByteArray {
 	}
 
 	writeByteArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
 			values.forEach(value => {
 				this.writeByte(value)
 			})
 	}
 
 	writeShortArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
 			values.forEach(value => {
 				this.writeShort(value)
 			})
 	}
 
 	writeIntArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
 			values.forEach(value => {
 				this.writeInt(value)
 			})
 	}
 
 	writeCharArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
 			values.forEach(value => {
 				this.writeChar(value)
 			})
 	}
 
 	writeObject (object) {
-		let keys = Object.keys(object)
-		let key, value, temp = {}
+		let keys = Object.keys(object);
+		let key, value, temp = {};
 		for (let i = 0; i < keys.length; i++) {
-			key = keys[i] // Writes the key
-			value = object[key] // Writes the value
-			this.writeUTFBytes(key + ": ") // Writes length of string to 
-			if (!isNaN(value) && value.toString().indexOf(".") != -1) {
+			key = keys[i]; // Writes the key
+			value = object[key]; // Writes the value
+			this.writeUTFBytes(key + ": "); // Writes length of string to
+			if (!isNaN(value) && value.toString().indexOf(".") !== -1) {
 				this.writeFloat(value)
 			} else if ("number" === typeof value) {
-				this.writeByte(value)
+				this.writeByte(value);
 				this.references.push(value.toString().length) // Eh no idea, adding length of number to 
 			} else if ("string" === typeof value) {
-				this.writeUTFBytes(value + " ")
+				this.writeUTFBytes(value + " ");
 				this.references.push(value.length)
 			}
 		}
@@ -311,24 +311,24 @@ class ByteArray {
 }
 
 function ByteArrayObjectExample () {
-	const byteArr = new ByteArray()
-	byteArr.writeObject({id: 1, username: "Zaseth", password: "Test"})
-	console.log("Raw stream: " + byteArr.buffer)
-	console.log(byteArr)
+	const byteArr = new ByteArray();
+	byteArr.writeObject({id: 1, username: "Zaseth", password: "Test"});
+	console.log("Raw stream: " + byteArr.buffer);
+	console.log(byteArr);
 	console.log(byteArr.buffer.readInt8(4)) // 1
 }
 
 function ByteArrayExample () {
-	const byteArr = new ByteArray()
-	byteArr.writeBoolean(false)
-	byteArr.writeDouble(Math.PI)
-	byteArr.writeUTFBytes("Hello world")
-	byteArr.writeDouble(new Date().getTime())
-	byteArr.writeByte(69 >>> 1)
-	byteArr.offset = 0
-	console.log("Raw stream: " + byteArr.buffer)
+	const byteArr = new ByteArray();
+	byteArr.writeBoolean(false);
+	byteArr.writeDouble(Math.PI);
+	byteArr.writeUTFBytes("Hello world");
+	byteArr.writeDouble(new Date().getTime());
+	byteArr.writeByte(69 >>> 1);
+	byteArr.offset = 0;
+	console.log("Raw stream: " + byteArr.buffer);
 	try {
-		console.log(byteArr.readBoolean() == false) // true
+		console.log(byteArr.readBoolean() === false) // true
 	} catch (e) {
 		if (e instanceof RangeError) {
 			console.log("Trying to access beyond buffer length") // EOFError
@@ -360,4 +360,4 @@ function ByteArrayExample () {
 	}
 }
 
-module.exports = ByteArray
+module.exports = ByteArray;
