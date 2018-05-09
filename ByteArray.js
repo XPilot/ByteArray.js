@@ -284,15 +284,45 @@ class ByteArray {
 	}
 }
 
-
-let p1 = new ByteArray()
-p1.writeByteArray([1,2,3])
-
-let p2 = new ByteArray()
-p2.writeBytes(p1.buffer, 0, 3)
-console.log(p2)
-
-let p3 = new ByteArray(p2)
-p3.readBytes(p2, 0, 3)
+function ByteArrayExample () {
+	const byteArr = new ByteArray()
+	byteArr.writeBoolean(false)
+	byteArr.writeDouble(Math.PI)
+	byteArr.writeUTFBytes("Hello world")
+	byteArr.writeDouble(new Date().getTime())
+	byteArr.writeByte(69 >>> 1)
+	byteArr.offset = 0
+	try {
+		console.log(byteArr.readBoolean() == false) // true
+	} catch (e) {
+		if (e instanceof RangeError) {
+			console.log("Trying to access beyond buffer length") // EOFError
+		}
+	} try {
+		console.log("My favorite PI: " + byteArr.readDouble()) // 3.141592653589793
+	} catch (e) {
+		if (e instanceof RangeError) {
+			console.log("Trying to access beyond buffer length") // EOFError
+		}
+	} try {
+		console.log("The secret message is: " + byteArr.readUTFBytes(11))
+	} catch (e) {
+		if (e instanceof RangeError) {
+			console.log("Trying to access beyond buffer length") // EOFError
+		}
+	} try {
+		console.log("The date is: " + new Date(byteArr.readDouble()))
+	} catch (e) {
+		if (e instanceof RangeError) {
+			console.log("Trying to access beyond buffer length") // EOFError
+		}
+	} try {
+		console.log("The secret number is: " + Math.round(byteArr.readByte() / 1 * 2.02)) // 69
+	} catch (e) {
+		if (e instanceof RangeError) {
+			console.log("Trying to access beyond buffer length") // EOFError
+		}
+	}
+}
 
 module.exports = ByteArray
