@@ -6,13 +6,16 @@ const Values = {
 	Float: 4,
 	Int32: 4,
 	Int16: 2,
-	MAX_BUFFER_SIZE: 4096
+	MAX_BUFFER_SIZE: 4096,
+	BIG_ENDIAN: true,
+	LITTLE_ENDIAN: false
 }
 
 class ByteArray {
 	constructor (buff) {
 		this.offset = 0
 		this.byteLength = this.offset || 0
+		this.endian = Values.BIG_ENDIAN
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -72,33 +75,35 @@ class ByteArray {
 	}
 
 	readBytes (bytes, offset = 0, length = 0) {
-		if (bytes == undefined) {
-			return
-		}
-		if (offset < 0 || length < 0) {
-			return
-		}
-		if (offset == 0 || length == 0) {
+		if (offset == undefined) {
 			offset = 0
-			length = 0
 		}
-		length = length || bytes.length
-		offset = offset || 0
-		for (var i = offset; i < length; i++) {
-			bytes.writeByte(this.readByte())
+		if (length == undefined || length == 0) {
+			length = this.bytesAvailable
+		}
+		let endOffset = offset + length
+		for (let i = offset; i < endOffset; i++) {
+			bytes[i] = this.readByte()
+			console.log(bytes[i])
 		}
 	}
 
 	readDouble () {
-		return this.buffer.readDoubleBE(this.updatePosition(Values.Double))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.readDoubleBE(this.updatePosition(Values.Double))
+		    : this.buffer.readDoubleLE(this.updatePosition(Values.Double))
 	}
 
 	readFloat () {
-		return this.buffer.readFloatBE(this.updatePosition(Values.Float))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.readFloatBE(this.updatePosition(Values.Float))
+		    : this.buffer.readFloatLE(this.updatePosition(Values.Float))
 	}
 
 	readInt () {
-		return this.buffer.readInt32BE(this.updatePosition(Values.Int32))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.readInt32BE(this.updatePosition(Values.Int32))
+		    : this.buffer.readInt32LE(this.updatePosition(Values.Int32))
 	}
 
 	readMultiByte (length, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
@@ -107,7 +112,9 @@ class ByteArray {
 	}
 
 	readShort () {
-		return this.buffer.readInt16BE(this.updatePosition(Values.Int16))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.readInt16BE(this.updatePosition(Values.Int16))
+		    : this.buffer.readInt16LE(this.updatePosition(Values.Int16))
 	}
 
 	readUnsignedByte () {
@@ -115,11 +122,15 @@ class ByteArray {
 	}
 
 	readUnsignedInt () {
-		return this.buffer.readUInt32BE(this.updatePosition(Values.Int32))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.readUInt32BE(this.updatePosition(Values.Int32))
+		    : this.buffer.readUInt32LE(this.updatePosition(Values.Int32))
 	}
 
 	readUnsignedShort () {
-		return this.buffer.readUInt16BE(this.updatePosition(Values.Int16))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.readUInt16BE(this.updatePosition(Values.Int16))
+		    : this.buffer.readUInt16LE(this.updatePosition(Values.Int16))
 	}
 
 	readUTF () {
@@ -167,33 +178,39 @@ class ByteArray {
 	}
 
 	writeBytes (bytes, offset = 0, length = 0) {
-		if (bytes == undefined) {
-			return
-		}
-		if (offset < 0 || length < 0) {
-			return
-		}
-		if (offset == 0 || length == 0) {
+		if (offset == undefined || offset < 0 || offset >= bytes.length) {
 			offset = 0
-			length = 0
 		}
-		length = length || bytes.length
-		offset = offset || 0
-		for (var i = offset; i < length && this.bytesAvailable > 0; i++) {
-			this.writeByte(bytes.readByte())
+		let endOffset
+		if (length == undefined || length == 0) {
+			endOffset = bytes.length
+		} else {
+			endOffset = offset + length
+			if (endOffset < 0 || endOffset > bytes.length) {
+				endOffset = bytes.length
+			}
+		}
+		for (let i = offset; i < endOffset; i++) {
+			this.writeByte(bytes[i])
 		}
 	}
 
 	writeDouble (value) {
-		return this.buffer.writeDoubleBE(value, this.updatePosition(Values.Double))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.writeDoubleBE(value, this.updatePosition(Values.Double))
+		    : this.buffer.writeDoubleLE(value, this.updatePosition(Values.Double))
 	}
 
 	writeFloat (value) {
-		return this.buffer.writeFloatBE(value, this.updatePosition(Values.Float))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.writeFloatBE(value, this.updatePosition(Values.Float))
+		    : this.buffer.writeFloatLE(value, this.updatePosition(Values.Float))
 	}
 
 	writeInt (value) {
-		return this.buffer.writeInt32BE(value, this.updatePosition(Values.Int32))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.writeInt32BE(value, this.updatePosition(Values.Int32))
+		    : this.buffer.writeInt32LE(value, this.updatePosition(Values.Int32))
 	}
 
 	writeMultiByte (str, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
@@ -202,7 +219,9 @@ class ByteArray {
 	}
 
 	writeShort (value) {
-		return this.buffer.writeInt16BE(value, this.updatePosition(Values.Int16))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.writeInt16BE(value, this.updatePosition(Values.Int16))
+		    : this.buffer.writeInt16LE(value, this.updatePosition(Values.Int16))
 	}
 
 	writeUnsignedByte (value) {
@@ -210,11 +229,15 @@ class ByteArray {
 	}
 
 	writeUnsignedInt (value) {
-		return this.buffer.writeUInt32BE(value, this.updatePosition(Values.Int32))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.writeUInt32BE(value, this.updatePosition(Values.Int32))
+		    : this.buffer.writeUInt32LE(value, this.updatePosition(Values.Int32))
 	}
 
 	writeUnsignedShort (value) {
-		return this.buffer.writeUInt16BE(value, this.updatePosition(Values.Int16))
+		return this.endian === Values.BIG_ENDIAN
+		    ? this.buffer.writeUInt16BE(value, this.updatePosition(Values.Int16))
+		    : this.buffer.writeUInt16LE(value, this.updatePosition(Values.Int16))
 	}
 
 	writeUTF (str) {
@@ -260,5 +283,16 @@ class ByteArray {
 			})
 	}
 }
+
+
+let p1 = new ByteArray()
+p1.writeByteArray([1,2,3])
+
+let p2 = new ByteArray()
+p2.writeBytes(p1.buffer, 0, 3)
+console.log(p2)
+
+let p3 = new ByteArray(p2)
+p3.readBytes(p2, 0, 3)
 
 module.exports = ByteArray
