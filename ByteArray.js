@@ -16,6 +16,7 @@ class ByteArray {
 		this.offset = 0
 		this.byteLength = this.offset || 0
 		this.endian = Values.BIG_ENDIAN
+		this.references = []
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -190,8 +191,14 @@ class ByteArray {
 				endOffset = bytes.length
 			}
 		}
-		for (let i = offset; i < endOffset; i++) {
-			this.writeByte(bytes[i])
+		if (Array.isArray(bytes)) {
+			for (let i = 0; i < bytes.length; i++) {
+				this.writeByte(bytes[i])
+			}
+		} else {
+			for (let i = offset; i < endOffset && this.bytesAvailable > 0; i++) {
+				this.writeByte(bytes[i])
+			}
 		}
 	}
 
@@ -282,6 +289,33 @@ class ByteArray {
 				this.writeChar(value)
 			})
 	}
+
+	writeObject (object) {
+		let keys = Object.keys(object)
+		let key, value, temp = {}
+		for (let i = 0; i < keys.length; i++) {
+			key = keys[i] // Writes the key
+			value = object[key] // Writes the value
+			this.writeUTFBytes(key + ": ") // Writes length of string to 
+			if (!isNaN(value) && value.toString().indexOf(".") != -1) {
+				this.writeFloat(value)
+			} else if ("number" === typeof value) {
+				this.writeByte(value)
+				this.references.push(value.toString().length) // Eh no idea, adding length of number to 
+			} else if ("string" === typeof value) {
+				this.writeUTFBytes(value + " ")
+				this.references.push(value.length)
+			}
+		}
+	}
+}
+
+function ByteArrayObjectExample () {
+	const byteArr = new ByteArray()
+	byteArr.writeObject({id: 1, username: "Zaseth", password: "Test"})
+	console.log("Raw stream: " + byteArr.buffer)
+	console.log(byteArr)
+	console.log(byteArr.buffer.readInt8(4)) // 1
 }
 
 function ByteArrayExample () {
@@ -292,6 +326,7 @@ function ByteArrayExample () {
 	byteArr.writeDouble(new Date().getTime())
 	byteArr.writeByte(69 >>> 1)
 	byteArr.offset = 0
+	console.log("Raw stream: " + byteArr.buffer)
 	try {
 		console.log(byteArr.readBoolean() == false) // true
 	} catch (e) {
