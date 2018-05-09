@@ -1,9 +1,12 @@
-const Values = { // Values to fit offset
+"use strict"
+
+const Values = {
 	Int8: 1,
-	DoubleBE: 8,
-	FloatBE: 4,
-	Int32BE: 4,
-	Int16BE: 2
+	Double: 8,
+	Float: 4,
+	Int32: 4,
+	Int16: 2,
+	MAX_BUFFER_SIZE: 4096
 }
 
 class ByteArray {
@@ -15,58 +18,53 @@ class ByteArray {
 		} else if (buff instanceof Buffer) {
 			this.buffer = buff
 		} else {
-			this.buffer = new Buffer(typeof (buff) === "number" ? Number(buff) : 1024)
+			this.buffer = new Buffer(typeof (buff) === "number" ? Number(buff) : Values.MAX_BUFFER_SIZE)
 		}
 	}
 
 	get position () {
-		return this.offset // Returns current offset
+		return this.offset
+	}
+	get length () {
+		return this.buffer.length
+	}
+	get bytesAvailable () {
+		return this.length - this.offset
 	}
 
 	set position (value) {
-		this.offset = value // Sets current offset to "value"
+		this.offset = value
 	}
-
-	get length () {
-		return this.buffer.length // Returns current byte stream length
-	}
-
 	set length (value) {
-		this.buffer.length = value // Sets current byte stream to "length"
-	}
-
-	get bytesAvailable () {
-		return this.length - this.offset // Returns 4096 - the offset
+		this.buffer.length = value
 	}
 
 	toJSON () {
-		return this.buffer.toJSON() // Returns JSON'd byte stream
+		return this.buffer.toJSON()
 	}
-
 	toString () {
-		return this.buffer.toString("utf8", this.offset, this.length) // Returns stringified byte stream
+		return this.buffer.toString("utf8", this.offset, this.length)
 	}
 
 	reset () {
-		this.offset = 0 // Sets current offset to 0
+		this.offset = 0
 	}
-
 	clear () {
-		this.length(4096) // Clears byte stream with new empty bytes
+		this.length(Values.MAX_BUFFER_SIZE)
 	}
 
-	range (length) { // Variant of lodash
+	range (length) {
 		return Array.from({length: length}, (x,i) => i)
 	}
 
 	updatePosition (n) {
 		let a = this.offset
-		this.offset += n // Huge fix for offset
+		this.offset += n
 		return a
 	}
 
 	readBoolean () {
-		return Boolean(this.buffer.readInt8(this.updatePosition(Values.Int8)) & 0xFF) ? true : false // Converts to Boolean
+		return Boolean(this.buffer.readInt8(this.updatePosition(Values.Int8)) & 0xFF) ? true : false
 	}
 
 	readByte () {
@@ -74,35 +72,42 @@ class ByteArray {
 	}
 
 	readBytes (bytes, offset = 0, length = 0) {
-		if (offset === 0 || length === 0 || offset < 0 || length < 0)
+		if (bytes == undefined) {
+			return
+		}
+		if (offset < 0 || length < 0) {
+			return
+		}
+		if (offset == 0 || length == 0) {
 			offset = 0
-		    length = 0
-		offset = offset || 0
+			length = 0
+		}
 		length = length || bytes.length
-		for (var i = 0; i < length; i++) {
+		offset = offset || 0
+		for (var i = offset; i < length; i++) {
 			bytes.writeByte(this.readByte())
 		}
 	}
 
 	readDouble () {
-		return this.buffer.readDoubleBE(this.updatePosition(Values.DoubleBE))
+		return this.buffer.readDoubleBE(this.updatePosition(Values.Double))
 	}
 
 	readFloat () {
-		return this.buffer.readFloatBE(this.updatePosition(Values.FloatBE))
+		return this.buffer.readFloatBE(this.updatePosition(Values.Float))
 	}
 
 	readInt () {
-		return this.buffer.readInt32BE(this.updatePosition(Values.Int32BE))
+		return this.buffer.readInt32BE(this.updatePosition(Values.Int32))
 	}
 
-	readMultiByte (length) {
+	readMultiByte (length, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
 		let offset = this.updatePosition(length)
-		return this.buffer.toString("utf8", offset, offset + length)
+		return this.buffer.toString(charset || "utf8", offset, offset + length)
 	}
 
 	readShort () {
-		return this.buffer.readInt16BE(this.updatePosition(Values.Int16BE))
+		return this.buffer.readInt16BE(this.updatePosition(Values.Int16))
 	}
 
 	readUnsignedByte () {
@@ -110,15 +115,15 @@ class ByteArray {
 	}
 
 	readUnsignedInt () {
-		return this.buffer.readUInt32BE(this.updatePosition(Values.Int32BE))
+		return this.buffer.readUInt32BE(this.updatePosition(Values.Int32))
 	}
 
 	readUnsignedShort () {
-		return this.buffer.readUInt16BE(this.updatePosition(Values.Int16BE))
+		return this.buffer.readUInt16BE(this.updatePosition(Values.Int16))
 	}
 
 	readUTF () {
-		let length = this.readByte() // Reads the length of the written UTF string
+		let length = this.readByte()
 		return this.buffer.toString("utf8", this.offset, this.offset + length)
 	}
 
@@ -127,19 +132,8 @@ class ByteArray {
 		return this.buffer.toString("utf8", offset, offset + length)
 	}
 
-	readDate () {
-		let date = new Date()
-		date.setSeconds(this.buffer.readInt8(0))
-		date.setMinutes(this.buffer.readInt8(1))
-		date.setHours(this.buffer.readInt8(2) + 2) // Amsterdam time
-		date.setDate(this.buffer.readInt8(3))
-		date.setMonth(this.buffer.readInt8(5) - 1)
-		date.setFullYear(this.buffer.readUInt16BE(6))
-		return date
-	}
-
 	readChar () {
-		return String.fromCharCode(this.buffer[this.offset++]) // Only reads one byte <Buffer 00>
+		return String.fromCharCode(this.buffer[this.offset++])
 	}
 
 	/*
@@ -173,35 +167,42 @@ class ByteArray {
 	}
 
 	writeBytes (bytes, offset = 0, length = 0) {
-		if (offset === 0 || length === 0 || offset < 0 || length < 0)
+		if (bytes == undefined) {
+			return
+		}
+		if (offset < 0 || length < 0) {
+			return
+		}
+		if (offset == 0 || length == 0) {
 			offset = 0
-		    length = 0
-		offset = offset || 0
+			length = 0
+		}
 		length = length || bytes.length
+		offset = offset || 0
 		for (var i = offset; i < length && this.bytesAvailable > 0; i++) {
 			this.writeByte(bytes.readByte())
 		}
 	}
 
 	writeDouble (value) {
-		return this.buffer.writeDoubleBE(value, this.updatePosition(Values.DoubleBE))
+		return this.buffer.writeDoubleBE(value, this.updatePosition(Values.Double))
 	}
 
 	writeFloat (value) {
-		return this.buffer.writeFloatBE(value, this.updatePosition(Values.FloatBE))
+		return this.buffer.writeFloatBE(value, this.updatePosition(Values.Float))
 	}
 
 	writeInt (value) {
-		return this.buffer.writeInt32BE(value, this.updatePosition(Values.Int32BE))
+		return this.buffer.writeInt32BE(value, this.updatePosition(Values.Int32))
 	}
 
-	writeMultiByte (str) {
+	writeMultiByte (str, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
 		let length = Buffer.byteLength(str)
-		return this.buffer.write(str, this.updatePosition(length), length, "utf8")
+		return this.buffer.write(str, this.updatePosition(length), length, charset || "utf8")
 	}
 
 	writeShort (value) {
-		return this.buffer.writeInt16BE(value, this.updatePosition(Values.Int16BE))
+		return this.buffer.writeInt16BE(value, this.updatePosition(Values.Int16))
 	}
 
 	writeUnsignedByte (value) {
@@ -209,32 +210,22 @@ class ByteArray {
 	}
 
 	writeUnsignedInt (value) {
-		return this.buffer.writeUInt32BE(value, this.updatePosition(Values.Int32BE))
+		return this.buffer.writeUInt32BE(value, this.updatePosition(Values.Int32))
 	}
 
 	writeUnsignedShort (value) {
-		return this.buffer.writeUInt16BE(value, this.updatePosition(Values.Int16BE))
+		return this.buffer.writeUInt16BE(value, this.updatePosition(Values.Int16))
 	}
 
 	writeUTF (str) {
 		let length = Buffer.byteLength(str)
-		this.writeByte(length) // Writes the length of the value to the byte stream to use for reading
+		this.writeByte(length)
 		return this.buffer.write(str, this.offset, this.offset += length, "utf8")
 	}
 
 	writeUTFBytes (str) {
 		let length = Buffer.byteLength(str)
-		return this.buffer.write(str, this.offset, this.offset += length)
-	}
-
-	writeDate (date) {
-		this.buffer.writeInt8(date.getSeconds(), 0)
-		this.buffer.writeInt8(date.getMinutes(), 1)
-		this.buffer.writeInt8(date.getHours(), 2)
-		this.buffer.writeInt8(date.getDate(), 3)
-		this.buffer.writeInt8(date.getDay(), 4)
-		this.buffer.writeInt8(date.getMonth() + 1, 5)
-		return this.buffer.writeUInt16BE(date.getFullYear(), 6)
+		return this.buffer.write(str, this.offset, this.offset += length, "utf8")
 	}
 
 	writeChar (value) {
@@ -242,153 +233,31 @@ class ByteArray {
 	}
 
 	writeByteArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
-		values.forEach(value => {
-			this.writeByte(value)
-		})
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+			values.forEach(value => {
+				this.writeByte(value)
+			})
 	}
 
 	writeShortArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
-		values.forEach(value => {
-			this.writeShort(value)
-		})
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+			values.forEach(value => {
+				this.writeShort(value)
+			})
 	}
 
 	writeIntArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
-		values.forEach(value => {
-			this.writeInt(value)
-		})
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+			values.forEach(value => {
+				this.writeInt(value)
+			})
 	}
 
 	writeCharArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes.")
-		values.forEach(value => {
-			this.writeChar(value)
-		})
-	}
-
-	/*
-	Some AMF functions.
-	*/
-
-	writeUnsignedInt29 (value) {
-		if (128 > value)
-			this.writeByte(value)
-		else if (16384 > value)
-			this.writeByte(value >> 7 & 127 | 128)
-		    this.writeByte(value & 127)
-		else if (2097152 > value)
-			this.writeByte(value >> 14 & 127 | 128)
-		    this.writeByte(value >> 7 & 127 | 128)
-		    this.writeByte(value & 127)
-		else if (1073741824 > value)
-			this.writeByte(value >> 22 & 127 | 128)
-		    this.writeByte(value >> 15 & 127 | 128)
-		    this.writeByte(value >> 8 & 127 | 128)
-		    this.writeByte(value & 255)
-		else
-			throw new RangeError("Integer out of range: " + value)
-	}
-
-	writeInt29 (value) {
-		if (value != undefined) {
-			if (value < -0x10000000 || value > 0x0FFFFFFF) {
-				throw new Error("Integer must be between -0x10000000 and 0x0FFFFFFF but got " + value + " instead")
-			}
-			value += value < 0 ? 0x20000000 : 0
-			let tmp = undefined
-			if (value > 0x1FFFFF) {
-				tmp = value
-				value >>= 1
-				this.writeUnsignedByte(0x80 | ((value >> 21) & 0xFF))
-			}
-			if (value > 0x3FFF) {
-				this.writeUnsignedByte(0x80 | ((value >> 14) & 0xFF))
-			}
-			if (value > 0x7F) {
-				this.writeUnsignedByte(0x80 | ((value >> 7) & 0xFF))
-			}
-			if (tmp != undefined) {
-				value = tmp
-			}
-			if (value > 0x1FFFFF) {
-				this.writeUnsignedByte(value & 0xFF)
-			} else {
-				this.writeUnsignedByte(value & 0x7F)
-			}
-		}
-	}
-
-	readUnsignedInt29 () {
-		let b = this.readByte() & 255
-		if (b < 127)
-			return b
-		let value = (b & 127) << 7
-		b = this.readByte() & 255
-		if (b < 128)
-			return (value | b)
-		value = (value | (b & 127)) << 7
-		b = this.readByte() & 255
-		if (b < 128)
-			return (value | b)
-		value = (value | (b & 127)) << 8
-		b = this.readByte() & 255
-		return (value | b)
-	}
-
-	readInt29 () {
-		let data = this.readUnsignedByte() & 255
-		if (data & 128) {
-			data = (data ^128) <<7
-			let d = this.readUnsignedByte() & 255
-			if (d & 128) {
-				data = (data|(d ^ 128)) <<7
-				d = this.readUnsignedByte() & 255
-				if (d & 128) {
-					data = (data|(d ^ 128)) <<8
-					d = this.readUnsignedByte() & 255
-					data |= d
-					if (data & 0x10000000) {
-						data |= 0xe0000000
-					}
-				} else {
-					data |= d
-				}
-			} else {
-				data |= d
-			}
-		}
-		return data
-	}
-
-	NumberEncode (ToEncodeNumber) {
-		if (ToEncodeNumber < 0)
-			return 0x00
-		else if (ToEncodeNumber < 26)
-			return 0x41 + ToEncodeNumber
-		else if (ToEncodeNumber < 52)
-			return 0x61 + (ToEncodeNumber - 26)
-		else if (ToEncodeNumber < 62)
-			return 0x30 + (ToEncodeNumber - 52)
-		else if (ToEncodeNumber == 62)
-			return 0x2b
-		else if (ToEncodeNumber == 63)
-			return 0x2f
-	}
-
-	NumberDecode (ToDecodeNumber) {
-		if (0x41 <= ToDecodeNumber && ToDecodeNumber <= 0x5a)
-			return ToDecodeNumber - 0x41
-		else if (0x61 <= ToDecodeNumber && ToDecodeNumber <= 0x7a)
-			return ToDecodeNumber - 0x61 + 26
-		else if (0x30 <= ToDecodeNumber && ToDecodeNumber <= 0x39)
-			return ToDecodeNumber - 0x30 + 52
-		else if (ToDecodeNumber == 0x2b)
-			return 62
-		else if (ToDecodeNumber == 0x2f)
-			return 63
+		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+			values.forEach(value => {
+				this.writeChar(value)
+			})
 	}
 }
 
