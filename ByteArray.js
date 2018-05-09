@@ -1,6 +1,10 @@
 "use strict"
 
+<<<<<<< HEAD
 const Values = {
+=======
+const Values = { // Values to fit offset
+>>>>>>> 693de4f58e59a0a57e0a7026c1face19dbd594a6
 	Int8: 1,
 	Double: 8,
 	Float: 4,
@@ -9,12 +13,42 @@ const Values = {
 	MAX_BUFFER_SIZE: 4096
 }
 
+class NumberUtils {
+	static NumberEncode (ToEncodeNumber) {
+		if (ToEncodeNumber < 0)
+			return 0x00
+		else if (ToEncodeNumber < 26)
+			return 0x41 + ToEncodeNumber
+		else if (ToEncodeNumber < 52)
+			return 0x61 + (ToEncodeNumber - 26)
+		else if (ToEncodeNumber < 62)
+			return 0x30 + (ToEncodeNumber - 52)
+		else if (ToEncodeNumber == 62)
+			return 0x2b
+		else if (ToEncodeNumber == 63)
+			return 0x2f
+	}
+
+	static NumberDecode (ToDecodeNumber) {
+		if (0x41 <= ToDecodeNumber && ToDecodeNumber <= 0x5a)
+			return ToDecodeNumber - 0x41
+		else if (0x61 <= ToDecodeNumber && ToDecodeNumber <= 0x7a)
+			return ToDecodeNumber - 0x61 + 26
+		else if (0x30 <= ToDecodeNumber && ToDecodeNumber <= 0x39)
+			return ToDecodeNumber - 0x30 + 52
+		else if (ToDecodeNumber == 0x2b)
+			return 62
+		else if (ToDecodeNumber == 0x2f)
+			return 63
+	}
+}
+
 class ByteArray {
 	constructor (buff) {
 		this.offset = 0
 		this.byteLength = this.offset || 0
-		if (buff instanceof ByteArray) {
-			this.buffer = buff.buffer
+		if (buff instanceof ByteArray) { // If the parameters type is ByteArray
+			this.buffer = buff.buffer // Handle it as a new instance to READ
 		} else if (buff instanceof Buffer) {
 			this.buffer = buff
 		} else {
@@ -57,7 +91,7 @@ class ByteArray {
 		return Array.from({length: length}, (x,i) => i)
 	}
 
-	updatePosition (n) {
+	updatePosition (n) { // Clean way of setting position correctly
 		let a = this.offset
 		this.offset += n
 		return a
@@ -72,6 +106,7 @@ class ByteArray {
 	}
 
 	readBytes (bytes, offset = 0, length = 0) {
+<<<<<<< HEAD
 		if (bytes == undefined) {
 			return
 		}
@@ -82,6 +117,13 @@ class ByteArray {
 			offset = 0
 			length = 0
 		}
+=======
+		if (offset == 0 || length == 0)
+			offset = 0
+		    length = 0
+		if (offset < 0 || length < 0)
+			return
+>>>>>>> 693de4f58e59a0a57e0a7026c1face19dbd594a6
 		length = length || bytes.length
 		offset = offset || 0
 		for (var i = offset; i < length; i++) {
@@ -167,6 +209,7 @@ class ByteArray {
 	}
 
 	writeBytes (bytes, offset = 0, length = 0) {
+<<<<<<< HEAD
 		if (bytes == undefined) {
 			return
 		}
@@ -177,6 +220,13 @@ class ByteArray {
 			offset = 0
 			length = 0
 		}
+=======
+		if (offset == 0 || length == 0)
+			offset = 0
+		    length = 0
+		if (offset < 0 || length < 0)
+			return
+>>>>>>> 693de4f58e59a0a57e0a7026c1face19dbd594a6
 		length = length || bytes.length
 		offset = offset || 0
 		for (var i = offset; i < length && this.bytesAvailable > 0; i++) {
@@ -234,31 +284,153 @@ class ByteArray {
 
 	writeByteArray (values) {
 		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+<<<<<<< HEAD
 			values.forEach(value => {
 				this.writeByte(value)
 			})
+=======
+		values.forEach(value => {
+			this.writeByte(value)
+		})
+>>>>>>> 693de4f58e59a0a57e0a7026c1face19dbd594a6
 	}
 
 	writeShortArray (values) {
 		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+<<<<<<< HEAD
 			values.forEach(value => {
 				this.writeShort(value)
 			})
+=======
+		values.forEach(value => {
+			this.writeShort(value)
+		})
+>>>>>>> 693de4f58e59a0a57e0a7026c1face19dbd594a6
 	}
 
 	writeIntArray (values) {
 		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+<<<<<<< HEAD
 			values.forEach(value => {
 				this.writeInt(value)
 			})
+=======
+		values.forEach(value => {
+			this.writeInt(value)
+		})
+>>>>>>> 693de4f58e59a0a57e0a7026c1face19dbd594a6
 	}
 
 	writeCharArray (values) {
 		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes")
+<<<<<<< HEAD
 			values.forEach(value => {
 				this.writeChar(value)
 			})
+=======
+		values.forEach(value => {
+			this.writeChar(value)
+		})
+	}
+
+	/*
+	Some AMF functions.
+	*/
+
+	writeUnsignedInt29 (value) {
+		if (128 > value) {
+			this.writeByte(value)
+		} else if (16384 > value) {
+		    this.writeByte(value >> 7 & 127 | 128)
+			this.writeByte(value & 127)
+		} else if (2097152 > value) {
+			this.writeByte(value >> 14 & 127 | 128)
+			this.writeByte(value >> 7 & 127 | 128)
+			this.writeByte(value & 127)
+		} else if (1073741824 > value) {
+			this.writeByte(value >> 22 & 127 | 128)
+			this.writeByte(value >> 15 & 127 | 128)
+			this.writeByte(value >> 8 & 127 | 128)
+			this.writeByte(value & 255)
+		} else {
+			throw new RangeError("Integer out of range: " + value)
+		}
+	}
+
+	writeInt29 (value) {
+		if (value != undefined) {
+			if (value < -0x10000000 || value > 0x0FFFFFFF) {
+				throw new Error("Integer must be between -0x10000000 and 0x0FFFFFFF but got " + value + " instead")
+			}
+			value += value < 0 ? 0x20000000 : 0
+			let tmp = undefined
+			if (value > 0x1FFFFF) {
+				tmp = value
+				value >>= 1
+				this.writeUnsignedByte(0x80 | ((value >> 21) & 0xFF))
+			}
+			if (value > 0x3FFF) {
+				this.writeUnsignedByte(0x80 | ((value >> 14) & 0xFF))
+			}
+			if (value > 0x7F) {
+				this.writeUnsignedByte(0x80 | ((value >> 7) & 0xFF))
+			}
+			if (tmp != undefined) {
+				value = tmp
+			}
+			if (value > 0x1FFFFF) {
+				this.writeUnsignedByte(value & 0xFF)
+			} else {
+				this.writeUnsignedByte(value & 0x7F)
+			}
+		}
+	}
+	
+	readUnsignedInt29 () {
+		let b = this.readByte() & 255
+		if (b < 127)
+			return b
+		let value = (b & 127) << 7
+		b = this.readByte() & 255
+		if (b < 128)
+			return (value | b)
+		value = (value | (b & 127)) << 7
+		b = this.readByte() & 255
+		if (b < 128)
+			return (value | b)
+		value = (value | (b & 127)) << 8
+		b = this.readByte() & 255
+		return (value | b)
+	}
+
+	readInt29 () {
+		let data = this.readUnsignedByte() & 255
+		if (data & 128) {
+			data = (data ^128) <<7
+			let d = this.readUnsignedByte() & 255
+			if (d & 128) {
+				data = (data|(d ^ 128)) <<7
+				d = this.readUnsignedByte() & 255
+				if (d & 128) {
+					data = (data|(d ^ 128)) <<8
+					d = this.readUnsignedByte() & 255
+					data |= d
+					if (data & 0x10000000) {
+						data |= 0xe0000000
+					}
+				} else {
+					data |= d
+				}
+			} else {
+				data |= d
+			}
+		}
+		return data
+>>>>>>> 693de4f58e59a0a57e0a7026c1face19dbd594a6
 	}
 }
 
-module.exports = ByteArray
+module.exports = {
+	ByteArray,
+	NumberUtils
+}

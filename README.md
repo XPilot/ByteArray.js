@@ -1,35 +1,6 @@
-# ByteArray
-ByteArray provides methods and properties to optimize reading, writing, and working with binary data. This also includes writing 29 unsigned integers, signed integers and reading 29 unsigned integers or signed integers (AMF).
-=======
-# xByteArray
-xByteArray provides methods and properties to optimize reading, writing, and working with binary data. xByteArray is created, because Javascript doesn't contain methods similar to Actionscript's ByteArray. **xByteArray is big-endian based, but RawByteArray supports little-endian methods.**
+# ByteArray.js
 
-**As of 2 April, xByteArray supports reading & writing values at a specific position from and to the byte stream.**
-
-**As of 3 April, xByteArray now provides a validation on all reading methods before reading from the byte stream.**
-
-**As of 4 April, I added a new example for writing a dictionary object. You can find it at the bottom of this readme.**
-
-**As of 4 April, I added another example for writing an ECMA array.**
-
-**As of 5 April, I added a custom writeString.**
-
-**As of 8 April, xByteArray now supports raw writing and reading bytes. You can find it in RawByteArray, which is still under development.**
-
-**As of 9 April, I added an advanced example of a serializer to write raw data. rawByteArray is currently still in development and almost finished. The current status: little-endian int & little-endian uint to be done.**
-
-**As of 10 April, I updated RawByteArray, where reading little-endian integers isn't added yet.**
-
-**As of 10 April, I added an example for Int64. I might use this later.**
-
-**As of 12 April, xByteArray now supports reading and writing integers without a buffer. It can be found in: IntArray.**
-
-**As of 12 April, I added an example for packet writing, inspired by SmartFoxServer.**
-
-**As of 14 April, I added an example for writing an 8-integer in the browser. You can find it in examples/writeInt8.html.**
->>>>>>> 7f05ebd84994e47b6283daee7c5725765e7db97a
-
-**As of 14 April, I removed writeInt8 and added full browser support for writing 8, 16, 24 and 32 byte integers. This example uses express.js and you can find it in the folder ''Browser-Demo''.**
+#### ByteArray.js provides methods and properties to optimize reading, writing, and working with binary data. This also includes writing 29 unsigned integers, signed integers and reading 29 unsigned integers or signed integers (AMF). ByteArray.js also provides writing and reading arrays.
 
 - Properties
 - Standalone methods
@@ -91,7 +62,7 @@ Reads an IEEE 754 single-precision (32-bit) floating-point number from the byte 
 ```
 Reads a signed 32-bit integer from the byte stream.
 ```
-#### readMultiByte (unicode, gb2312, ascii, utf8)
+#### readMultiByte
 ```
 Reads a multibyte string of specified length from the byte stream using the specified character set.
 ```
@@ -123,14 +94,6 @@ Reads a sequence of UTF-8 bytes specified by the  `length`  parameter from the b
 ```
 Reads a string from the byte stream.
 ```
-### readInt64
-```
-Reads a 64-bit integer from the byte stream.
-```
-#### readUnsignedInt64
-```
-Reads an unsigned 64-bit integer from the byte stream.
-```
 #### readDate
 ```
 Reads an IEEE 754 double-precision (64-bit) floating-point number from the byte stream and converts it into a date.
@@ -160,7 +123,7 @@ Writes an IEEE 754 single-precision (32-bit) floating-point number to the byte s
 ```
 Writes a 32-bit signed integer to the byte stream.
 ```
-#### writeMultiByte (unicode, gb2312, ascii, utf8)
+#### writeMultiByte
 ```
 Writes a multibyte string to the byte stream using the specified character set.
 ```
@@ -191,14 +154,6 @@ Writes a UTF-8 string to the byte stream. Similar to the  `writeUTF()`  method, 
 #### writeString
 ```
 Writes a string to the byte stream.
-```
-#### writeInt64
-```
-Writes a 64-bit integer to the byte stream.
-```
-#### writeUnsignedInt64
-```
-Writes an unsigned 64-bit integer to the byte stream.
 ```
 #### writeDate
 ```
