@@ -19,6 +19,7 @@ class ByteArray {
 		this.offset = 0;
 		this.byteLength = this.offset || 0;
 		this.endian = Values.BIG_ENDIAN;
+		this.writeObjectCache = [];
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -300,6 +301,13 @@ class ByteArray {
 		})
 	}
 
+	/**************
+	* AMF objects *
+	**************/
+
+	/*******
+	* AMF3 *
+	*******/
 	encodeUtf8String (string) {
 		let utf8Data = []
 		for (let i = 0; i < string.length; i++) {
@@ -366,25 +374,23 @@ class ByteArray {
 		}
 		return data
 	}
-
 	isTypedArray (item) {
 		return item instanceof Int8Array || item instanceof Uint8Array	|| item instanceof Uint8ClampedArray || item instanceof Int16Array || item instanceof Uint16Array || item instanceof Int32Array || item instanceof Uint32Array || item instanceof Float32Array || item instanceof Float64Array
 	}
-
-	writeObject (item) {
+	writeObjectAMF3 (item) { // Not fully identical to AMF3's writeObject, but close to it and it works
 		if (this.isTypedArray(item)) {
 			let typedBuffer = Buffer.from(item.buffer)
 			if (item.byteLength !== item.buffer.byteLength) {
 				typedBuffer = typedBuffer.slice(item.byteOffset, item.byteOffset + item.byteLength)
 			}
-			this.writeObject(typedBuffer)
+			this.writeObjectAMF3(typedBuffer)
 		} else if (item instanceof ArrayBuffer) {
 			let convertBuffer = new Buffer(item.byteLength)
 			let convertViewer = new Uint8Array(item)
 			for (let i = 0; i < convertBuffer.length; i++) {
 				convertBuffer[i] = convertViewer[i]
 			}
-			this.writeObject(convertBuffer)
+			this.writeObjectAMF3(convertBuffer)
 		} else if (item instanceof Buffer) {
 			this.writeByte(12)
 			this.writeBytes(this.encode29Int(item.length << 1 | 0x1))
@@ -394,7 +400,7 @@ class ByteArray {
 			this.writeBytes(this.encode29Int(0x1))
 			this.writeDouble(item.getTime())
 		} else if (!isNaN(item) && item.toString().indexOf(".") != -1) { // Has decimal point
-			this.writeObject(Number(item)) // Change the instanceof to Number to fit writeNumber
+			this.writeObjectAMF3(Number(item)) // Change the instanceof to Number to fit writeNumber
 		} else if (typeof item === "undefined") {
 			this.writeByte(0x00)
 		} else if (item === null) {
@@ -441,7 +447,7 @@ class ByteArray {
 				this.writeByteArray(this.encode29Int(item.length))
 				this.writeByte(0x01)
 				item.forEach(x => {
-					this.writeObject(x)
+					this.writeObjectAMF3(x)
 				})
 			} else if (item.toString().indexOf("[Vector") == 0) {
 				this.writeByte(item.type) // int = 13, uint = 14, double = 15, object = 16
@@ -459,7 +465,7 @@ class ByteArray {
 					this.writeByteArray(lenData0)
 					this.writeByteArray(utf8Data0)
 					for (let i = 0; i < item.length; i++) {
-						this.writeObject(item[i])
+						this.writeObjectAMF3(item[i])
 					}
 				} else if (item.type == 0xD) {
 					for (let i = 0; i < item.length; i++) {
@@ -501,7 +507,7 @@ class ByteArray {
 					let nameData = this.encodeUtf8String(name)
 					this.writeByteArray(this.encodeUtf8StringLen(name))
 					this.writeByteArray(nameData)
-					this.writeObject(item[name])
+					this.writeObjectAMF3(item[name])
 				}
 				this.writeByte(0x01)
 			}
@@ -515,66 +521,143 @@ class ByteArray {
 				} else {
 					this.writeByte(0x01)
 				}
-				this.writeObject(item[key])
+				this.writeObjectAMF3(item[key])
 			}
 			this.writeByte(0x01)
 		}
 	}
-}
 
-function ByteArrayObjectExample () {
-	const byteArr = new ByteArray();
-	byteArr.writeObject({id: 1, username: "Zaseth", password: "Test"});
-	console.log("Raw stream: " + byteArr.buffer);
-	console.log(byteArr);
-}
-
-function ByteArrayBufferObjectExample () {
-	const byteArr = new ByteArray();
-	const buffer = new Buffer(5); // Length can be retrieved in writeObject with item.length, returns '5'
-	buffer.writeInt8(5, 0); // <Buffer 05 00 00 00 00>
-	byteArr.writeObject(buffer); // <Buffer 0c 0b 05>
-	console.log(byteArr);
-}
-
-function ByteArrayExample () {
-	const byteArr = new ByteArray();
-	byteArr.writeBoolean(false);
-	byteArr.writeDouble(Math.PI);
-	byteArr.writeUTFBytes("Hello world");
-	byteArr.writeDouble(new Date().getTime());
-	byteArr.writeByte(69 >>> 1);
-	byteArr.offset = 0;
-	console.log("Raw stream: " + byteArr.buffer);
-	try {
-		console.log(byteArr.readBoolean() === false) // true
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
+	/*******
+	* AMF0 *
+	*******/
+	hasItem (array, item) {
+		let i = array.length
+		while (i--) {
+			if (this.isSame(array[i], item)) {
+				return i
+			}
 		}
-	} try {
-		console.log("My favorite PI: " + byteArr.readDouble()) // 3.141592653589793
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
+		return -1
+	}
+	isSame (item1, item2) {
+		if (typeof item1 === "object" && typeof item2 === "object") {
+			if (Object(item1).constructor === Object(item2).constructor) {
+				for (let i in item1) {
+					if (typeof item1[i] === "object") {
+						if (!this.isSame(item1[i], item2[i])) {
+							return false
+						}
+					} else if (item1[i] !== item2[i]) {
+						return false
+					}
+				}
+				return true
+			} else {
+				return false
+			}
 		}
-	} try {
-		console.log("The secret message is: " + byteArr.readUTFBytes(11))
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
+		return (item1 === item2)
+	}
+	setObjectReference (o) {
+		let refNum
+		if (this.writeObjectCache !== null && (refNum = this.hasItem(this.writeObjectCache, o)) !== -1) {
+			this.writeByte(7)
+			this.writeUnsignedShort(refNum)
+			return false
+		} else {
+			if (this.writeObjectCache === null) {
+				this.writeObjectCache = []
+			}
+			if (this.writeObjectCache.length < 1024) {
+				this.writeObjectCache.push(o)
+			}
+			return true
 		}
-	} try {
-		console.log("The date is: " + new Date(byteArr.readDouble()))
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
+	}
+	isStrict (array) {
+		let l = array.length
+		let count = 0
+		for (let key in array) {
+			count++
 		}
-	} try {
-		console.log("The secret number is: " + Math.round(byteArr.readByte() / 1 * 2.02)) // 69
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
+		return (count === l)
+	}
+	writeObjectAMF0 (value) {
+		if (this.setObjectReference(value)) {
+			this.writeByteArray([3,0])
+			for (let key in value) {
+				this.writeUTF(key)
+				this.writeData(value[key])
+			}
+			this.writeUTF("")
+			this.writeByte(9)
+		}
+	}
+	writeData (value) { // AMF0
+		if (typeof value === "number" || value instanceof Number) {
+			this.writeByte(0)
+			this.writeDouble(value)
+		} else if (typeof value === "boolean") {
+			this.writeByte(1)
+			this.writeBoolean(value)
+		} else if (typeof value === "string") {
+			if (value === "__unsupported") {
+				this.writeByte(13)
+			} else {
+				if (value.length < 65536) {
+					this.writeByteArray([2,0])
+					this.writeUTF(value)
+					this.writeByte(0)
+				} else {
+					this.writeByteArray([0,12])
+					this.writeUTFBytes(value)
+					this.writeByte(0)
+				}
+			}
+		} else if (value === null) {
+			this.writeByte(5)
+		} else if (value === undefined) {
+			this.writeByte(6)
+		} else if (value instanceof Date) {
+			this.writeByte(11)
+			this.writeDouble(value.getTime())
+			this.writeShort(0)
+		} else if (Array.isArray(value)) {
+			if (this.isStrict(value)) {
+				if (this.setObjectReference(value)) {
+					this.writeByte(10)
+					this.writeInt(value.length)
+					for (let i = 0; i < value.length; i++) {
+						this.writeData(value[i])
+					}
+				}
+			} else {
+				if (this.setObjectReference(value)) {
+					this.writeByte(8)
+					this.writeUnsignedInt(value.length)
+					for (let key in value) {
+						this.writeUTF(key)
+						this.writeData(value[key])
+					}
+					this.writeByteArray([0,0,9])
+				}
+			}
+		} else if (value.startsWith("<") && value.endsWith("/>") && typeof value === "string") {
+			if (this.setObjectReference(value)) {
+				this.writeByte(15)
+				let strXML = value.toString()
+				strXML = strXML.replace(/^\s+|\s+$/g, "")
+				this.writeUnsignedInt(strXML.length)
+				this.writeUTFBytes(strXML)
+			}
+		} else if (typeof value === "object") {
+			if (this.setObjectReference(value)) {
+				this.writeByte(16)
+				this.writeUTF(Object.prototype.toString.call(value)) // [object Object]
+				this.writeObjectAMF0(value)
+			}
+		} else {
+			throw new TypeError("Unknown data type")
 		}
 	}
 }
