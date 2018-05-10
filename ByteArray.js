@@ -373,14 +373,14 @@ class ByteArray {
 
 	writeObject (item) {
 		if (this.isTypedArray(item)) {
-			const typedBuffer = Buffer.from(item.buffer)
+			let typedBuffer = Buffer.from(item.buffer)
 			if (item.byteLength !== item.buffer.byteLength) {
 				typedBuffer = typedBuffer.slice(item.byteOffset, item.byteOffset + item.byteLength)
 			}
 			this.writeObject(typedBuffer)
 		} else if (item instanceof ArrayBuffer) {
-			const convertBuffer = new Buffer(item.byteLength)
-			const convertViewer = new Uint8Array(item)
+			let convertBuffer = new Buffer(item.byteLength)
+			let convertViewer = new Uint8Array(item)
 			for (let i = 0; i < convertBuffer.length; i++) {
 				convertBuffer[i] = convertViewer[i]
 			}
@@ -520,15 +520,6 @@ class ByteArray {
 			this.writeByte(0x01)
 		}
 	}
-}
-
-function toBuffer(ab) {
-    var buf = new Buffer(ab.byteLength);
-    var view = new Uint8Array(ab);
-    for (var i = 0; i < buf.length; ++i) {
-        buf[i] = view[i];
-    }
-    return buf;
 }
 
 function ByteArrayObjectExample () {
