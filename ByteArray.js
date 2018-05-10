@@ -265,31 +265,39 @@ class ByteArray {
 	}
 
 	writeByteArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
-			values.forEach(value => {
-				this.writeByte(value)
-			})
+		if (!Array.isArray(values)) {
+			 throw new TypeError("Expected an array of bytes");
+		}
+		values.forEach(value => {
+			this.writeByte(value)
+		})
 	}
 
 	writeShortArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
-			values.forEach(value => {
-				this.writeShort(value)
-			})
+		if (!Array.isArray(values)) {
+			throw new TypeError("Expected an array of bytes");
+		}
+		values.forEach(value => {
+			this.writeShort(value)
+		})
 	}
 
 	writeIntArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
-			values.forEach(value => {
-				this.writeInt(value)
-			})
+		if (!Array.isArray(values)) {
+			throw new TypeError("Expected an array of bytes");
+		}
+		values.forEach(value => {
+			this.writeInt(value)
+		})
 	}
 
 	writeCharArray (values) {
-		if (!Array.isArray(values)) throw new TypeError("Expected an array of bytes");
-			values.forEach(value => {
-				this.writeChar(value)
-			})
+		if (!Array.isArray(values)) {
+			throw new TypeError("Expected an array of bytes");
+		}
+		values.forEach(value => {
+			this.writeChar(value)
+		})
 	}
 
 	encodeUtf8String (string) {
@@ -338,7 +346,6 @@ class ByteArray {
 		}
 		return data
 	}
-
 	encode29Int (item) {
 		let data = [], num = item, nibble
 		if (num == 0) {
@@ -361,7 +368,13 @@ class ByteArray {
 	}
 
 	writeObject (item) {
-		if (typeof item === "undefined") {
+		if (item instanceof Date) {
+			this.writeByte(0x08)
+			this.writeBytes(this.encode29Int(0x1))
+			this.writeDouble(item.getTime())
+		} else if (!isNaN(item) && item.toString().indexOf(".") != -1) { // Does not contain any AMF3 marker
+			this.writeFloat(item)
+		} else if (typeof item === "undefined") {
 			this.writeByte(0x00)
 		} else if (item === null) {
 			this.writeByte(0x01)
@@ -409,6 +422,37 @@ class ByteArray {
 				item.forEach(x => {
 					this.writeObject(x)
 				})
+			} else if (item.toString().indexOf("[Vector") == 0) {
+				this.writeByte(item.type) // int = 13, uint = 14, double = 15, object = 16
+				item.length = item.length << 1
+				item.length = item.length | 0x1
+				this.writeByteArray(this.encode29Int(item.length))
+				this.writeBoolean(true) // Fixed
+				if (item.type == 0x10) {
+					let className = ""
+					if (item.length > 0) {
+						className = item[0].name
+					}
+					let utf8Data0 = this.encodeUtf8String(className)
+					let lenData0 = this.encodeUtf8StringLen(utf8Data0)
+					this.writeByteArray(lenData0)
+					this.writeByteArray(utf8Data0)
+					for (let i = 0; i < item.length; i++) {
+						this.writeObject(item[i])
+					}
+				} else if (item.type == 0xD) {
+					for (let i = 0; i < item.length; i++) {
+						this.writeInt(item[i])
+					}
+				} else if (item.type == 0xE) {
+					for (let i = 0; i < item.length; i++) {
+						this.writeUnsignedInt(item[i])
+					}
+				} else if (item.type == 0xF) {
+					for (let i = 0; i < item.length; i++) {
+						this.writeDouble(item[i])
+					}
+				}
 			} else if (typeof item.doctype !== "undefined" && typeof item.xml === "string") {
 				let amfType = 0x0B // writeXml = 0x0B, 0x07 = xmlDocument
 				if (amfType !== 0x07 && amfType !== 0x0B) {
@@ -441,7 +485,18 @@ class ByteArray {
 				this.writeByte(0x01)
 			}
 		} else {
-			throw new TypeError("Unknown item type: " + typeof value + " can't be written to stream: " + item)
+			this.writeByte(0xA)
+			this.writeByteArray(this.encode29Int(0xB))
+			this.writeByteArray([0x06, 0x01])
+			for (let key in item) {
+				if (key) {
+					this.writeByteArray(this.encodeUtf8StringLen(key))
+				} else {
+					this.writeByte(0x01)
+				}
+				this.writeObject(item[key])
+			}
+			this.writeByte(0x01)
 		}
 	}
 }
