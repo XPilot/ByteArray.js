@@ -367,8 +367,25 @@ class ByteArray {
 		return data
 	}
 
+	isTypedArray (item) {
+		return item instanceof Int8Array || item instanceof Uint8Array	|| item instanceof Uint8ClampedArray || item instanceof Int16Array || item instanceof Uint16Array || item instanceof Int32Array || item instanceof Uint32Array || item instanceof Float32Array || item instanceof Float64Array
+	}
+
 	writeObject (item) {
-		if (item instanceof Buffer) {
+		if (this.isTypedArray(item)) {
+			const typedBuffer = Buffer.from(item.buffer)
+			if (item.byteLength !== item.buffer.byteLength) {
+				typedBuffer = typedBuffer.slice(item.byteOffset, item.byteOffset + item.byteLength)
+			}
+			this.writeObject(typedBuffer)
+		} else if (item instanceof ArrayBuffer) {
+			const convertBuffer = new Buffer(item.byteLength)
+			const convertViewer = new Uint8Array(item)
+			for (let i = 0; i < convertBuffer.length; i++) {
+				convertBuffer[i] = convertViewer[i]
+			}
+			this.writeObject(convertBuffer)
+		} else if (item instanceof Buffer) {
 			this.writeByte(12)
 			this.writeBytes(this.encode29Int(item.length << 1 | 0x1))
 			item.copy(this.buffer, this.offset)
@@ -376,8 +393,8 @@ class ByteArray {
 			this.writeByte(0x08)
 			this.writeBytes(this.encode29Int(0x1))
 			this.writeDouble(item.getTime())
-		} else if (!isNaN(item) && item.toString().indexOf(".") != -1) { // Is float but not supported in AMF3
-			this.writeObject(Number(item)) // Change the instanceof to Number for writeNumber
+		} else if (!isNaN(item) && item.toString().indexOf(".") != -1) { // Has decimal point
+			this.writeObject(Number(item)) // Change the instanceof to Number to fit writeNumber
 		} else if (typeof item === "undefined") {
 			this.writeByte(0x00)
 		} else if (item === null) {
@@ -503,6 +520,15 @@ class ByteArray {
 			this.writeByte(0x01)
 		}
 	}
+}
+
+function toBuffer(ab) {
+    var buf = new Buffer(ab.byteLength);
+    var view = new Uint8Array(ab);
+    for (var i = 0; i < buf.length; ++i) {
+        buf[i] = view[i];
+    }
+    return buf;
 }
 
 function ByteArrayObjectExample () {
