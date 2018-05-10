@@ -368,12 +368,16 @@ class ByteArray {
 	}
 
 	writeObject (item) {
-		if (item instanceof Date) {
+		if (item instanceof Buffer) {
+			this.writeByte(12)
+			this.writeBytes(this.encode29Int(item.length << 1 | 0x1))
+			item.copy(this.buffer, this.offset)
+		} else if (item instanceof Date) {
 			this.writeByte(0x08)
 			this.writeBytes(this.encode29Int(0x1))
 			this.writeDouble(item.getTime())
-		} else if (!isNaN(item) && item.toString().indexOf(".") != -1) { // Does not contain any AMF3 marker
-			this.writeFloat(item)
+		} else if (!isNaN(item) && item.toString().indexOf(".") != -1) { // Is float but not supported in AMF3
+			this.writeObject(Number(item)) // Change the instanceof to Number for writeNumber
 		} else if (typeof item === "undefined") {
 			this.writeByte(0x00)
 		} else if (item === null) {
@@ -505,6 +509,14 @@ function ByteArrayObjectExample () {
 	const byteArr = new ByteArray();
 	byteArr.writeObject({id: 1, username: "Zaseth", password: "Test"});
 	console.log("Raw stream: " + byteArr.buffer);
+	console.log(byteArr);
+}
+
+function ByteArrayBufferObjectExample () {
+	const byteArr = new ByteArray();
+	const buffer = new Buffer(5); // Length can be retrieved in writeObject with item.length, returns '5'
+	buffer.writeInt8(5, 0); // <Buffer 05 00 00 00 00>
+	byteArr.writeObject(buffer); // <Buffer 0c 0b 05>
 	console.log(byteArr);
 }
 
