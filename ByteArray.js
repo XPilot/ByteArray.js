@@ -1,5 +1,8 @@
 "use strict";
 
+const xmlserializer = require("xmlserializer");
+const parser = require("parse5");
+
 const Values = {
 	Int8: 1,
 	Double: 8,
@@ -16,7 +19,6 @@ class ByteArray {
 		this.offset = 0;
 		this.byteLength = this.offset || 0;
 		this.endian = Values.BIG_ENDIAN;
-		this.references = [];
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -290,22 +292,156 @@ class ByteArray {
 			})
 	}
 
-	writeObject (object) {
-		let keys = Object.keys(object);
-		let key, value, temp = {};
-		for (let i = 0; i < keys.length; i++) {
-			key = keys[i]; // Writes the key
-			value = object[key]; // Writes the value
-			this.writeUTFBytes(key + ": "); // Writes length of string to
-			if (!isNaN(value) && value.toString().indexOf(".") !== -1) {
-				this.writeFloat(value)
-			} else if ("number" === typeof value) {
-				this.writeByte(value);
-				this.references.push(value.toString().length) // Eh no idea, adding length of number to 
-			} else if ("string" === typeof value) {
-				this.writeUTFBytes(value + " ");
-				this.references.push(value.length)
+	encodeUtf8String (string) {
+		let utf8Data = []
+		for (let i = 0; i < string.length; i++) {
+			let data = this.encodeUtf8Char(string.charCodeAt(i))
+			utf8Data.push(data)
+		}
+		return utf8Data
+	}
+	encodeUtf8StringLen (utf8Data) {
+		let len = utf8Data.length, data = []
+		if (len <= 0xFFFFFFF) {
+			len = len << 1
+			len = len | 1
+			data = this.encode29Int(len)
+		} else {
+			throw new RangeError("UTF8 encoded string too long to serialize to AMF: " + len)
+		}
+		return data
+	}
+	encodeUtf8Char (c) {
+		let data = [], val, b, marker
+		if (c > 0x10FFFF) {
+			throw new RangeError("UTF8 char out of bounds")
+		}
+		if (c <= 0x7F) {
+			data.push(c)
+		} else {
+			if (c <= 0x7ff) {
+				b = 2
+			} else if (c <= 0xffff) {
+				b = 3
+			} else {
+				b = 4
 			}
+			marker = 0x80
+			for (let i = 1; i < b; i++) {
+				val = (c & 0x3F) | 0x80
+				data.unshift(val)
+				c = c >> 6
+				marker = (marker >> 1) | 0x80
+			}
+			val = c | marker
+			data.unshift(val)
+		}
+		return data
+	}
+
+	encode29Int (item) {
+		let data = [], num = item, nibble
+		if (num == 0) {
+			return [0]
+		}
+		if (num > 0x001fffff) {
+			nibble = num & 0xff
+			data.unshift(nibble)
+			num = num >> 8
+		}
+		while (num > 0) {
+			nibble = num & 0x7f
+			data.unshift(nibble)
+			num = num >> 7
+		}
+		for (let i = 0; i < data.length - 1; i++) {
+			data[i] = data[i] | 0x80
+		}
+		return data
+	}
+
+	writeObject (item) {
+		if (typeof item === "undefined") {
+			this.writeByte(0x00)
+		} else if (item === null) {
+			this.writeByte(0x01)
+		} else if (typeof item === "boolean") {
+			if (item) {
+				this.writeByte(0x03)
+			} else {
+				this.writeByte(0x02)
+			}
+		} else if (typeof item === "string") {
+			if (item == "") {
+				this.writeByteArray([0x06, 0x01])
+			} else {
+				let utf8Data = this.encodeUtf8String(item)
+				let lenData = this.encodeUtf8StringLen(utf8Data)
+				this.writeByte(0x06)
+				this.writeByteArray(lenData)
+				this.writeByteArray(utf8Data)
+			}
+		} else if (typeof item === "number" || item instanceof Number) {
+			let data
+			if (item instanceof Number) {
+				item = item.valueOf()
+			}
+			if (item % 1 === 0 && item >= -0xfffffff && item <= 0x1fffffff) {
+				item = item & 0x1fffffff
+				data = this.encode29Int(item)
+				data.unshift(0x04)
+				this.writeByteArray(data)
+			} else {
+				data = this.writeDouble(item)
+				data.unshift(0x05)
+				this.writeByteArray(data)
+			}
+		} else if (typeof item === "object") {
+			if (Array.isArray(item)) {
+				if (item.length > 0xFFFFFFF) {
+					throw new RangeError("Array size too long to encode: " + item.length)
+				}
+				this.writeByte(0x09)
+				item.length = item.length << 1
+				item.length = item.length | 0x1
+				this.writeByteArray(this.encode29Int(item.length))
+				this.writeByte(0x01)
+				item.forEach(x => {
+					this.writeObject(x)
+				})
+			} else if (typeof item.doctype !== "undefined" && typeof item.xml === "string") {
+				let amfType = 0x0B // writeXml = 0x0B, 0x07 = xmlDocument
+				if (amfType !== 0x07 && amfType !== 0x0B) {
+					throw new TypeError("XML with unknown type: " + amfType)
+				}
+				let xmlStr = parser.parse(item)
+				let serializedXmlStr = xmlserializer.serializeToString(xmlStr)
+				if (serializedXmlStr == "") {
+					this.writeByteArray([amfType, 0x01])
+				} else {
+					let utf8Data2 = this.encodeUtf8String(serializedXmlStr)
+					let lenData2 = this.encodeUtf8StringLen(utf8Data2)
+					this.writeByte(amfType)
+					this.writeByteArray(lenData2)
+					this.writeByteArray(utf8Data2)
+				}
+			} else {
+				let name
+				this.writeByteArray([0x0A, 0x0b, 0x01])
+				for (name in item) {
+					let newName = new String(name).valueOf()
+					if (newName == "") {
+						throw new Error("Can't encode non-string field name: " + name)
+					}
+					let nameData = this.encodeUtf8String(name)
+					this.writeByteArray(this.encodeUtf8StringLen(name))
+					this.writeByteArray(nameData)
+					this.writeObject(item[name])
+				}
+				this.writeByte(0x01)
+			}
+		} else {
+			throw new TypeError("Unknown item type: " + typeof value + " can't be written to stream: " + item)
 		}
 	}
 }
@@ -315,7 +451,6 @@ function ByteArrayObjectExample () {
 	byteArr.writeObject({id: 1, username: "Zaseth", password: "Test"});
 	console.log("Raw stream: " + byteArr.buffer);
 	console.log(byteArr);
-	console.log(byteArr.buffer.readInt8(4)) // 1
 }
 
 function ByteArrayExample () {
