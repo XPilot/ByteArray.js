@@ -642,7 +642,7 @@ class ByteArray {
 					this.writeByteArray([0,0,9])
 				}
 			}
-		} else if (value.startsWith("<") && value.endsWith("/>") && typeof value === "string") {
+		} else if (value.startsWith("<") && value.endsWith(">") && typeof value === "string") {
 			if (this.setObjectReference(value)) {
 				this.writeByte(15)
 				let strXML = value.toString()
