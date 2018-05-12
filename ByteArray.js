@@ -39,6 +39,16 @@ class ByteArray {
 	get bytesAvailable () {
 		return this.length - this.offset
 	}
+	
+	get amfVersion () {
+		return this.objectEncoding
+	}
+	set amfVersion (amfV) {
+		if (amfV === 2 || amfV > 3 || amfV < 0) {
+			 throw new TypeError("Invalid amf version")
+		}
+		this.objectEncoding = amfV
+	}
 
 	set position (value) {
 		this.offset = value
@@ -327,9 +337,5 @@ class ByteArray {
 		}
 	}
 }
-
-let p1 = new ByteArray()
-p1.writeObject({id: 1})
-console.log(p1.readObject(p1.buffer))
 
 module.exports = ByteArray;

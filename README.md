@@ -7,7 +7,13 @@ ByteArray.js currently fully supports **AMF0 serialization and deserialization.*
 # Installation
 **npm install bytearray.js**
 
-# Example
+# Examples
+```
+let p1 = new ByteArray()
+p1.amfVersion(0)
+p1.writeObject({id: 1})
+console.log(p1.readObject(p1.buffer))
+```
 ```
 function ByteArrayExample () {
 	const byteArr = new ByteArray();
