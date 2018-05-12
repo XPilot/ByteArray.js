@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 {
   "name": "bytearray.js",
   "version": "1.0.2",
@@ -5,3 +6,11 @@
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js"
 }
+=======
+{
+  "name": "bytearray.js",
+  "version": "1.0.1",
+  "description": "Equivalent to Actionscript 3 ByteArray.",
+  "main": "ByteArray.js"
+}
+>>>>>>> c3044c22a42dac6f671b0d4f982ee241d767b939
