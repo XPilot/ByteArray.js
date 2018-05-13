@@ -20,7 +20,7 @@ class AMF0 {
 		if (value instanceof Date) {
 			return this.writeDate(value)
 		}
-	    if (typeof value === "string" && value.startsWith("<") && value.endsWith(">")) {
+		if (typeof value === "string" && value.startsWith("<") && value.endsWith(">")) {
 	    	if (className === "libxmljs" || className === "xml2js") { // These are 2 examples of XML parsing modules for Node.js.
 	    		console.log("Serializing XML with an XML parser")
 	    		return this.writeXMLDoc(value)
@@ -29,46 +29,46 @@ class AMF0 {
 	    		return this.writeXMLDoc(value)
 	    	}
 	    }
-		switch (typeof value) {
-			case "number":
-			  return this.writeNumber(value)
-			  break
-			case "boolean":
-			  return this.writeBoolean(value)
-			  break
-			case "string":
-			  if (value.length < 65535) {
-			  	  return this.writeString(value)
-			  } else {
-			  	  return this.writeLongString(value)
-			  }
-			  break
-			case "object":
-			  if (Array.isArray(value)) {
-			  	  if (this.isStrict(value)) {
-			  	  	  return this.writeStrictArray(value)
-			  	  } else {
-			  	  	  return this.writeECMAArray(value)
-			  	  }
-			  } else {
-			  	  return this.writeObject(value)
-			  }
-			  break
-			  if (Array.isArray(value)) {
-			  	  if (this.isStrict(value)) {
-			  	  	  return this.writeStrictArray(value)
-			  	  } else {
-			  	  	  return this.writeECMAArray(value)
-			  	  }
-			  }
-			  break
-			case "null":
-			  return this.writeNull()
-			  break
-			case "undefined":
-			  return this.writeUndefined()
-			  break
-		}
+	    switch (typeof value) {
+	    	case "number":
+	    	return this.writeNumber(value)
+	    	break
+	    	case "boolean":
+	    	return this.writeBoolean(value)
+	    	break
+	    	case "string":
+	    	if (value.length < 65535) {
+	    		return this.writeString(value)
+	    	} else {
+	    		return this.writeLongString(value)
+	    	}
+	    	break
+	    	case "object":
+	    	if (Array.isArray(value)) {
+	    		if (this.isStrict(value)) {
+	    			return this.writeStrictArray(value)
+	    		} else {
+	    			return this.writeECMAArray(value)
+	    		}
+	    	} else {
+	    		return this.writeObject(value)
+	    	}
+	    	break
+	    	if (Array.isArray(value)) {
+	    		if (this.isStrict(value)) {
+	    			return this.writeStrictArray(value)
+	    		} else {
+	    			return this.writeECMAArray(value)
+	    		}
+	    	}
+	    	break
+	    	case "null":
+	    	return this.writeNull()
+	    	break
+	    	case "undefined":
+	    	return this.writeUndefined()
+	    	break
+	    }
 	}
 	readValue (buffer) {
 		if (this.isDebug) {
@@ -77,46 +77,46 @@ class AMF0 {
 		let value = buffer.readUInt8(0)
 		switch (value) {
 			case 0x00:
-			  return this.readNumber(buffer)
-			  break
+			return this.readNumber(buffer)
+			break
 			case 0x01:
-			  return this.readBoolean(buffer)
-			  break
+			return this.readBoolean(buffer)
+			break
 			case 0x02:
-			  return this.readString(buffer)
-			  break
+			return this.readString(buffer)
+			break
 			case 0x03:
-			  return this.readObject(buffer)
-			  break
+			return this.readObject(buffer)
+			break
 			case 0x05:
-			  return this.readNull()
-			  break
+			return this.readNull()
+			break
 			case 0x06:
-			  return this.readUndefined()
-			  break
+			return this.readUndefined()
+			break
 			case 0x07:
-			  return this.readReference(buffer)
-			  break
+			return this.readReference(buffer)
+			break
 			case 0x08:
-			  return this.readECMAArray(buffer)
-			  break
+			return this.readECMAArray(buffer)
+			break
 			case 0x0a:
-			  return this.readStrictArray(buffer)
-			  break
+			return this.readStrictArray(buffer)
+			break
 			case 0x0b:
-			  return this.readDate(buffer)
-			  break
+			return this.readDate(buffer)
+			break
 			case 0x0c:
-			  return this.readLongString(buffer)
-			  break
+			return this.readLongString(buffer)
+			break
 			case 0x0f:
-			  return this.readXMLDoc(buffer)
-			  break
+			return this.readXMLDoc(buffer)
+			break
 			case 0x10:
-			  return this.readTypedObject(buffer)
-			  break
+			return this.readTypedObject(buffer)
+			break
 			default:
-			  throw new Error("Unknown type")
+			throw new Error("Unknown type")
 		}
 	}
 	toString (buffer) {
@@ -125,7 +125,7 @@ class AMF0 {
 	isStrict (value) {
 		let l = value.length, c = 0
 		for (let key in value) c++
-		return (c == l)
+			return (c == l)
 	}
 	hasItem (array, item) {
 		let i = array.length
@@ -308,18 +308,18 @@ class AMF0 {
 	2.7 Null Type
 	The null type is represented by the null type marker. No further information is encoded
 	for this value.
-	*/
-    writeNull () {
-    	let buffer = new Buffer(1)
-    	buffer.writeUInt8(0x05, 0)
-    	return buffer
-    }
-    readNull () {
-    	return {
-    		len: 1,
-    		value: null
-    	}
-    }
+		*/
+	writeNull () {
+		let buffer = new Buffer(1)
+		buffer.writeUInt8(0x05, 0)
+		return buffer
+	}
+	readNull () {
+		return {
+			len: 1,
+			value: null
+		}
+	}
     /*
     2.8 Undefined Type
     The undefined type is represented by the undefined type marker. No further information
@@ -366,28 +366,28 @@ class AMF0 {
     A 32-bit associative-count implies a theoretical maximum of 4,294,967,295 associative
     array entries.
     */
-	writeECMAArray (value) {
-		if (this.setObjectReference(value)) {
-			let length = 0
-			if (value instanceof Array) {
-				length = value.length
-			} else {
-				length = Object.keys(value).length
-			}
-			let buffer = new Buffer(5)
-			buffer.writeUInt8(0x08, 0)
-			buffer.writeUInt32BE(length, 1)
-			return Buffer.concat([buffer, this.writeObject(value).slice(1)])
-		}
-	}
-	readECMAArray (buffer) {
-		let object = this.readObject(buffer.slice(4))
-		return {
-			count: buffer.readUInt32BE(1),
-			len: 5 + object.len,
-			value: object.value
-		}
-	}
+    writeECMAArray (value) {
+    	if (this.setObjectReference(value)) {
+    		let length = 0
+    		if (value instanceof Array) {
+    			length = value.length
+    		} else {
+    			length = Object.keys(value).length
+    		}
+    		let buffer = new Buffer(5)
+    		buffer.writeUInt8(0x08, 0)
+    		buffer.writeUInt32BE(length, 1)
+    		return Buffer.concat([buffer, this.writeObject(value).slice(1)])
+    	}
+    }
+    readECMAArray (buffer) {
+    	let object = this.readObject(buffer.slice(4))
+    	return {
+    		count: buffer.readUInt32BE(1),
+    		len: 5 + object.len,
+    		value: object.value
+    	}
+    }
 	/*
 	2.12 Strict Array Type
 	A strict Array contains only ordinal indices; however, in AMF 0 the indices can be dense

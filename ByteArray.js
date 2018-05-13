@@ -1,8 +1,6 @@
-"use strict";
+"use strict"
 
-const AMF0 = require("./AMF0");
-const xmlserializer = require("xmlserializer");
-const parser = require("parse5");
+const AMF0 = require("./AMF0")
 
 const Values = {
 	Int8: 1,
@@ -12,15 +10,17 @@ const Values = {
 	Int16: 2,
 	MAX_BUFFER_SIZE: 4096,
 	BIG_ENDIAN: true,
-	LITTLE_ENDIAN: false
-};
+	LITTLE_ENDIAN: false,
+	AMF_0: "0",
+	AMF_3: "3"
+}
 
 class ByteArray {
 	constructor (buff) {
-		this.offset = 0;
-		this.byteLength = this.offset || 0;
-		this.endian = Values.BIG_ENDIAN;
-		this.objectEncoding = "0";
+		this.offset = 0
+		this.byteLength = this.offset || 0
+		this.endian = Values.BIG_ENDIAN
+		this._objectEncoding = Values.AMF_0
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -39,22 +39,22 @@ class ByteArray {
 	get bytesAvailable () {
 		return this.length - this.offset
 	}
-	
-	get amfVersion () {
-		return String(this.objectEncoding)
-	}
-	set amfVersion (amfV) {
-		if (amfV === "2" || amfV > "3" || amfV < "0") {
-			 throw new TypeError("Invalid amf version")
-		}
-		this.objectEncoding = String(amfV)
-	}
 
 	set position (value) {
 		this.offset = value
 	}
 	set length (value) {
 		this.buffer.length = value
+	}
+
+	get objectEncoding () {
+		return this._objectEncoding
+	}
+	set objectEncoding (AMFV) {
+		if (AMFV > 3 || AMFV < 0 || AMFV === 2 || AMFV === 3) {
+			throw new TypeError("Invalid AMF version or not supported yet")
+		}
+		this._objectEncoding = String(AMFV)
 	}
 
 	toJSON () {
@@ -76,13 +76,13 @@ class ByteArray {
 	}
 
 	updatePosition (n) {
-		let a = this.offset;
-		this.offset += n;
+		let a = this.offset
+		this.offset += n
 		return a
 	}
 
 	readBoolean () {
-		return Boolean(this.buffer.readInt8(this.updatePosition(Values.Int8)) & 0xFF);
+		return Boolean(this.buffer.readInt8(this.updatePosition(Values.Int8)) & 0xFF)
 	}
 
 	readByte () {
@@ -96,40 +96,40 @@ class ByteArray {
 		if (length === undefined || length === 0) {
 			length = this.bytesAvailable
 		}
-		let endOffset = offset + length;
+		let endOffset = offset + length
 		for (let i = offset; i < endOffset; i++) {
-			bytes[i] = this.readByte();
+			bytes[i] = this.readByte()
 			console.log(bytes[i])
 		}
 	}
 
 	readDouble () {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.readDoubleBE(this.updatePosition(Values.Double))
-		    : this.buffer.readDoubleLE(this.updatePosition(Values.Double))
+		? this.buffer.readDoubleBE(this.updatePosition(Values.Double))
+		: this.buffer.readDoubleLE(this.updatePosition(Values.Double))
 	}
 
 	readFloat () {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.readFloatBE(this.updatePosition(Values.Float))
-		    : this.buffer.readFloatLE(this.updatePosition(Values.Float))
+		? this.buffer.readFloatBE(this.updatePosition(Values.Float))
+		: this.buffer.readFloatLE(this.updatePosition(Values.Float))
 	}
 
 	readInt () {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.readInt32BE(this.updatePosition(Values.Int32))
-		    : this.buffer.readInt32LE(this.updatePosition(Values.Int32))
+		? this.buffer.readInt32BE(this.updatePosition(Values.Int32))
+		: this.buffer.readInt32LE(this.updatePosition(Values.Int32))
 	}
 
 	readMultiByte (length, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
-		let offset = this.updatePosition(length);
+		let offset = this.updatePosition(length)
 		return this.buffer.toString(charset || "utf8", offset, offset + length)
 	}
 
 	readShort () {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.readInt16BE(this.updatePosition(Values.Int16))
-		    : this.buffer.readInt16LE(this.updatePosition(Values.Int16))
+		? this.buffer.readInt16BE(this.updatePosition(Values.Int16))
+		: this.buffer.readInt16LE(this.updatePosition(Values.Int16))
 	}
 
 	readUnsignedByte () {
@@ -138,23 +138,23 @@ class ByteArray {
 
 	readUnsignedInt () {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.readUInt32BE(this.updatePosition(Values.Int32))
-		    : this.buffer.readUInt32LE(this.updatePosition(Values.Int32))
+		? this.buffer.readUInt32BE(this.updatePosition(Values.Int32))
+		: this.buffer.readUInt32LE(this.updatePosition(Values.Int32))
 	}
 
 	readUnsignedShort () {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.readUInt16BE(this.updatePosition(Values.Int16))
-		    : this.buffer.readUInt16LE(this.updatePosition(Values.Int16))
+		? this.buffer.readUInt16BE(this.updatePosition(Values.Int16))
+		: this.buffer.readUInt16LE(this.updatePosition(Values.Int16))
 	}
 
 	readUTF () {
-		let length = this.readByte();
+		let length = this.readByte()
 		return this.buffer.toString("utf8", this.offset, this.offset + length)
 	}
 
 	readUTFBytes (length) {
-		let offset = this.updatePosition(length);
+		let offset = this.updatePosition(length)
 		return this.buffer.toString("utf8", offset, offset + length)
 	}
 
@@ -196,11 +196,11 @@ class ByteArray {
 		if (offset === undefined || offset < 0 || offset >= bytes.length) {
 			offset = 0
 		}
-		let endOffset;
+		let endOffset
 		if (length === undefined || length === 0) {
 			endOffset = bytes.length
 		} else {
-			endOffset = offset + length;
+			endOffset = offset + length
 			if (endOffset < 0 || endOffset > bytes.length) {
 				endOffset = bytes.length
 			}
@@ -218,31 +218,31 @@ class ByteArray {
 
 	writeDouble (value) {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.writeDoubleBE(value, this.updatePosition(Values.Double))
-		    : this.buffer.writeDoubleLE(value, this.updatePosition(Values.Double))
+		? this.buffer.writeDoubleBE(value, this.updatePosition(Values.Double))
+		: this.buffer.writeDoubleLE(value, this.updatePosition(Values.Double))
 	}
 
 	writeFloat (value) {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.writeFloatBE(value, this.updatePosition(Values.Float))
-		    : this.buffer.writeFloatLE(value, this.updatePosition(Values.Float))
+		? this.buffer.writeFloatBE(value, this.updatePosition(Values.Float))
+		: this.buffer.writeFloatLE(value, this.updatePosition(Values.Float))
 	}
 
 	writeInt (value) {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.writeInt32BE(value, this.updatePosition(Values.Int32))
-		    : this.buffer.writeInt32LE(value, this.updatePosition(Values.Int32))
+		? this.buffer.writeInt32BE(value, this.updatePosition(Values.Int32))
+		: this.buffer.writeInt32LE(value, this.updatePosition(Values.Int32))
 	}
 
 	writeMultiByte (str, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
-		let length = Buffer.byteLength(str);
+		let length = Buffer.byteLength(str)
 		return this.buffer.write(str, this.updatePosition(length), length, charset || "utf8")
 	}
 
 	writeShort (value) {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.writeInt16BE(value, this.updatePosition(Values.Int16))
-		    : this.buffer.writeInt16LE(value, this.updatePosition(Values.Int16))
+		? this.buffer.writeInt16BE(value, this.updatePosition(Values.Int16))
+		: this.buffer.writeInt16LE(value, this.updatePosition(Values.Int16))
 	}
 
 	writeUnsignedByte (value) {
@@ -251,24 +251,24 @@ class ByteArray {
 
 	writeUnsignedInt (value) {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.writeUInt32BE(value, this.updatePosition(Values.Int32))
-		    : this.buffer.writeUInt32LE(value, this.updatePosition(Values.Int32))
+		? this.buffer.writeUInt32BE(value, this.updatePosition(Values.Int32))
+		: this.buffer.writeUInt32LE(value, this.updatePosition(Values.Int32))
 	}
 
 	writeUnsignedShort (value) {
 		return this.endian === Values.BIG_ENDIAN
-		    ? this.buffer.writeUInt16BE(value, this.updatePosition(Values.Int16))
-		    : this.buffer.writeUInt16LE(value, this.updatePosition(Values.Int16))
+		? this.buffer.writeUInt16BE(value, this.updatePosition(Values.Int16))
+		: this.buffer.writeUInt16LE(value, this.updatePosition(Values.Int16))
 	}
 
 	writeUTF (str) {
-		let length = Buffer.byteLength(str);
-		this.writeByte(length);
+		let length = Buffer.byteLength(str)
+		this.writeByte(length)
 		return this.buffer.write(str, this.offset, this.offset += length, "utf8")
 	}
 
 	writeUTFBytes (str) {
-		let length = Buffer.byteLength(str);
+		let length = Buffer.byteLength(str)
 		return this.buffer.write(str, this.offset, this.offset += length, "utf8")
 	}
 
@@ -278,7 +278,7 @@ class ByteArray {
 
 	writeByteArray (values) {
 		if (!Array.isArray(values)) {
-			 throw new TypeError("Expected an array of bytes");
+			throw new TypeError("Expected an array of bytes")
 		}
 		values.forEach(value => {
 			this.writeByte(value)
@@ -287,7 +287,7 @@ class ByteArray {
 
 	writeShortArray (values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError("Expected an array of bytes");
+			throw new TypeError("Expected an array of bytes")
 		}
 		values.forEach(value => {
 			this.writeShort(value)
@@ -296,7 +296,7 @@ class ByteArray {
 
 	writeIntArray (values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError("Expected an array of bytes");
+			throw new TypeError("Expected an array of bytes")
 		}
 		values.forEach(value => {
 			this.writeInt(value)
@@ -305,7 +305,7 @@ class ByteArray {
 
 	writeCharArray (values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError("Expected an array of bytes");
+			throw new TypeError("Expected an array of bytes")
 		}
 		values.forEach(value => {
 			this.writeChar(value)
@@ -318,10 +318,8 @@ class ByteArray {
 			let serializedObject = amf.writeObject(object)
 			console.log("AMF0 Serialized Buffer:", serializedObject)
 			this.buffer = serializedObject
-		} else if (this.objectEncoding === "3") {
-			throw new Error("Not supported")
 		} else {
-			throw new Error("Not supported")
+			throw new TypeError("Not supported yet")
 		}
 	}
 
@@ -330,12 +328,10 @@ class ByteArray {
 			let amf = new AMF0()
 			let deserializedObject = amf.readObject(buffer)
 			console.log("AMF0 Deserialized Buffer:", deserializedObject)
-		} else if (this.objectEncoding === "3") {
-			throw new Error("Not supported")
 		} else {
-			throw new Error("Not supported")
+			throw new TypeError("Not supported yet")
 		}
 	}
 }
 
-module.exports = ByteArray;
+module.exports = ByteArray

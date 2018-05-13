@@ -1,5 +1,5 @@
 # ByteArray.js
-This is an equivalent to Actionscript 3's ByteArray for Javascript.
+This is an equivalent to Actionscript 3's ByteArray for Javascript with a fully supported AMF0 library.
 
 # AMF support
 ByteArray.js currently fully supports **AMF0 serialization and deserialization.**
@@ -8,52 +8,7 @@ ByteArray.js currently fully supports **AMF0 serialization and deserialization.*
 **npm install bytearray.js**
 
 # Examples
-```
-let p1 = new ByteArray()
-p1.amfVersion("0")
-p1.writeObject({id: 1})
-console.log(p1.readObject(p1.buffer))
-```
-```
-function ByteArrayExample () {
-	const byteArr = new ByteArray();
-	byteArr.writeBoolean(false);
-	byteArr.writeDouble(Math.PI);
-	byteArr.writeUTFBytes("Hello world");
-	byteArr.writeDouble(new Date().getTime());
-	byteArr.writeByte(69 >>> 1);
-	byteArr.offset = 0;
-	console.log("Raw stream: " + byteArr.buffer);
-	try {
-		console.log(byteArr.readBoolean() === false) // true
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("My favorite PI: " + byteArr.readDouble()) // 3.141592653589793
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("The secret message is: " + byteArr.readUTFBytes(11))
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("The date is: " + new Date(byteArr.readDouble()))
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("The secret number is: " + Math.round(byteArr.readByte() / 1 * 2.02)) // 69
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	}
-}
-```
+See: */Examples/test.js*
+
+# Contributing
+Any help is welcome. Just send a pull request and I will gladly check it out!
