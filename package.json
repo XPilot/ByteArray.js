@@ -1,6 +1,6 @@
 {
   "name": "bytearray.js",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Equivalent to Actionscript 3 ByteArray.",
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js"
