@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/Zaseth/ByteArray.js.svg?branch=master)](https://travis-ci.org/Zaseth/ByteArray.js)
 
-![Downloads badge](https://badged.co/Zaseth/ByteArray.js)
+[![NPM](https://nodei.co/npm/bytearray.js.png)](https://nodei.co/npm/bytearray.js/)
 
 # ByteArray.js
 This is an equivalent to Actionscript 3's ByteArray for Javascript with a fully supported AMF0 library.
