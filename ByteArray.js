@@ -20,7 +20,7 @@ class ByteArray {
 		this.offset = 0;
 		this.byteLength = this.offset || 0;
 		this.endian = Values.BIG_ENDIAN;
-		this.objectEncoding = 0;
+		this.objectEncoding = "0";
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -41,13 +41,13 @@ class ByteArray {
 	}
 	
 	get amfVersion () {
-		return this.objectEncoding
+		return String(this.objectEncoding)
 	}
 	set amfVersion (amfV) {
-		if (amfV === 2 || amfV > 3 || amfV < 0) {
+		if (amfV === "2" || amfV > "3" || amfV < "0") {
 			 throw new TypeError("Invalid amf version")
 		}
-		this.objectEncoding = amfV
+		this.objectEncoding = String(amfV)
 	}
 
 	set position (value) {
@@ -313,12 +313,12 @@ class ByteArray {
 	}
 
 	writeObject (object) {
-		if (this.objectEncoding === 0) {
+		if (this.objectEncoding === "0") {
 			let amf = new AMF0()
 			let serializedObject = amf.writeObject(object)
 			console.log("AMF0 Serialized Buffer:", serializedObject)
 			this.buffer = serializedObject
-		} else if (this.objectEncoding === 3) {
+		} else if (this.objectEncoding === "3") {
 			throw new Error("Not supported")
 		} else {
 			throw new Error("Not supported")
@@ -326,11 +326,11 @@ class ByteArray {
 	}
 
 	readObject (buffer) {
-		if (this.objectEncoding === 0) {
+		if (this.objectEncoding === "0") {
 			let amf = new AMF0()
 			let deserializedObject = amf.readObject(buffer)
 			console.log("AMF0 Deserialized Buffer:", deserializedObject)
-		} else if (this.objectEncoding === 3) {
+		} else if (this.objectEncoding === "3") {
 			throw new Error("Not supported")
 		} else {
 			throw new Error("Not supported")

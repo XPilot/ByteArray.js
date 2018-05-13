@@ -158,8 +158,9 @@ class AMF0 {
 	setObjectReference (o) {
 		let refNum
 		if (this.writeObjectCache !== null && (refNum = this.hasItem(this.writeObjectCache, o)) !== -1) {
-			this.writeByte(7)
-			this.writeUnsignedShort(refNum)
+			let buffer = new Buffer(3)
+			buffer.writeUInt8(7, 0)
+			buffer.writeUInt16BE(refNum, 1)
 			return false
 		} else {
 			if (this.writeObjectCache === null) {
