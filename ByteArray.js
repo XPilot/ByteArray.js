@@ -33,10 +33,6 @@ class ByteArray {
 			this.buffer = new Buffer(typeof (buff) === "number" ? Number(buff) : Values.MAX_BUFFER_SIZE)
 		}
 	}
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
->>>>>>> 3e15fe61bac8105491b240a06b0e56bf16dba4b1
 	/**
 	 * Validates string.
 	 * @param {string} value
@@ -50,12 +46,6 @@ class ByteArray {
 		}
 		return value + ""
 	}
-<<<<<<< HEAD
-=======
-=======
-
->>>>>>> 12877aa487f1da20c6596929f1c636df3b6b2a02
->>>>>>> 3e15fe61bac8105491b240a06b0e56bf16dba4b1
 	/**
 	 * Returns the position.
 	 * @returns {number}
@@ -104,17 +94,8 @@ class ByteArray {
 	 * @param {string} AMFV
 	 */
 	set objectEncoding (AMFV) {
-<<<<<<< HEAD
 		AMFV = this.axCoerceString(AMFV)
 		if (AMFV == "0" && typeof AMFV === "string") {
-=======
-<<<<<<< HEAD
-		AMFV = this.axCoerceString(AMFV)
-		if (AMFV == "0" && typeof AMFV === "string") {
-=======
-		if (AMFV === 0) {
->>>>>>> 12877aa487f1da20c6596929f1c636df3b6b2a02
->>>>>>> 3e15fe61bac8105491b240a06b0e56bf16dba4b1
 			this._objectEncoding = String(AMFV)
 		} else {
 			throw new TypeError("Invalid AMF version or not supported yet")
