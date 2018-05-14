@@ -1,14 +1,6 @@
 {
   "name": "bytearray.js",
-<<<<<<< HEAD
   "version": "1.0.8",
-=======
-<<<<<<< HEAD
-  "version": "1.0.8",
-=======
-  "version": "1.0.7",
->>>>>>> 12877aa487f1da20c6596929f1c636df3b6b2a02
->>>>>>> 3e15fe61bac8105491b240a06b0e56bf16dba4b1
   "description": "Equivalent to Actionscript 3 ByteArray with a fully supported AMF0 library.",
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js",
