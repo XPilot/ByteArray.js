@@ -5,7 +5,7 @@
   <sub><sup>An equivalent to Actionscript 3's ByteArray for Javascript with a fully supported AMF0 library.</sup></sub>
   <br>
   <a href="https://travis-ci.org/Zaseth/ByteArray.js"><img src="https://travis-ci.org/Zaseth/ByteArray.js.svg?branch=master" alt="ByteArray.js" style= "margin-bottom: 1rem"></a>
-  <a><img src="https://img.shields.io/npm/v/bytearray.js.svg" alt="ByteAray.js" style="margin-bottom: 1rem"></a>
+  <a href="https://www.npmjs.com/package/bytearray.js"><img src="https://img.shields.io/npm/v/bytearray.js.svg" alt="ByteAray.js" style="margin-bottom: 1rem"></a>
   <a><img src="https://img.shields.io/npm/l/bytearray.js.svg" alt="ByteAray.js" style="margin-bottom: 1rem"></a>
   <a><img src="https://img.shields.io/npm/dy/bytearray.js.svg" alt="ByteAray.js" style="margin-bottom: 1rem"></a>
 </h1>
