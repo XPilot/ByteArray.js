@@ -14,15 +14,15 @@
   AMF support
   <br>
   <sub><sup>ByteArray.js currently fully supports AMF0 serialization and deserialization.</sup></sub>
-  <hr>
+  <hr><br>
   Installation
   <br>
   <sub>npm install bytearray.js</sub>
-  <hr>
+  <hr><br>
   Examples
   <br>
   <sub>See: /Examples/test.js</sub>
-  <hr>
+  <hr><br>
   Contributing
   <br>
   <sub><sup>Any help is welcome. Just send a pull request and I will gladly check it out!</sup></sub>
