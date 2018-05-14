@@ -26,4 +26,5 @@
   Contributing
   <br>
   <sub><sup>Any help is welcome. Just send a pull request and I will gladly check it out!</sup></sub>
+  <hr>
 </h1>
