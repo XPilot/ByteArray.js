@@ -7,7 +7,7 @@
   <a href="https://travis-ci.org/Zaseth/ByteArray.js"><img src="https://travis-ci.org/Zaseth/ByteArray.js.svg?branch=master" alt="ByteArray.js travis" style= "margin-bottom: 1rem"></a>
   <a href="https://www.npmjs.com/package/bytearray.js"><img src="https://img.shields.io/npm/v/bytearray.js.svg" alt="ByteAray.js npm" style="margin-bottom: 1rem"></a>
   <a href="https://github.com/Zaseth/ByteArray.js/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/bytearray.js.svg" alt="ByteAray.js license" style="margin-bottom: 1rem"></a>
-  <a><img src="https://img.shields.io/npm/dy/bytearray.js.svg" alt="ByteAray.js downloads" style="margin-bottom: 1rem"></a>
+  <a href="https://npm-stat.com/charts.html?package=bytearray.js"><img src="https://img.shields.io/npm/dy/bytearray.js.svg" alt="ByteAray.js downloads" style="margin-bottom: 1rem"></a>
 </h1>
 
 <h1 align="center">
