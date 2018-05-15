@@ -1,5 +1,8 @@
 "use strict"
 
+const zlib = require("zlib")
+const lzma = require("lzma-native")
+const deasync = require("deasync")
 const AMF0 = require("./AMF0")
 const Values = {
 	Int8: 1,
@@ -10,8 +13,11 @@ const Values = {
 	MAX_BUFFER_SIZE: 4096,
 	BIG_ENDIAN: true,
 	LITTLE_ENDIAN: false,
-	AMF_0: "0",
-	AMF_3: "3"
+	AMF_0: 0,
+	AMF_3: 3,
+	DEFLATE: "deflate",
+	LZMA: "lzma",
+	ZLIB: "zlib"
 }
 
 /** Class representing a ByteArray. */
@@ -30,10 +36,7 @@ class ByteArray {
 	 	} else if (buff instanceof Buffer) {
 	 		this.buffer = buff
 	 	} else {
-			/**
-			 * new Buffer is deprecated.
-			 */
-			 this.buffer = Buffer.alloc(typeof (buff) === "number" ? Number(buff) : Values.MAX_BUFFER_SIZE)
+			 this.buffer = Buffer.alloc(typeof (buff) === "number" ? Number(buff) : Values.MAX_BUFFER_SIZE) /** new Buffer is deprecated. */
 			}
 		}
 	/**
@@ -48,6 +51,13 @@ class ByteArray {
 	 		return null
 	 	}
 	 	return value + ""
+	 }
+	/**
+	 * Returns the buffer.
+	 * @returns {buffer}
+	 */
+	 get byteStream () {
+	 	return this.buffer
 	 }
 	/**
 	 * Returns the position.
@@ -97,26 +107,11 @@ class ByteArray {
 	 * @param {string} AMFV
 	 */
 	 set objectEncoding (AMFV) {
-	 	AMFV = this.axCoerceString(AMFV)
 	 	if (AMFV == Values.AMF_0) {
-	 		this._objectEncoding = String(AMFV)
+	 		this._objectEncoding = AMFV
 	 	} else {
 	 		throw new TypeError("Invalid AMF version or not supported yet")
 	 	}
-	 }
-	/**
-	 * Returns a JSON formatted buffer.
-	 * @returns {json}
-	 */
-	 toJSON () {
-	 	return this.buffer.toJSON()
-	 }
-	/**
-	 * Returns a UTF8 decoded buffer.
-	 * @returns {string}
-	 */
-	 toString () {
-	 	return this.buffer.toString("utf8", this.offset, this.length)
 	 }
 	/**
 	 * Resets the position to 0.
@@ -129,6 +124,46 @@ class ByteArray {
 	 */
 	 clear () {
 	 	this.length(Values.MAX_BUFFER_SIZE)
+	 }
+	/**
+	 * Compresses the byte array.
+	 */
+	 compress (type) {
+	 	type = this.axCoerceString(type)
+	 	let algorithm = ""
+	 	if (type === Values.DEFLATE) algorithm = Values.DEFLATE
+	 	if (type === Values.LZMA) algorithm = Values.LZMA
+	 	if (type === Values.ZLIB) algorithm = Values.ZLIB
+	 	switch (algorithm) {
+	 		case Values.DEFLATE:
+	 		this.buffer = zlib.deflateRawSync(this.buffer)
+	 		break
+	 		case Values.LZMA:
+	 		let done = false
+	 		lzma.LZMA().compress(this.buffer, 1, (result) => {
+	 			this.buffer = result
+	 			done = true
+	 		})
+	 		deasync.loopWhile(() => {
+	 			return !done
+	 		})
+	 		break
+	 		case Values.ZLIB:
+	 		this.buffer = zlib.deflateSync(this.buffer)
+	 		break
+	 	}
+	 }
+	/**
+	 * Compresses the byte array using the deflate compression algorithm.
+	 */
+	 deflate () {
+	 	this.compress(Values.DEFLATE)
+	 }
+	/**
+	 * Decompresses the byte array using the deflate compression algorithm.
+	 */
+	 inflate () {
+	 	this.uncompress(Values.DEFLATE)
 	 }
 	/**
 	 * Returns a range within the supplied bounds.
@@ -144,6 +179,9 @@ class ByteArray {
 	 * @returns {number}
 	 */
 	 updatePosition (n) {
+	 	if (n > Values.MAX_BUFFER_SIZE) {
+	 		throw new RangeError("Trying to access beyond buffer length")
+	 	}
 	 	let a = this.offset
 	 	this.offset += n
 	 	return a
@@ -227,7 +265,7 @@ class ByteArray {
 	 * @returns {object}
 	 */
 	 readObject (buffer) {
-	 	if (this.objectEncoding === "0") {
+	 	if (this.objectEncoding === Values.AMF_0) {
 	 		let amf = new AMF0()
 	 		let deserializedObject = amf.readObject(buffer)
 	 		console.log("AMF0 Deserialized Buffer:", deserializedObject)
@@ -285,6 +323,48 @@ class ByteArray {
 	 readUTFBytes (length) {
 	 	let offset = this.updatePosition(length)
 	 	return this.buffer.toString("utf8", offset, offset + length)
+	 }
+	/**
+	 * Returns a JSON formatted buffer.
+	 * @returns {json}
+	 */
+	 toJSON () {
+	 	return this.buffer.toJSON()
+	 }
+	/**
+	 * Returns a UTF8 decoded buffer.
+	 * @returns {string}
+	 */
+	 toString () {
+	 	return this.buffer.toString("utf8", this.offset, this.length)
+	 }
+	/**
+	 * Decompresses the byte array.
+	 */
+	 uncompress (type) {
+	 	type = this.axCoerceString(type)
+	 	let algorithm = ""
+	 	if (type === Values.DEFLATE) algorithm = Valus.DEFLATE
+	 	if (type === Values.LZMA) algorithm = Values.LZMA
+	 	if (type === Values.ZLIB) algorithm = Values.ZLIB
+	 	switch (algorithm) {
+	 		case Values.DEFLATE:
+	 		this.buffer = zlib.inflateRawSync(this.buffer)
+	 		break
+	 		case Values.LZMA:
+	 		let done = false
+	 		lzma.LZMA().decompress(this.buffer, (result) => {
+	 			this.buffer = result
+	 			done = true
+	 		})
+	 		deasync.loopWhile(() => {
+	 			return !done
+	 		})
+	 		break
+	 		case Values.ZLIB:
+	 		this.buffer = zlib.inflateSync(this.buffer)
+	 		break
+	 	}
 	 }
 	/**
 	 * Reads a single UTF-8 character from the byte stream.
@@ -424,7 +504,7 @@ class ByteArray {
 	 * @param {object} object
 	 */
 	 writeObject (object) {
-	 	if (this.objectEncoding === "0") {
+	 	if (this.objectEncoding === Values.AMF_0) {
 	 		let amf = new AMF0()
 	 		let serializedObject = amf.writeObject(object)
 	 		console.log("AMF0 Serialized Buffer:", serializedObject)

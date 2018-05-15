@@ -2,9 +2,18 @@ const ByteArray = require("../ByteArray")
 
 function ObjectExample () {
 	const byteArr = new ByteArray()
-	byteArr.objectEncoding = "0"
+	byteArr.objectEncoding = 0
 	byteArr.writeObject({id: 1})
 	console.log(byteArr.readObject(byteArr.buffer))
+}
+
+function CompressionExample () {
+	const byteArr = new ByteArray()
+	byteArr.writeUTF("Hello World!")
+	p1.compress("zlib")
+	p1.offset = 0
+	console.log(p1)
+	console.log(p1.readUTF())
 }
 
 function ByteArrayExample () {
