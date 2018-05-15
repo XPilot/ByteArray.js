@@ -1,29 +1,35 @@
 {
   "name": "bytearray.js",
-  "version": "1.0.5",
+  "version": "1.0.9",
   "description": "Equivalent to Actionscript 3 ByteArray with a fully supported AMF0 library.",
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js",
   "scripts": {
-  	"start": "node ByteArray.js"
+    "start": "node ByteArray.js"
   },
   "engines": {
-  	"node": "10.1.0"
+    "node": "10.1.0"
   },
   "repository": {
-  	"type": "git",
-  	"url": "https://github.com/Zaseth/ByteArray.js"
+    "type": "git",
+    "url": "https://github.com/Zaseth/ByteArray.js"
   },
   "keywords": [
-  	"bytearray",
-  	"actionscript 3 for javascript",
-  	"write bytes",
-  	"byte stream",
-  	"byte array",
-  	"datainput",
-  	"amf0",
-  	"action message format"
+    "bytearray",
+    "actionscript 3 for javascript",
+    "write bytes",
+    "byte stream",
+    "byte array",
+    "datainput",
+    "amf0",
+    "action message format",
+    "bytearray for javascript",
+    "bytearray for nodejs",
+    "buffer"
   ],
   "author": "Zaseth",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "npm": "^6.0.1"
+  }
 }

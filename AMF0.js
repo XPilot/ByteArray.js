@@ -158,7 +158,7 @@ class AMF0 {
 	setObjectReference (o) {
 		let refNum
 		if (this.writeObjectCache !== null && (refNum = this.hasItem(this.writeObjectCache, o)) !== -1) {
-			let buffer = new Buffer(3)
+			let buffer = Buffer.alloc(3)
 			buffer.writeUInt8(7, 0)
 			buffer.writeUInt16BE(refNum, 1)
 			return false
@@ -179,7 +179,7 @@ class AMF0 {
 	in network byte order (sign bit in low memory).
 	*/
 	writeNumber (value) {
-		let buffer = new Buffer(9)
+		let buffer = Buffer.alloc(9)
 		buffer.writeUInt8(0x00, 0)
 		buffer.writeDoubleBE(value, 1)
 		return buffer
@@ -199,7 +199,7 @@ class AMF0 {
 	true.
 	*/
 	writeBoolean (value) {
-		let buffer = new Buffer(2)
+		let buffer = Buffer.alloc(2)
 		buffer.writeUInt8(0x01, 0)
 		buffer.writeUInt8((value ? 1 : 0), 1)
 		return buffer
@@ -219,11 +219,11 @@ class AMF0 {
 	*/
 	writeString (value) {
 		if (value.length < 65535) {
-			let buffer = new Buffer(1)
+			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x02)
-			let buffer2 = new Buffer(2)
+			let buffer2 = Buffer.alloc(2)
 			buffer2.writeUInt16BE(Buffer.byteLength(value), 0)
-			return Buffer.concat([buffer, buffer2, new Buffer(value, "utf8")])
+			return Buffer.concat([buffer, buffer2, Buffer.from(value, "utf8")])
 		} else {
 			return this.writeLongString(value)
 		}
@@ -237,9 +237,9 @@ class AMF0 {
 	}
 	writeStringWithoutType (value) {
 		if (value.length < 65535) {
-			let buffer = new Buffer(2)
+			let buffer = Buffer.alloc(2)
 			buffer.writeUInt16BE(Buffer.byteLength(value), 0)
-			return Buffer.concat([buffer, new Buffer(value, "utf8")])
+			return Buffer.concat([buffer, Buffer.from(value, "utf8")])
 		} else {
 			return this.writeLongStringWithoutType(value)
 		}
@@ -262,14 +262,14 @@ class AMF0 {
 	*/
 	writeObject (value) {
 		if (this.setObjectReference(value)) {
-			let buffer = new Buffer(1)
+			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x03, 0)
 			for (let key in value) {
 				if (typeof value[key] !== "function") {
 					buffer = Buffer.concat([buffer, this.writeStringWithoutType(key), this.writeValue(value[key])])
 				}
 			}
-			let endObject = new Buffer(3)
+			let endObject = Buffer.alloc(3)
 			endObject.writeUInt16BE(0x00, 0)
 			endObject.writeUInt8(0x09, 2)
 			return Buffer.concat([buffer, endObject])
@@ -310,7 +310,7 @@ class AMF0 {
 	for this value.
 		*/
 	writeNull () {
-		let buffer = new Buffer(1)
+		let buffer = Buffer.alloc(1)
 		buffer.writeUInt8(0x05, 0)
 		return buffer
 	}
@@ -326,7 +326,7 @@ class AMF0 {
     is encoded for this value.
     */
     writeUndefined () {
-    	let buffer = new Buffer(1)
+    	let buffer = Buffer.alloc(1)
     	buffer.writeUInt8(0x06, 0)
     	return buffer
     }
@@ -345,7 +345,7 @@ class AMF0 {
     0.
     */
     writeReference (value) {
-    	let buffer = new Buffer(3)
+    	let buffer = Buffer.alloc(3)
     	buffer.writeUInt8(0x07, 0)
     	buffer.writeUInt16BE(value, 1)
     	return buffer
@@ -374,7 +374,7 @@ class AMF0 {
     		} else {
     			length = Object.keys(value).length
     		}
-    		let buffer = new Buffer(5)
+    		let buffer = Buffer.alloc(5)
     		buffer.writeUInt8(0x08, 0)
     		buffer.writeUInt32BE(length, 1)
     		return Buffer.concat([buffer, this.writeObject(value).slice(1)])
@@ -397,7 +397,7 @@ class AMF0 {
 	*/
 	writeStrictArray (value) {
 		if (this.setObjectReference(value)) {
-			let buffer = new Buffer(5)
+			let buffer = Buffer.alloc(5)
 			buffer.writeUInt8(0x0a, 0)
 			buffer.writeUInt32BE(value.length, 1)
 			value.forEach(values => {
@@ -436,7 +436,7 @@ class AMF0 {
 	that the time zone be queried independently as needed.
 	*/
 	writeDate (value) {
-		let buffer = new Buffer(11)
+		let buffer = Buffer.alloc(11)
 		buffer.writeUInt8(0x0b, 0)
 		buffer.writeInt16BE(0, 1)
 		buffer.writeDoubleBE(value.getTime(), 3)
@@ -457,11 +457,11 @@ class AMF0 {
 	*/
 	writeLongString (value) {
 		if (value.length > 65535) {
-			let buffer = new Buffer(1)
+			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x0C)
-			let buffer2 = new Buffer(4)
+			let buffer2 = Buffer.alloc(4)
 			buffer2.writeUInt32BE(Buffer.byteLength(value), 0)
-			return Buffer.concat([buffer, buffer2, new Buffer(value, "utf8")])
+			return Buffer.concat([buffer, buffer2, Buffer.from(value, "utf8")])
 		} else {
 			return this.writeString(value)
 		}
@@ -475,9 +475,9 @@ class AMF0 {
 	}
 	writeLongStringWithoutType (value) {
 		if (value.length > 65535) {
-			let buffer = new Buffer(4)
+			let buffer = Buffer.alloc(4)
 			buffer.writeUInt32BE(Buffer.byteLength(value), 0)
-			return Buffer.concat([buffer, new Buffer(value, "utf8")])
+			return Buffer.concat([buffer, Buffer.from(value, "utf8")])
 		} else {
 			return this.writeStringWithoutType(value)
 		}
@@ -498,10 +498,10 @@ class AMF0 {
 	*/
 	writeXMLDoc (value) {
 		if (this.setObjectReference(value)) {
-			let buffer = new Buffer(3)
+			let buffer = Buffer.alloc(3)
 			buffer.writeUInt8(0x0f, 0)
 			buffer.writeUInt16BE(value.length, 1)
-			return Buffer.concat([buffer, new Buffer(value, "utf8")])
+			return Buffer.concat([buffer, Buffer.from(value, "utf8")])
 		}
 	}
 	readXMLDoc (buffer) {
@@ -519,14 +519,14 @@ class AMF0 {
 	*/
 	writeTypedObject (value) {
 		if (this.setObjectReference(value)) {
-			let buffer = new Buffer(1)
+			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x10, 0)
 			for (let key in value) {
 				if (!key.startsWith("_")) {
 					buffer = Buffer.concat([buffer, this.writeStringWithoutType(key.constructor.name), this.writeValue(value[key])])
 				}
 			}
-			let endTypedObject = new Buffer(3)
+			let endTypedObject = Buffer.alloc(3)
 			endTypedObject.writeUInt16BE(0x00, 0)
 			endTypedObject.writeUInt8(0x09, 2)
 			return Buffer.concat([buffer, endTypedObject])
