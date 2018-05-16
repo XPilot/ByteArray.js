@@ -23,6 +23,7 @@
   Installation
   <br>
   <sub>npm install bytearray.js</sub>
+  
   <sub>bower install bytearray.js</sub>
   <hr>
   Examples
