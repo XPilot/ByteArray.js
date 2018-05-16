@@ -127,6 +127,7 @@ class ByteArray {
 	 }
 	/**
 	 * Compresses the byte array.
+	 * @param {string} type
 	 */
 	 compress (type) {
 	 	type = this.axCoerceString(type)
@@ -340,6 +341,7 @@ class ByteArray {
 	 }
 	/**
 	 * Decompresses the byte array.
+	 * @param {string} type
 	 */
 	 uncompress (type) {
 	 	type = this.axCoerceString(type)
