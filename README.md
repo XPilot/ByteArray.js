@@ -16,13 +16,21 @@
   <br>
   <sub><sup>ByteArray.js currently fully supports AMF0 serialization and deserialization.</sup></sub>
   <hr>
+  Compression support
+  <br>
+  <sub><sup>ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression.</sup></sub>
+  <hr>
   Installation
   <br>
   <sub>npm install bytearray.js</sub>
   <hr>
   Examples
   <br>
-  <sub>See: /Examples/test.js</sub>
+  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a></sub>
+  <hr>
+  Documentation
+  <br>
+  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a></sub>
   <hr>
   Contributing
   <br>
