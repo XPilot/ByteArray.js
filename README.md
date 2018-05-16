@@ -1,6 +1,6 @@
 <h1 align="center">
   <br>
-  ByteArray.js
+  ByteArray.js <img src="https://raw.githubusercontent.com/benschwarz/bower-badges/gh-pages/badge%402x.png" width="130" height="30">
   <br>
   <sub><sup>An equivalent to Actionscript 3's ByteArray for Javascript with a fully supported AMF0 library.</sup></sub>
   <br>
@@ -23,6 +23,7 @@
   Installation
   <br>
   <sub>npm install bytearray.js</sub>
+  <sub>bower install bytearray.js</sub>
   <hr>
   Examples
   <br>
