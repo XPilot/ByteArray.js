@@ -1,7 +1,7 @@
 {
   "name": "bytearray.js",
   "description": "Equivalent to Actionscript 3 ByteArray with a fully supported AMF0 library.",
-  "main": "bytearray.js",
+  "main": "ByteArray.js",
   "authors": [
     "Zaseth"
   ],
