@@ -1,6 +1,6 @@
 {
   "name": "bytearray.js",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "Equivalent to Actionscript 3 ByteArray with a fully supported AMF0 library.",
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js",
@@ -32,7 +32,9 @@
     "zlib",
     "compression",
     "lzma",
-    "actionscript byte array for javascript"
+    "actionscript byte array for javascript",
+    "var int",
+    "var-int"
   ],
   "author": "Zaseth",
   "license": "MIT",

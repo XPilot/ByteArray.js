@@ -431,6 +431,28 @@ class ByteArray {
 		return result
 	}
 	/**
+	 * Reads a var-integer from the byte stream.
+	 * @returns {number}
+	 */
+	readVarInt () {
+		let result = 0
+		let shift = 0
+		do {
+			result += shift < 28
+			  ? (this.buffer[this.offset++] & 0x7F) << shift
+			  : (this.buffer[this.offset++] & 0x7F) * Math.pow(2, shift)
+			shift += 7
+		} while (this.buffer[this.offset++] >= 0x80)
+		return result
+	}
+	/**
+	 * Reads an unsigned var-integer from the byte stream.
+	 * @returns {number}
+	 */
+	readVarUInt () {
+		return this.readVarInt() >>> 1 ^ -(this.readVarInt() & 1)
+	}
+	/**
 	 * Writes a Boolean value. A single byte is written according to the value parameter, either 1 if true or 0 if false.
 	 * @param {boolean} value
 	 */
@@ -672,6 +694,28 @@ class ByteArray {
 			this.buffer[0 + i] = (value >> (i * 8)) & 0xFF
 		}
 		this.offset += bytes
+	}
+	/**
+	 * Writes a var-integer to the byte stream.
+	 * @param {number} value
+	 */
+	writeVarInt (value) {
+		while (value >= Math.pow(2, 31)) {
+			this.buffer[this.offset++] = (value & 0xFF) | 0x80
+			value /= 128
+		}
+		while (value & ~0x7F) {
+			this.buffer[this.offset++] = (value & 0xFF) | 0x80
+			value >>>= 7
+		}
+		this.buffer[this.offset] = value | 0
+	}
+	/**
+	 * Writes an unsigned var-integer to the byte stream.
+	 * @param {number} value
+	 */
+	writeVarUInt (value) {
+		this.writeVarInt(value << 1 ^ value >> 31)
 	}
 }
 
