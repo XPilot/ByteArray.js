@@ -1,12 +1,12 @@
 "use strict"
 
 class AMF0 {
-	constructor () {
+	constructor() {
 		this.writeObjectCache = []
 		this.isDebug = true
 	}
 
-	writeValue (value) {
+	writeValue(value) {
 		let className = value.constructor.name.toLowerCase()
 		if (this.isDebug) {
 			console.log("Type to be serialized: <" + typeof value + "> with class: <" + className + ">")
@@ -21,113 +21,113 @@ class AMF0 {
 			return this.writeDate(value)
 		}
 		if (typeof value === "string" && value.startsWith("<") && value.endsWith(">")) {
-	    	if (className === "libxmljs" || className === "xml2js") { // These are 2 examples of XML parsing modules for Node.js.
-	    		console.log("Serializing XML with an XML parser")
-	    		return this.writeXMLDoc(value)
-	    	} else {
-	    		console.log("Trying to serialize XML without parsing the XML, continue anyway")
-	    		return this.writeXMLDoc(value)
-	    	}
-	    }
-	    switch (typeof value) {
-	    	case "number":
-	    	return this.writeNumber(value)
-	    	break
-	    	case "boolean":
-	    	return this.writeBoolean(value)
-	    	break
-	    	case "string":
-	    	if (value.length < 65535) {
-	    		return this.writeString(value)
-	    	} else {
-	    		return this.writeLongString(value)
-	    	}
-	    	break
-	    	case "object":
-	    	if (Array.isArray(value)) {
-	    		if (this.isStrict(value)) {
-	    			return this.writeStrictArray(value)
-	    		} else {
-	    			return this.writeECMAArray(value)
-	    		}
-	    	} else {
-	    		return this.writeObject(value)
-	    	}
-	    	break
-	    	if (Array.isArray(value)) {
-	    		if (this.isStrict(value)) {
-	    			return this.writeStrictArray(value)
-	    		} else {
-	    			return this.writeECMAArray(value)
-	    		}
-	    	}
-	    	break
-	    	case "null":
-	    	return this.writeNull()
-	    	break
-	    	case "undefined":
-	    	return this.writeUndefined()
-	    	break
-	    }
+			if (className === "libxmljs" || className === "xml2js") { // These are 2 examples of XML parsing modules for Node.js.
+				console.log("Serializing XML with an XML parser")
+				return this.writeXMLDoc(value)
+			} else {
+				console.log("Trying to serialize XML without parsing the XML, continue anyway")
+				return this.writeXMLDoc(value)
+			}
+		}
+		switch (typeof value) {
+			case "number":
+				return this.writeNumber(value)
+				break
+			case "boolean":
+				return this.writeBoolean(value)
+				break
+			case "string":
+				if (value.length < 65535) {
+					return this.writeString(value)
+				} else {
+					return this.writeLongString(value)
+				}
+				break
+			case "object":
+				if (Array.isArray(value)) {
+					if (this.isStrict(value)) {
+						return this.writeStrictArray(value)
+					} else {
+						return this.writeECMAArray(value)
+					}
+				} else {
+					return this.writeObject(value)
+				}
+				break
+				if (Array.isArray(value)) {
+					if (this.isStrict(value)) {
+						return this.writeStrictArray(value)
+					} else {
+						return this.writeECMAArray(value)
+					}
+				}
+				break
+			case "null":
+				return this.writeNull()
+				break
+			case "undefined":
+				return this.writeUndefined()
+				break
+		}
 	}
-	readValue (buffer) {
+	readValue(buffer) {
 		if (this.isDebug) {
 			console.log("Buffer to deserialize:", buffer)
 		}
 		let value = buffer.readUInt8(0)
 		switch (value) {
 			case 0x00:
-			return this.readNumber(buffer)
-			break
+				return this.readNumber(buffer)
+				break
 			case 0x01:
-			return this.readBoolean(buffer)
-			break
+				return this.readBoolean(buffer)
+				break
 			case 0x02:
-			return this.readString(buffer)
-			break
+				return this.readString(buffer)
+				break
 			case 0x03:
-			return this.readObject(buffer)
-			break
+				return this.readObject(buffer)
+				break
 			case 0x05:
-			return this.readNull()
-			break
+				return this.readNull()
+				break
 			case 0x06:
-			return this.readUndefined()
-			break
+				return this.readUndefined()
+				break
 			case 0x07:
-			return this.readReference(buffer)
-			break
+				return this.readReference(buffer)
+				break
 			case 0x08:
-			return this.readECMAArray(buffer)
-			break
+				return this.readECMAArray(buffer)
+				break
 			case 0x0a:
-			return this.readStrictArray(buffer)
-			break
+				return this.readStrictArray(buffer)
+				break
 			case 0x0b:
-			return this.readDate(buffer)
-			break
+				return this.readDate(buffer)
+				break
 			case 0x0c:
-			return this.readLongString(buffer)
-			break
+				return this.readLongString(buffer)
+				break
 			case 0x0f:
-			return this.readXMLDoc(buffer)
-			break
+				return this.readXMLDoc(buffer)
+				break
 			case 0x10:
-			return this.readTypedObject(buffer)
-			break
+				return this.readTypedObject(buffer)
+				break
 			default:
-			throw new Error("Unknown type")
+				throw new Error("Unknown type")
 		}
 	}
-	toString (buffer) {
+	toString(buffer) {
 		return buffer.toString("utf8", 0, Buffer.byteLength(buffer))
 	}
-	isStrict (value) {
+	isStrict(value) {
 		let l = value.length, c = 0
 		for (let key in value) c++
-			return (c == l)
+		return (c == l)
 	}
-	hasItem (array, item) {
+	hasItem(array, item) {
 		let i = array.length
 		while (i--) {
 			if (this.isSame(array[i], item)) {
@@ -136,7 +136,7 @@ class AMF0 {
 		}
 		return -1
 	}
-	isSame (item1, item2) {
+	isSame(item1, item2) {
 		if (typeof item1 === "object" && typeof item2 === "object") {
 			if (Object(item1).constructor === Object(item2).constructor) {
 				for (let i in item1) {
@@ -155,7 +155,7 @@ class AMF0 {
 		}
 		return (item1 === item2)
 	}
-	setObjectReference (o) {
+	setObjectReference(o) {
 		let refNum
 		if (this.writeObjectCache !== null && (refNum = this.hasItem(this.writeObjectCache, o)) !== -1) {
 			let buffer = Buffer.alloc(3)
@@ -178,13 +178,13 @@ class AMF0 {
 	Number type marker is always an 8 byte IEEE-754 double precision floating point value
 	in network byte order (sign bit in low memory).
 	*/
-	writeNumber (value) {
+	writeNumber(value) {
 		let buffer = Buffer.alloc(9)
 		buffer.writeUInt8(0x00, 0)
 		buffer.writeDoubleBE(value, 1)
 		return buffer
 	}
-	readNumber (buffer) {
+	readNumber(buffer) {
 		return {
 			len: 9,
 			value: buffer.readDoubleBE(1)
@@ -198,13 +198,13 @@ class AMF0 {
 	byte; a zero byte value denotes false while a non-zero byte value (typically 1) denotes
 	true.
 	*/
-	writeBoolean (value) {
+	writeBoolean(value) {
 		let buffer = Buffer.alloc(2)
 		buffer.writeUInt8(0x01, 0)
 		buffer.writeUInt8((value ? 1 : 0), 1)
 		return buffer
 	}
-	readBoolean (buffer) {
+	readBoolean(buffer) {
 		return {
 			len: 2,
 			value: (buffer.readUInt8(1) != 0)
@@ -217,7 +217,7 @@ class AMF0 {
 	long Strings that require more than 65535 bytes to encode in UTF-8, the AMF 0 Long
 	String type should be used.
 	*/
-	writeString (value) {
+	writeString(value) {
 		if (value.length < 65535) {
 			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x02)
@@ -228,14 +228,14 @@ class AMF0 {
 			return this.writeLongString(value)
 		}
 	}
-	readString (buffer) {
+	readString(buffer) {
 		let length = buffer.readUInt16BE(1)
 		return {
 			len: 3 + length,
 			value: buffer.toString("utf8", 3, 3 + length)
 		}
 	}
-	writeStringWithoutType (value) {
+	writeStringWithoutType(value) {
 		if (value.length < 65535) {
 			let buffer = Buffer.alloc(2)
 			buffer.writeUInt16BE(Buffer.byteLength(value), 0)
@@ -244,7 +244,7 @@ class AMF0 {
 			return this.writeLongStringWithoutType(value)
 		}
 	}
-	readStringWithoutType (buffer) {
+	readStringWithoutType(buffer) {
 		let length = buffer.readUInt16BE(0)
 		return {
 			len: 2 + length,
@@ -260,7 +260,7 @@ class AMF0 {
 	Use the reference type to reduce redundant information from being serialized and infinite
 	loops from cyclical references.
 	*/
-	writeObject (value) {
+	writeObject(value) {
 		if (this.setObjectReference(value)) {
 			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x03, 0)
@@ -275,8 +275,8 @@ class AMF0 {
 			return Buffer.concat([buffer, endObject])
 		}
 	}
-	readObject (buffer) {
-		let rules = {0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x08: this.readECMAArray, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject}
+	readObject(buffer) {
+		let rules = { 0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x08: this.readECMAArray, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject }
 		let object = {}
 		let iBuf = buffer.slice(1)
 		let length = 1
@@ -309,12 +309,12 @@ class AMF0 {
 	The null type is represented by the null type marker. No further information is encoded
 	for this value.
 		*/
-	writeNull () {
+	writeNull() {
 		let buffer = Buffer.alloc(1)
 		buffer.writeUInt8(0x05, 0)
 		return buffer
 	}
-	readNull () {
+	readNull() {
 		return {
 			len: 1,
 			value: null
@@ -325,17 +325,17 @@ class AMF0 {
     The undefined type is represented by the undefined type marker. No further information
     is encoded for this value.
     */
-    writeUndefined () {
-    	let buffer = Buffer.alloc(1)
-    	buffer.writeUInt8(0x06, 0)
-    	return buffer
-    }
-    readUndefined () {
-    	return {
-    		len: 1,
-    		value: undefined
-    	}
-    }
+	writeUndefined() {
+		let buffer = Buffer.alloc(1)
+		buffer.writeUInt8(0x06, 0)
+		return buffer
+	}
+	readUndefined() {
+		return {
+			len: 1,
+			value: undefined
+		}
+	}
     /*
     2.9 Reference Type
     AMF0 defines a complex object as an anonymous object, a typed object, an array or an
@@ -344,18 +344,18 @@ class AMF0 {
     bit integer to point to an index in a table of previously serialized objects. Indices start at
     0.
     */
-    writeReference (value) {
-    	let buffer = Buffer.alloc(3)
-    	buffer.writeUInt8(0x07, 0)
-    	buffer.writeUInt16BE(value, 1)
-    	return buffer
-    }
-    readReference (buffer) {
-    	return {
-    		len: 3,
-    		value: "ref" + buffer.readUInt16BE(1)
-    	}
-    }
+	writeReference(value) {
+		let buffer = Buffer.alloc(3)
+		buffer.writeUInt8(0x07, 0)
+		buffer.writeUInt16BE(value, 1)
+		return buffer
+	}
+	readReference(buffer) {
+		return {
+			len: 3,
+			value: "ref" + buffer.readUInt16BE(1)
+		}
+	}
     /*
     2.10 Ecma Array Type
     An ECMA Array or 'associative' Array is used when an ActionScript Array contains nonordinal
@@ -366,28 +366,28 @@ class AMF0 {
     A 32-bit associative-count implies a theoretical maximum of 4,294,967,295 associative
     array entries.
     */
-    writeECMAArray (value) {
-    	if (this.setObjectReference(value)) {
-    		let length = 0
-    		if (value instanceof Array) {
-    			length = value.length
-    		} else {
-    			length = Object.keys(value).length
-    		}
-    		let buffer = Buffer.alloc(5)
-    		buffer.writeUInt8(0x08, 0)
-    		buffer.writeUInt32BE(length, 1)
-    		return Buffer.concat([buffer, this.writeObject(value).slice(1)])
-    	}
-    }
-    readECMAArray (buffer) {
-    	let object = this.readObject(buffer.slice(4))
-    	return {
-    		count: buffer.readUInt32BE(1),
-    		len: 5 + object.len,
-    		value: object.value
-    	}
-    }
+	writeECMAArray(value) {
+		if (this.setObjectReference(value)) {
+			let length = 0
+			if (value instanceof Array) {
+				length = value.length
+			} else {
+				length = Object.keys(value).length
+			}
+			let buffer = Buffer.alloc(5)
+			buffer.writeUInt8(0x08, 0)
+			buffer.writeUInt32BE(length, 1)
+			return Buffer.concat([buffer, this.writeObject(value).slice(1)])
+		}
+	}
+	readECMAArray(buffer) {
+		let object = this.readObject(buffer.slice(4))
+		return {
+			count: buffer.readUInt32BE(1),
+			len: 5 + object.len,
+			value: object.value
+		}
+	}
 	/*
 	2.12 Strict Array Type
 	A strict Array contains only ordinal indices; however, in AMF 0 the indices can be dense
@@ -395,7 +395,7 @@ class AMF0 {
 	undefined.
 	A 32-bit array-count implies a theoretical maximum of 4,294,967,295 array entries.
 	*/
-	writeStrictArray (value) {
+	writeStrictArray(value) {
 		if (this.setObjectReference(value)) {
 			let buffer = Buffer.alloc(5)
 			buffer.writeUInt8(0x0a, 0)
@@ -406,8 +406,8 @@ class AMF0 {
 			return buffer
 		}
 	}
-	readStrictArray (buffer) {
-		let rules = {0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x08: this.readECMAArray, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject}
+	readStrictArray(buffer) {
+		let rules = { 0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x08: this.readECMAArray, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject }
 		let array = []
 		let length = 5
 		let ret
@@ -435,14 +435,14 @@ class AMF0 {
 	unconventional to change time zones when serializing dates on a network. It is suggested
 	that the time zone be queried independently as needed.
 	*/
-	writeDate (value) {
+	writeDate(value) {
 		let buffer = Buffer.alloc(11)
 		buffer.writeUInt8(0x0b, 0)
 		buffer.writeInt16BE(0, 1)
 		buffer.writeDoubleBE(value.getTime(), 3)
 		return buffer
 	}
-	readDate (buffer) {
+	readDate(buffer) {
 		return {
 			s16: buffer.readInt16BE(1),
 			len: 11,
@@ -455,7 +455,7 @@ class AMF0 {
 	bytes when UTF-8 encoded. The byte-length header of the UTF-8 encoded string is a 32-
 	bit integer instead of the regular 16-bit integer.
 	*/
-	writeLongString (value) {
+	writeLongString(value) {
 		if (value.length > 65535) {
 			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x0C)
@@ -466,14 +466,14 @@ class AMF0 {
 			return this.writeString(value)
 		}
 	}
-	readLongString (buffer) {
+	readLongString(buffer) {
 		let length = buffer.readUInt32BE(1)
 		return {
 			len: 5 + length,
 			value: buffer.toString("utf8", 5, 5 + length)
 		}
 	}
-	writeLongStringWithoutType (value) {
+	writeLongStringWithoutType(value) {
 		if (value.length > 65535) {
 			let buffer = Buffer.alloc(4)
 			buffer.writeUInt32BE(Buffer.byteLength(value), 0)
@@ -482,7 +482,7 @@ class AMF0 {
 			return this.writeStringWithoutType(value)
 		}
 	}
-	readLongStringWithoutType (buffer) {
+	readLongStringWithoutType(buffer) {
 		let length = buffer.readUInt32BE(0)
 		return {
 			len: 4 + length,
@@ -496,7 +496,7 @@ class AMF0 {
 	serialization a string representation of the document is used. The XML document type is
 	always encoded as a long UTF-8 string.
 	*/
-	writeXMLDoc (value) {
+	writeXMLDoc(value) {
 		if (this.setObjectReference(value)) {
 			let buffer = Buffer.alloc(3)
 			buffer.writeUInt8(0x0f, 0)
@@ -504,7 +504,7 @@ class AMF0 {
 			return Buffer.concat([buffer, Buffer.from(value, "utf8")])
 		}
 	}
-	readXMLDoc (buffer) {
+	readXMLDoc(buffer) {
 		let length = buffer.readUInt16BE(1)
 		return {
 			len: 3 + length,
@@ -517,7 +517,7 @@ class AMF0 {
 	be serialized. Typed objects are considered complex types and reoccurring instances can
 	be sent by reference.
 	*/
-	writeTypedObject (value) {
+	writeTypedObject(value) {
 		if (this.setObjectReference(value)) {
 			let buffer = Buffer.alloc(1)
 			buffer.writeUInt8(0x10, 0)
@@ -532,7 +532,7 @@ class AMF0 {
 			return Buffer.concat([buffer, endTypedObject])
 		}
 	}
-	readTypedObject (buffer) {
+	readTypedObject(buffer) {
 		let className = this.readString(buffer)
 		let object = this.readObject(buffer.slice(className.value.len - 1))
 		object.value.__className__ = className.value
