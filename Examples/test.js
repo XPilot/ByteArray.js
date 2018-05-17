@@ -4,7 +4,7 @@ function ObjectExample () {
 	const byteArr = new ByteArray()
 	byteArr.objectEncoding = 0
 	byteArr.writeObject({id: 1})
-	console.log(byteArr.readObject(byteArr.buffer))
+	console.log(byteArr.readObject())
 }
 
 function CompressionExample () {

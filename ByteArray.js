@@ -28,9 +28,9 @@ class ByteArray {
 	 */
 	constructor(buff) {
 		this.offset = 0
-		this.byteLength = this.offset || 0
 		this.endian = Values.BIG_ENDIAN
 		this._objectEncoding = Values.AMF_0
+		this.objectBuffer = Buffer.alloc(Values.MAX_BUFFER_SIZE) /* We use a seperate Buffer for AMF only. */
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -51,13 +51,6 @@ class ByteArray {
 			return null
 		}
 		return value + ""
-	}
-	/**
-	 * Returns the buffer.
-	 * @returns {buffer}
-	 */
-	get byteStream() {
-		return this.buffer
 	}
 	/**
 	 * Returns the position.
@@ -265,11 +258,11 @@ class ByteArray {
 	 * Reads an object from the byte array, encoded in AMF serialized format.
 	 * @returns {object}
 	 */
-	readObject(buffer) {
-		if (this.objectEncoding === Values.AMF_0) {
+	readObject() {
+		if (this.objectEncoding === Values.AMF_0 && this.objectBuffer.length != Values.MAX_BUFFER_SIZE) {
 			let amf = new AMF0()
-			let deserializedObject = amf.readObject(buffer)
-			console.log("AMF0 Deserialized Buffer:", deserializedObject)
+			let deserializedObject = amf.readObject(this.objectBuffer)
+			return deserializedObject
 		} else {
 			throw new TypeError("Not supported yet")
 		}
@@ -422,7 +415,7 @@ class ByteArray {
 	 * @param {number} bytes
 	 * @returns {number}
 	 */
-	readIntegerWithLength (bytes) {
+	readIntegerWithLength(bytes) {
 		let result = 0
 		for (let i = bytes - 1; i >= 0; i--) {
 			result = ((result << 8) | this.buffer[this.offset + i]) >>> 0
@@ -434,13 +427,13 @@ class ByteArray {
 	 * Reads a var-integer from the byte stream.
 	 * @returns {number}
 	 */
-	readVarInt () {
+	readVarInt() {
 		let result = 0
 		let shift = 0
 		do {
 			result += shift < 28
-			  ? (this.buffer[this.offset++] & 0x7F) << shift
-			  : (this.buffer[this.offset++] & 0x7F) * Math.pow(2, shift)
+				? (this.buffer[this.offset++] & 0x7F) << shift
+				: (this.buffer[this.offset++] & 0x7F) * Math.pow(2, shift)
 			shift += 7
 		} while (this.buffer[this.offset++] >= 0x80)
 		return result
@@ -449,7 +442,7 @@ class ByteArray {
 	 * Reads an unsigned var-integer from the byte stream.
 	 * @returns {number}
 	 */
-	readVarUInt () {
+	readVarUInt() {
 		return this.readVarInt() >>> 1 ^ -(this.readVarInt() & 1)
 	}
 	/**
@@ -544,8 +537,7 @@ class ByteArray {
 		if (this.objectEncoding === Values.AMF_0) {
 			let amf = new AMF0()
 			let serializedObject = amf.writeObject(object)
-			console.log("AMF0 Serialized Buffer:", serializedObject)
-			this.buffer = serializedObject
+			this.objectBuffer = Buffer.concat([serializedObject, this.objectBuffer])
 		} else {
 			throw new TypeError("Not supported yet")
 		}
@@ -699,7 +691,7 @@ class ByteArray {
 	 * Writes a var-integer to the byte stream.
 	 * @param {number} value
 	 */
-	writeVarInt (value) {
+	writeVarInt(value) {
 		while (value >= Math.pow(2, 31)) {
 			this.buffer[this.offset++] = (value & 0xFF) | 0x80
 			value /= 128
@@ -714,7 +706,7 @@ class ByteArray {
 	 * Writes an unsigned var-integer to the byte stream.
 	 * @param {number} value
 	 */
-	writeVarUInt (value) {
+	writeVarUInt(value) {
 		this.writeVarInt(value << 1 ^ value >> 31)
 	}
 }
