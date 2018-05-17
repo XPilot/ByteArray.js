@@ -1,6 +1,6 @@
 {
   "name": "bytearray.js",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "description": "Equivalent to Actionscript 3 ByteArray with a fully supported AMF0 library.",
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js",
@@ -15,6 +15,7 @@
     "url": "https://github.com/Zaseth/ByteArray.js"
   },
   "keywords": [
+    "ByteArray",
     "bytearray",
     "actionscript 3 for javascript",
     "write bytes",
