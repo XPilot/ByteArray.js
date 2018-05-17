@@ -20,6 +20,10 @@
   <br>
   <sub><sup>ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression.</sup></sub>
   <hr>
+  Unique data types support
+  <br>
+  <sub><sup>ByteArray.js supports Var-integers, int64 and IEEE754 values.</sup></sub>
+  <hr>
   Installation
   <br>
   <sub>npm install bytearray.js</sub>
