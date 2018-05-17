@@ -48,7 +48,7 @@ class AMF0 {
 					if (this.isStrict(value)) {
 						return this.writeStrictArray(value)
 					} else {
-						return this.writeECMAArray(value)
+						throw new TypeError("Not a strict array")
 					}
 				} else {
 					return this.writeObject(value)
@@ -58,7 +58,7 @@ class AMF0 {
 					if (this.isStrict(value)) {
 						return this.writeStrictArray(value)
 					} else {
-						return this.writeECMAArray(value)
+						throw new TypeError("Not a strict array")
 					}
 				}
 				break
@@ -96,9 +96,6 @@ class AMF0 {
 				break
 			case 0x07:
 				return this.readReference(buffer)
-				break
-			case 0x08:
-				return this.readECMAArray(buffer)
 				break
 			case 0x0a:
 				return this.readStrictArray(buffer)
@@ -276,7 +273,7 @@ class AMF0 {
 		}
 	}
 	readObject(buffer) {
-		let rules = { 0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x08: this.readECMAArray, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject }
+		let rules = { 0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject }
 		let object = {}
 		let iBuf = buffer.slice(1)
 		let length = 1
@@ -356,38 +353,6 @@ class AMF0 {
 			value: "ref" + buffer.readUInt16BE(1)
 		}
 	}
-    /*
-    2.10 Ecma Array Type
-    An ECMA Array or 'associative' Array is used when an ActionScript Array contains nonordinal
-    indices. This type is considered a complex type and thus reoccurring instances
-    can be sent by reference. All indices, ordinal or otherwise, are treated as string 'keys'
-    instead of integers. For the purposes of serialization this type is very similar to an
-    anonymous Object.
-    A 32-bit associative-count implies a theoretical maximum of 4,294,967,295 associative
-    array entries.
-    */
-	writeECMAArray(value) {
-		if (this.setObjectReference(value)) {
-			let length = 0
-			if (value instanceof Array) {
-				length = value.length
-			} else {
-				length = Object.keys(value).length
-			}
-			let buffer = Buffer.alloc(5)
-			buffer.writeUInt8(0x08, 0)
-			buffer.writeUInt32BE(length, 1)
-			return Buffer.concat([buffer, this.writeObject(value).slice(1)])
-		}
-	}
-	readECMAArray(buffer) {
-		let object = this.readObject(buffer.slice(4))
-		return {
-			count: buffer.readUInt32BE(1),
-			len: 5 + object.len,
-			value: object.value
-		}
-	}
 	/*
 	2.12 Strict Array Type
 	A strict Array contains only ordinal indices; however, in AMF 0 the indices can be dense
@@ -407,7 +372,7 @@ class AMF0 {
 		}
 	}
 	readStrictArray(buffer) {
-		let rules = { 0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x08: this.readECMAArray, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject }
+		let rules = { 0x00: this.readNumber, 0x01: this.readBoolean, 0x02: this.readString, 0x03: this.readObject, 0x05: this.readNull, 0x06: this.readUndefined, 0x07: this.readReference, 0x0a: this.readStrictArray, 0x0b: this.readDate, 0x0c: this.readLongString, 0x0f: this.readXMLDoc, 0x10: this.readTypedObject }
 		let array = []
 		let length = 5
 		let ret
