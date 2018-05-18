@@ -89,7 +89,7 @@ class ByteArray {
 	}
 	/**
 	 * Returns the AMF version.
-	 * @returns {string}
+	 * @returns {number}
 	 */
 	get objectEncoding() {
 		return this._objectEncoding
@@ -97,7 +97,7 @@ class ByteArray {
 	/**
 	 * Currently only supporting AMF 0.
 	 * Sets the AMF version to AMFV.
-	 * @param {string} AMFV
+	 * @param {number} AMFV
 	 */
 	set objectEncoding(AMFV) {
 		if (AMFV == Values.AMF_0) {
