@@ -262,6 +262,7 @@ class ByteArray {
 		if (this.objectEncoding === Values.AMF_0 && this.objectBuffer.length != Values.MAX_BUFFER_SIZE) {
 			let amf = new AMF0()
 			let deserializedObject = amf.readObject(this.objectBuffer)
+			//console.log(deserializedObject)
 			return deserializedObject
 		} else {
 			throw new TypeError("Not supported yet")

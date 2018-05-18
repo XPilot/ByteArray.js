@@ -9,7 +9,7 @@ class AMF0 {
 	writeValue(value) {
 		let className = value.constructor.name.toLowerCase()
 		if (this.isDebug) {
-			console.log("Type to be serialized: <" + typeof value + "> with class: <" + className + ">")
+			//console.log("Type to be serialized: <" + typeof value + "> with class: <" + className + ">")
 		}
 		/*
 		Special type check.

@@ -1,59 +1,84 @@
+const tape = require("tape")
+const fs = require("fs")
 const ByteArray = require("../ByteArray")
 
-function ObjectExample () {
-	const byteArr = new ByteArray()
-	byteArr.objectEncoding = 0
-	byteArr.writeObject({id: 1})
-	console.log(byteArr.readObject())
-}
+tape("Write/read a byte", (v) => {
+	const wba = new ByteArray()
+	wba.writeByte(5)
+	const rba = new ByteArray(wba)
+	v.equal(rba.readByte(), 5)
+	v.end()
+})
 
-function CompressionExample () {
-	const byteArr = new ByteArray()
-	byteArr.writeUTF("Hello World!")
-	p1.compress("zlib")
-	p1.offset = 0
-	console.log(p1)
-	console.log(p1.readUTF())
-}
+tape("Write/read a boolean", (v) => {
+	const wba = new ByteArray()
+	wba.writeBoolean(true)
+	const rba = new ByteArray(wba)
+	v.equal(rba.readBoolean(), true)
+	v.end()
+})
 
-function ByteArrayExample () {
-	const byteArr = new ByteArray()
-	byteArr.writeBoolean(false)
-	byteArr.writeDouble(Math.PI)
-	byteArr.writeUTFBytes("Hello world")
-	byteArr.writeDouble(new Date().getTime())
-	byteArr.writeByte(69 >>> 1)
-	byteArr.offset = 0
-	console.log("Raw stream: " + byteArr.buffer)
-	try {
-		console.log(byteArr.readBoolean() === false) // true
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("My favorite PI: " + byteArr.readDouble()) // 3.141592653589793
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("The secret message is: " + byteArr.readUTFBytes(11))
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("The date is: " + new Date(byteArr.readDouble()))
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	} try {
-		console.log("The secret number is: " + Math.round(byteArr.readByte() / 1 * 2.02)) // 69
-	} catch (e) {
-		if (e instanceof RangeError) {
-			console.log("Trying to access beyond buffer length") // EOFError
-		}
-	}
-}
+tape("Write/read a byte without new constructor", (v) => {
+	const wba = new ByteArray()
+	wba.writeByte(10)
+	wba.position = 0
+	v.equal(wba.readByte(), 10)
+	v.end()
+})
+
+tape("Write/read a string", (v) =>{
+	const wba = new ByteArray()
+	wba.writeUTF("ByteArray.js")
+	const rba = new ByteArray(wba)
+	v.equal(rba.readUTF(), "ByteArray.js")
+	v.end()
+})
+
+tape("Write/read an object", (v) => {
+	const wba = new ByteArray()
+	wba.objectEncoding = 0
+	wba.writeObject({id: 1})
+	v.deepEqual(wba.readObject(), { len: 17, value: { id: 1 } })
+	v.end()
+})
+
+tape("Write/read IEEE754 double", (v) => {
+	const wba = new ByteArray()
+	wba.writeDouble(1.23)
+	const rba = new ByteArray(wba)
+	v.equal(rba.readDouble(), 1.23)
+	v.end()
+})
+
+tape("Write/read IEEE754 float", (v) => {
+	const wba = new ByteArray()
+	wba.writeFloat(55.12)
+	const rba = new ByteArray(wba)
+	v.equal(rba.readFloat(), 55.119998931884766)
+	v.end()
+})
+
+tape("Compress/decompress a string", (v) => {
+	const wba = new ByteArray()
+	wba.writeUTF("Hello ByteArray.js!")
+	wba.compress("zlib")
+	wba.position = 0
+	fs.readFile("test.secret", wba.uncompress("zlib"), (err, data) => {
+		if (err) throw err
+		v.equal(wba.readUTF(), "Hello ByteArray.js!")
+	})
+	v.end()
+})
+
+tape("Adobe's example", (v) => {
+	const wba = new ByteArray()
+	const date = new Date().getTime()
+	wba.writeBoolean(false)
+	wba.writeDouble(Math.PI)
+	wba.writeUTFBytes("Hello world")
+	wba.position = 0
+	v.equal(wba.readBoolean() == false, true)
+	v.equal(wba.readDouble(), 3.141592653589793)
+	v.equal(wba.readUTFBytes(11), "Hello world")
+	v.end()
+})
