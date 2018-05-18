@@ -31,43 +31,43 @@ class AMF0 {
 		}
 		switch (typeof value) {
 			case "number":
-				return this.writeNumber(value)
-				break
+			return this.writeNumber(value)
+			break
 			case "boolean":
-				return this.writeBoolean(value)
-				break
+			return this.writeBoolean(value)
+			break
 			case "string":
-				if (value.length < 65535) {
-					return this.writeString(value)
-				} else {
-					return this.writeLongString(value)
-				}
-				break
+			if (value.length < 65535) {
+				return this.writeString(value)
+			} else {
+				return this.writeLongString(value)
+			}
+			break
 			case "object":
-				if (Array.isArray(value)) {
-					if (this.isStrict(value)) {
-						return this.writeStrictArray(value)
-					} else {
-						return this.writeECMAArray(value)
-					}
+			if (Array.isArray(value)) {
+				if (this.isStrict(value)) {
+					return this.writeStrictArray(value)
 				} else {
-					return this.writeObject(value)
+					return this.writeECMAArray(value)
 				}
-				break
-				if (Array.isArray(value)) {
-					if (this.isStrict(value)) {
-						return this.writeStrictArray(value)
-					} else {
-						return this.writeECMAArray(value)
-					}
+			} else {
+				return this.writeObject(value)
+			}
+			break
+			if (Array.isArray(value)) {
+				if (this.isStrict(value)) {
+					return this.writeStrictArray(value)
+				} else {
+					return this.writeECMAArray(value)
 				}
-				break
+			}
+			break
 			case "null":
-				return this.writeNull()
-				break
+			return this.writeNull()
+			break
 			case "undefined":
-				return this.writeUndefined()
-				break
+			return this.writeUndefined()
+			break
 		}
 	}
 	readValue(buffer) {
@@ -77,46 +77,46 @@ class AMF0 {
 		let value = buffer.readUInt8(0)
 		switch (value) {
 			case 0x00:
-				return this.readNumber(buffer)
-				break
+			return this.readNumber(buffer)
+			break
 			case 0x01:
-				return this.readBoolean(buffer)
-				break
+			return this.readBoolean(buffer)
+			break
 			case 0x02:
-				return this.readString(buffer)
-				break
+			return this.readString(buffer)
+			break
 			case 0x03:
-				return this.readObject(buffer)
-				break
+			return this.readObject(buffer)
+			break
 			case 0x05:
-				return this.readNull()
-				break
+			return this.readNull()
+			break
 			case 0x06:
-				return this.readUndefined()
-				break
+			return this.readUndefined()
+			break
 			case 0x07:
-				return this.readReference(buffer)
-				break
+			return this.readReference(buffer)
+			break
 			case 0x08:
-				return this.readECMAArray(buffer)
-				break
+			return this.readECMAArray(buffer)
+			break
 			case 0x0a:
-				return this.readStrictArray(buffer)
-				break
+			return this.readStrictArray(buffer)
+			break
 			case 0x0b:
-				return this.readDate(buffer)
-				break
+			return this.readDate(buffer)
+			break
 			case 0x0c:
-				return this.readLongString(buffer)
-				break
+			return this.readLongString(buffer)
+			break
 			case 0x0f:
-				return this.readXMLDoc(buffer)
-				break
+			return this.readXMLDoc(buffer)
+			break
 			case 0x10:
-				return this.readTypedObject(buffer)
-				break
+			return this.readTypedObject(buffer)
+			break
 			default:
-				throw new Error("Unknown type")
+			throw new Error("Unknown type")
 		}
 	}
 	toString(buffer) {
@@ -125,7 +125,7 @@ class AMF0 {
 	isStrict(value) {
 		let l = value.length, c = 0
 		for (let key in value) c++
-		return (c == l)
+			return (c == l)
 	}
 	hasItem(array, item) {
 		let i = array.length
@@ -325,17 +325,17 @@ class AMF0 {
     The undefined type is represented by the undefined type marker. No further information
     is encoded for this value.
     */
-	writeUndefined() {
-		let buffer = Buffer.alloc(1)
-		buffer.writeUInt8(0x06, 0)
-		return buffer
-	}
-	readUndefined() {
-		return {
-			len: 1,
-			value: undefined
-		}
-	}
+    writeUndefined() {
+    	let buffer = Buffer.alloc(1)
+    	buffer.writeUInt8(0x06, 0)
+    	return buffer
+    }
+    readUndefined() {
+    	return {
+    		len: 1,
+    		value: undefined
+    	}
+    }
     /*
     2.9 Reference Type
     AMF0 defines a complex object as an anonymous object, a typed object, an array or an
@@ -344,18 +344,18 @@ class AMF0 {
     bit integer to point to an index in a table of previously serialized objects. Indices start at
     0.
     */
-	writeReference(value) {
-		let buffer = Buffer.alloc(3)
-		buffer.writeUInt8(0x07, 0)
-		buffer.writeUInt16BE(value, 1)
-		return buffer
-	}
-	readReference(buffer) {
-		return {
-			len: 3,
-			value: "ref" + buffer.readUInt16BE(1)
-		}
-	}
+    writeReference(value) {
+    	let buffer = Buffer.alloc(3)
+    	buffer.writeUInt8(0x07, 0)
+    	buffer.writeUInt16BE(value, 1)
+    	return buffer
+    }
+    readReference(buffer) {
+    	return {
+    		len: 3,
+    		value: "ref" + buffer.readUInt16BE(1)
+    	}
+    }
 	/*
 	2.10 ECMA Array Type
 	An ECMA Array or 'associative' Array is used when an ActionScript Array contains nonordinal

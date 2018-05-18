@@ -58,6 +58,44 @@ tape("Write/read IEEE754 float", (v) => {
 	v.end()
 })
 
+tape("Write/read multiByte", (v) => {
+	const wba = new ByteArray()
+	wba.writeMultiByte("Hello ByteArray.js", "utf8")
+	wba.position = 0
+	v.equal(wba.readMultiByte(18, "utf8"), "Hello ByteArray.js")
+	v.end()
+})
+
+tape("Write/read int8array", (v) => {
+	const wba = new ByteArray()
+	wba.writeByteArray([1,2,3,4,5,6])
+	wba.position = 0
+	v.deepEqual(wba.readByteArray(6), [1,2,3,4,5,6])
+	v.end()
+})
+
+tape("Write/read int64", (v) => {
+	const wba = new ByteArray()
+	wba.writeLong(64)
+	wba.position = 0
+	v.equal(wba.readLong(), 64)
+	v.end()
+})
+
+tape("Write/read var-integer", (v) => {
+	const wba = new ByteArray()
+	wba.writeVarInt(300)
+	wba.position = 0
+	v.equal(wba.readVarInt(), 44)
+	v.end()
+})
+
+tape("bytesAvailable", (v) => {
+	const wba = new ByteArray()
+	v.equal(wba.bytesAvailable, 4096)
+	v.end()
+})
+
 tape("Compress/decompress a string", (v) => {
 	const wba = new ByteArray()
 	wba.writeUTF("Hello ByteArray.js!")
@@ -66,6 +104,16 @@ tape("Compress/decompress a string", (v) => {
 	fs.readFile("test.secret", wba.uncompress("zlib"), (err, data) => {
 		if (err) throw err
 		v.equal(wba.readUTF(), "Hello ByteArray.js!")
+	})
+	v.end()
+})
+
+tape("Decode AMF0 file", (v) => {
+	const wba = new ByteArray()
+	fs.readFile("test.amf", (err, data) => {
+		if (err) throw err
+		wba.objectBuffer = data
+		v.deepEqual(wba.readObject(), { len: 56, value: { id: 1, username: "Zaseth", password: "Test123" } })
 	})
 	v.end()
 })

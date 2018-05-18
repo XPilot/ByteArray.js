@@ -259,7 +259,7 @@ class ByteArray {
 	 * @returns {object}
 	 */
 	readObject() {
-		if (this.objectEncoding === Values.AMF_0 && this.objectBuffer.length != Values.MAX_BUFFER_SIZE) {
+		if (this.objectEncoding === Values.AMF_0) {
 			let amf = new AMF0()
 			let deserializedObject = amf.readObject(this.objectBuffer)
 			//console.log(deserializedObject)
