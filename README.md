@@ -28,10 +28,14 @@
   <br>
   <sub><sup>ByteArray.js supports Var-integers, int64 and IEEE754 values.</sup></sub>
   <hr>
+  DataView support
+  <br>
+  <sub><sup>ByteArray.js supports DataView. See <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a> on how to use it.</sup></sub>
+  <hr>
   Installation
   <br>
   <sub>npm install bytearray.js</sub>
-  
+
   <sub>bower install bytearray.js</sub>
   <hr>
   Examples
@@ -41,6 +45,10 @@
   Documentation
   <br>
   <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a></sub>
+  <hr>
+  Bugs
+  <br>
+  <sub><sup>Send an issue and I will help you as soon as possible.</sup></sub>
   <hr>
   Contributing
   <br>

@@ -17,7 +17,8 @@ const Values = {
 	AMF_3: 3,
 	DEFLATE: "deflate",
 	LZMA: "lzma",
-	ZLIB: "zlib"
+	ZLIB: "zlib",
+	IS_DATAVIEW: false
 }
 
 /** Class representing a ByteArray. */
@@ -34,7 +35,13 @@ class ByteArray {
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
-			this.buffer = buff
+			if (Values.IS_DATAVIEW) { /* It is a Buffer, but we want to convert the Buffer to ArrayBuffer to be used by DataView. */
+				let a = new ArrayBuffer(buff.length)
+				buff.forEach(i => {new Uint8Array(a)[i] = buff[i]})
+				this.buffer = new DataView(a) /* It is now a DataView that we can use. Values could've been written using Buffer and can now be read by DataView. */
+			} else {
+				this.buffer = buff
+			}
 		} else {
 			this.buffer = Buffer.alloc(typeof (buff) === "number" ? Number(buff) : Values.MAX_BUFFER_SIZE) /** new Buffer is deprecated. */
 		}

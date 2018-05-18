@@ -2,6 +2,14 @@ const tape = require("tape")
 const fs = require("fs")
 const ByteArray = require("../ByteArray")
 
+tape("Write using Buffer and read using DataView", (v) => {
+	const wba = new ByteArray()
+	wba.writeByte(13)
+	const rba = new ByteArray(wba.buffer)
+	v.equal(rba.buffer.getInt8(0), 13)
+	v.end()
+})
+
 tape("Write/read a byte", (v) => {
 	const wba = new ByteArray()
 	wba.writeByte(5)
