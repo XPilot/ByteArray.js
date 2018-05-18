@@ -12,6 +12,10 @@
 </h1>
 
 <h1 align="center">
+  <a href="https://npmjs.org/package/bytearray.js"><img src="https://nodei.co/npm/bytearray.js.png" alt="ByteAray.js npm" style="margin-bottom: 1rem"></a>
+</h1>
+
+<h1 align="center">
   AMF support
   <br>
   <sub><sup>ByteArray.js currently fully supports AMF0 serialization and deserialization.</sup></sub>
