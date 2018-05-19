@@ -1,4 +1,5 @@
 <h1 align="center">
+  <a href="https://raw.githubusercontent.com/Zaseth/ByteArray.js/master/ByteArray.png"><img src="https://raw.githubusercontent.com/Zaseth/ByteArray.js/master/ByteArray.png" alt="ByteArray.js travis" style= "margin-bottom: 1rem"></a>
   <br>
   ByteArray.js <img src="https://raw.githubusercontent.com/benschwarz/bower-badges/gh-pages/badge%402x.png" width="130" height="30">
   <br>
@@ -9,9 +10,6 @@
   <a href="https://github.com/Zaseth/ByteArray.js/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/bytearray.js.svg" alt="ByteAray.js license" style="margin-bottom: 1rem"></a>
   <a href="https://npm-stat.com/charts.html?package=bytearray.js"><img src="https://img.shields.io/npm/dy/bytearray.js.svg" alt="ByteAray.js downloads" style="margin-bottom: 1rem"></a>
   <a href="https://github.com/Zaseth/ByteArray.js/wiki"><img src="https://img.shields.io/readthedocs/pip/stable.svg" alt="ByteArray.js docs" style="margin-bottom: 1rem"></a>
-</h1>
-
-<h1 align="center">
   <a href="https://npmjs.org/package/bytearray.js"><img src="https://nodei.co/npm/bytearray.js.png" alt="ByteAray.js npm" style="margin-bottom: 1rem"></a>
 </h1>
 
