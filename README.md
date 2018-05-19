@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://raw.githubusercontent.com/Zaseth/ByteArray.js/master/ByteArray%20-%20Copy.png"><img src="https://image.ibb.co/fXPOd8/Webp_net_resizeimage.png" alt="ByteArray.js" style= "margin-bottom: 1rem"></a>
+  <a href="https://i.imgur.com/YNA8qWm.png"><img src="https://i.imgur.com/YNA8qWm.png" alt="ByteArray.js" style= "margin-bottom: 1rem"></a>
   <br>
   ByteArray.js <img src="https://raw.githubusercontent.com/benschwarz/bower-badges/gh-pages/badge%402x.png" width="130" height="30">
   <br>
