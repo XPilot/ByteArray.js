@@ -166,7 +166,7 @@ class AMF0 {
 			if (this.writeObjectCache === null) {
 				this.writeObjectCache = []
 			}
-			if (this.writeObjectCache.length < 1024) {
+			if (this.writeObjectCache.length < 64) {
 				this.writeObjectCache.push(o)
 			}
 			return true
