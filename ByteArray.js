@@ -18,7 +18,7 @@ const Values = {
 	DEFLATE: "deflate",
 	LZMA: "lzma",
 	ZLIB: "zlib",
-	IS_DATAVIEW: false
+	IS_DATAVIEW: true
 }
 
 /** Class representing a ByteArray. */
@@ -124,6 +124,19 @@ class ByteArray {
 	 */
 	clear() {
 		this.length(Values.MAX_BUFFER_SIZE)
+	}
+	/**
+	 * Fills a specific part of the byte stream.
+	 * @param {number} bytesToKeep
+	 * @param {number} toFillWith
+	 * @returns {buffer}
+	 */
+	fill (bytesToKeep, toFillWith) {
+		for (let i = 0; i < bytesToKeep; i++) {
+			console.log(i)
+			this.buffer[i] = toFillWith
+		}
+		return this.buffer
 	}
 	/**
 	 * Compresses the byte array.
