@@ -17,8 +17,7 @@ const Values = {
 	AMF_3: 3,
 	DEFLATE: "deflate",
 	LZMA: "lzma",
-	ZLIB: "zlib",
-	IS_DATAVIEW: true
+	ZLIB: "zlib"
 }
 
 /** Class representing a ByteArray. */
@@ -27,15 +26,14 @@ class ByteArray {
 	 * Create a ByteArray.
 	 * @param {buffer} buff - Custom length or another ByteArray to read from.
 	 */
-	constructor(buff) {
+	constructor(buff, isDataView) {
 		this.offset = 0
 		this.endian = Values.BIG_ENDIAN
 		this._objectEncoding = Values.AMF_0
-		this.objectBuffer = Buffer.alloc(Values.MAX_BUFFER_SIZE) /* We use a seperate Buffer for AMF only. */
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
-			if (Values.IS_DATAVIEW) { /* It is a Buffer, but we want to convert the Buffer to ArrayBuffer to be used by DataView. */
+			if (isDataView) { /* It is a Buffer, but we want to convert the Buffer to ArrayBuffer to be used by DataView. */
 				let a = new ArrayBuffer(buff.length)
 				buff.forEach(i => {new Uint8Array(a)[i] = buff[i]})
 				this.buffer = new DataView(a) /* It is now a DataView that we can use. Values could've been written using Buffer and can now be read by DataView. */
@@ -123,7 +121,7 @@ class ByteArray {
 	 * Clears the buffer with 4096 zeros.
 	 */
 	clear() {
-		this.length(Values.MAX_BUFFER_SIZE)
+		this.buffer = Buffer.alloc(Values.MAX_BUFFER_SIZE)
 	}
 	/**
 	 * Fills a specific part of the byte stream.
@@ -131,9 +129,8 @@ class ByteArray {
 	 * @param {number} toFillWith
 	 * @returns {buffer}
 	 */
-	fill (bytesToKeep, toFillWith) {
+	fill(bytesToKeep, toFillWith) {
 		for (let i = 0; i < bytesToKeep; i++) {
-			console.log(i)
 			this.buffer[i] = toFillWith
 		}
 		return this.buffer
@@ -233,7 +230,7 @@ class ByteArray {
 		let endOffset = offset + length
 		for (let i = offset; i < endOffset; i++) {
 			bytes[i] = this.readByte()
-			console.log(bytes[i])
+			return bytes[i]
 		}
 	}
 	/**
@@ -281,8 +278,7 @@ class ByteArray {
 	readObject() {
 		if (this.objectEncoding === Values.AMF_0) {
 			let amf = new AMF0()
-			let deserializedObject = amf.readObject(this.objectBuffer)
-			//console.log(deserializedObject)
+			let deserializedObject = amf.readObject(this.buffer)
 			return deserializedObject
 		} else {
 			throw new TypeError("Not supported yet")
@@ -558,7 +554,7 @@ class ByteArray {
 		if (this.objectEncoding === Values.AMF_0) {
 			let amf = new AMF0()
 			let serializedObject = amf.writeObject(object)
-			this.objectBuffer = Buffer.concat([serializedObject, this.objectBuffer])
+			this.buffer = Buffer.concat([serializedObject, this.buffer])
 		} else {
 			throw new TypeError("Not supported yet")
 		}

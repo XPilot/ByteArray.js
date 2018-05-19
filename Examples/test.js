@@ -5,7 +5,7 @@ const ByteArray = require("../ByteArray")
 tape("Write using Buffer and read using DataView", (v) => {
 	const wba = new ByteArray()
 	wba.writeByte(13)
-	const rba = new ByteArray(wba.buffer)
+	const rba = new ByteArray(wba.buffer, true)
 	v.equal(rba.buffer.getInt8(0), 13)
 	v.end()
 })
@@ -120,7 +120,7 @@ tape("Decode AMF0 file", (v) => {
 	const wba = new ByteArray()
 	fs.readFile("test.amf", (err, data) => {
 		if (err) throw err
-		wba.objectBuffer = data
+		wba.buffer = data
 		v.deepEqual(wba.readObject(), { len: 56, value: { id: 1, username: "Zaseth", password: "Test123" } })
 	})
 	v.end()
