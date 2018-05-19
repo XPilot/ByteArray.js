@@ -43,7 +43,15 @@
     "serialization",
     "deserialization",
     "format",
-    "parser"
+    "parser",
+    "asn1",
+    "asn",
+    "oer",
+    "binn",
+    "hessian",
+    "xdr",
+    "cbor",
+    "smile"
   ],
   "author": "Zaseth",
   "license": "MIT",
