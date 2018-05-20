@@ -1,6 +1,6 @@
 {
   "name": "bytearray.js",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "description": "Equivalent to Actionscript 3 ByteArray with a fully supported AMF0 library.",
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js",
@@ -43,15 +43,7 @@
     "serialization",
     "deserialization",
     "format",
-    "parser",
-    "asn1",
-    "asn",
-    "oer",
-    "binn",
-    "hessian",
-    "xdr",
-    "cbor",
-    "smile"
+    "parser"
   ],
   "author": "Zaseth",
   "license": "MIT",

@@ -3,19 +3,17 @@
 class AMF0 {
 	constructor() {
 		this.writeObjectCache = []
+		this.readObjectCache = []
 		this.isDebug = true
 	}
 
 	writeValue(value) {
 		let className = value.constructor.name.toLowerCase()
-		if (this.isDebug) {
-			//console.log("Type to be serialized: <" + typeof value + "> with class: <" + className + ">")
-		}
-		/*
-		Special type check.
-		*/
 		if (className === "stdclass") {
 			return this.writeObject(value)
+		}
+		if (typeof value == "object" && className != "Object") {
+			return this.writeTypedObject(value)
 		}
 		if (value instanceof Date) {
 			return this.writeDate(value)
@@ -44,15 +42,7 @@ class AMF0 {
 			}
 			break
 			case "object":
-			if (Array.isArray(value)) {
-				if (this.isStrict(value)) {
-					return this.writeStrictArray(value)
-				} else {
-					return this.writeECMAArray(value)
-				}
-			} else {
-				return this.writeObject(value)
-			}
+			return this.writeObject(value)
 			break
 			if (Array.isArray(value)) {
 				if (this.isStrict(value)) {
@@ -71,9 +61,6 @@ class AMF0 {
 		}
 	}
 	readValue(buffer) {
-		if (this.isDebug) {
-			console.log("Buffer to deserialize:", buffer)
-		}
 		let value = buffer.readUInt8(0)
 		switch (value) {
 			case 0x00:
@@ -100,6 +87,10 @@ class AMF0 {
 			case 0x08:
 			return this.readECMAArray(buffer)
 			break
+			case 0x09:
+		    throw new Error("AMF0::readData - Warning: Unexpected object end tag in AMF stream")
+		    return this.readNull()
+		    break
 			case 0x0a:
 			return this.readStrictArray(buffer)
 			break
@@ -109,6 +100,14 @@ class AMF0 {
 			case 0x0c:
 			return this.readLongString(buffer)
 			break
+			case 0x0d:
+			throw new Error("AMF0::readData - Warning: Unsupported type found in AMF stream")
+			return this.readNull()
+			break
+			case 0x0e:
+			throw new Error("AMF0::readData - Warning: Unexpected recordset in AMF stream")
+			return this.readNull()
+			break
 			case 0x0f:
 			return this.readXMLDoc(buffer)
 			break
@@ -116,7 +115,7 @@ class AMF0 {
 			return this.readTypedObject(buffer)
 			break
 			default:
-			throw new Error("Unknown type")
+			throw new Error("AMF0::readData - Error: Undefined AMF0 type encountered: " + value)
 		}
 	}
 	toString(buffer) {
@@ -154,6 +153,13 @@ class AMF0 {
 			}
 		}
 		return (item1 === item2)
+	}
+	getObjectReference (ref) {
+		if (ref >= this.readObjectCache.length) {
+			throw new Error("AMF0::getObjectReference - Error: Undefined object reference: " + ref)
+			return null
+		}
+		return this.readObjectCache[ref]
 	}
 	setObjectReference(o) {
 		let refNum
@@ -292,13 +298,14 @@ class AMF0 {
 			}
 			let buffer2 = iBuf.slice(prop.len)
 			if (!rules[buffer2.readUInt8(0)]) {
-				throw new Error("Unknown field")
+				throw new Error("AMF0::readObject - Error: Unknown field")
 			}
 			let val = rules[buffer2.readUInt8(0)](buffer2)
 			object[prop.value] = val.value
 			length += val.len
 			iBuf = iBuf.slice(prop.len + val.len)
 		}
+		this.readObjectCache.push({len: length, value: object})
 		return {
 			len: length,
 			value: object
@@ -382,6 +389,7 @@ class AMF0 {
 	}
 	readECMAArray(buffer) {
 		let obj = this.readObject(buffer.slice(4))
+		this.readObjectCache.push({len: 5 + obj.len, value: obj.value})
 		return {
 			len: 5 + obj.len,
 			value: obj.value
@@ -413,12 +421,13 @@ class AMF0 {
 		for (let count = buffer.readUInt32BE(1); count; count--) {
 			let buffer2 = buffer.slice(length)
 			if (!rules[buffer2.readUInt8(0)]) {
-				throw new Error("Unknown field")
+				throw new Error("AMF0::readObject - Error: Unknown field")
 			}
 			ret = rules[buffer2.readUInt8(0)](buffer2)
 			array.push(ret.value)
 			length += ret.len
 		}
+		this.readObjectCache.push({len: len, value: Object.defineProperty(array, "sarray", {value: true})})
 		return {
 			len: len,
 			value: Object.defineProperty(array, "sarray", {
@@ -535,6 +544,7 @@ class AMF0 {
 		let className = this.readString(buffer)
 		let object = this.readObject(buffer.slice(className.value.len - 1))
 		object.value.__className__ = className.value
+		this.readObjectCache.push({len: className.len + object.len - 1, value: object.value})
 		return {
 			len: className.len + object.len - 1,
 			value: object.value
