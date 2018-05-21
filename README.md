@@ -3,7 +3,7 @@
   <br>
   ByteArray.js <img src="https://raw.githubusercontent.com/benschwarz/bower-badges/gh-pages/badge%402x.png" width="130" height="30">
   <br>
-  <sub><sup>An equivalent to Actionscript 3's ByteArray for Javascript with a fully supported AMF0 library.</sup></sub>
+  <sub><sup>An equivalent to Actionscript 3's ByteArray for Javascript with full AMF0 and AMF3 support.</sup></sub>
   <br>
   <a href="https://travis-ci.org/Zaseth/ByteArray.js"><img src="https://travis-ci.org/Zaseth/ByteArray.js.svg?branch=master" alt="ByteArray.js travis" style= "margin-bottom: 1rem"></a>
   <a href="https://www.npmjs.com/package/bytearray.js"><img src="https://img.shields.io/npm/v/bytearray.js.svg" alt="ByteAray.js npm" style="margin-bottom: 1rem"></a>
@@ -14,9 +14,13 @@
 </h1>
 
 <h1 align="center">
+  But, why?
+  <br>
+  <sub><sup>I started this project because Flash will discontinue, so these amazing packages won't be available.</sup></sub>
+  <hr>
   AMF support
   <br>
-  <sub><sup>ByteArray.js currently fully supports AMF0 serialization and deserialization.</sup></sub>
+  <sub><sup>ByteArray.js currently fully supports AMF0 and AMF3 serialization and deserialization. (AMF3 readObject todo)</sup></sub>
   <hr>
   Compression support
   <br>
@@ -46,10 +50,14 @@
   <hr>
   Bugs
   <br>
-  <sub><sup>Send an issue and I will help you as soon as possible.</sup></sub>
+  <sub><sup>Send an issue and I will help you as soon as possible. You can always contact me as well.</sup></sub>
   <hr>
   Contributing
   <br>
   <sub><sup>Any help is welcome. Just send a pull request and I will gladly check it out!</sup></sub>
+  <hr>
+  Contact
+  <br>
+  <sub>Discord: <b>Zaseth#7550</b></sub>
   <hr>
 </h1>

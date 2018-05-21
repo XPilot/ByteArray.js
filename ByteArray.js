@@ -3,7 +3,10 @@
 const zlib = require("zlib")
 const lzma = require("lzma-native")
 const deasync = require("deasync")
+
 const AMF0 = require("./AMF0")
+const AMF3 = require("./AMF3")
+
 const Values = {
 	Int8: 1,
 	Double: 8,
@@ -100,12 +103,11 @@ class ByteArray {
 		return this._objectEncoding
 	}
 	/**
-	 * Currently only supporting AMF 0.
 	 * Sets the AMF version to AMFV.
 	 * @param {number} AMFV
 	 */
 	set objectEncoding(AMFV) {
-		if (AMFV == Values.AMF_0) {
+		if (AMFV == Values.AMF_0 || AMFV == Values.AMF_3) {
 			this._objectEncoding = AMFV
 		} else {
 			throw new TypeError("Invalid AMF version or not supported yet")
@@ -280,6 +282,8 @@ class ByteArray {
 			let amf = new AMF0()
 			let deserializedObject = amf.readObject(this.buffer)
 			return deserializedObject
+		} else if (this.objectEncoding === Values.AMF_3) {
+			throw new TypeError("Not supported yet")
 		} else {
 			throw new TypeError("Not supported yet")
 		}
@@ -555,6 +559,10 @@ class ByteArray {
 			let amf = new AMF0()
 			let serializedObject = amf.writeObject(object)
 			this.buffer = Buffer.concat([serializedObject, this.buffer])
+		} else if (this.objectEncoding === Values.AMF_3) {
+			let amf3 = new AMF3(this)
+			amf3.writeObject(object)
+			return amf3.buffer
 		} else {
 			throw new TypeError("Not supported yet")
 		}
