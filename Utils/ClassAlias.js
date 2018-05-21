@@ -88,7 +88,7 @@ class ClassAlias {
 		}
 		if (typeof value !== "object") { // Flash returns "Object" for all primitives
 			return "Object"
-	}
+		}
 		return this.getQualifiedClassName(getPrototypeOf(value)) // Use the prototype as superclass
 	}
 	isGetterOrSetter (object, propertyName) {

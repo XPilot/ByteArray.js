@@ -1,4 +1,4 @@
-const ByteArray = require("./ByteArray")
+const ByteArray = require("../ByteArray")
 
 class AMF3 {
 	constructor (buff) {
@@ -10,9 +10,6 @@ class AMF3 {
 
 		this.strings = []
 		this.stringCount = 0
-
-		this.traits = []
-
 	}
 
 	reset () {

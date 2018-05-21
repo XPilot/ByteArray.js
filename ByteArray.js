@@ -4,8 +4,8 @@ const zlib = require("zlib")
 const lzma = require("lzma-native")
 const deasync = require("deasync")
 
-const AMF0 = require("./AMF0")
-const AMF3 = require("./AMF3")
+const AMF0 = require("./AMF/AMF0")
+const AMF3 = require("./AMF/AMF3")
 
 const Values = {
 	Int8: 1,

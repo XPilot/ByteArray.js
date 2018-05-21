@@ -121,6 +121,7 @@ tape("Decode AMF0 file", (v) => {
 	fs.readFile("test.amf", (err, data) => {
 		if (err) throw err
 		wba.buffer = data
+	    wba.objectEncoding = 0
 		v.deepEqual(wba.readObject(), { len: 56, value: { id: 1, username: "Zaseth", password: "Test123" } })
 	})
 	v.end()
