@@ -88,9 +88,9 @@ class AMF0 {
 			return this.readECMAArray(buffer)
 			break
 			case 0x09:
-		    throw new Error("AMF0::readData - Warning: Unexpected object end tag in AMF stream")
-		    return this.readNull()
-		    break
+			throw new Error("AMF0::readData - Warning: Unexpected object end tag in AMF stream")
+			return this.readNull()
+			break
 			case 0x0a:
 			return this.readStrictArray(buffer)
 			break

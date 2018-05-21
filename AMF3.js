@@ -146,13 +146,13 @@ class AMF3 {
 		var result = 0
 		var b = this.byteArr.readUnsignedByte()
 		if (b < 128) return b
-		result = (b & 0x7F) << 7
+			result = (b & 0x7F) << 7
 		b = this.byteArr.readUnsignedByte()
 		if (b < 128) return (result | b)
-		result = (result | (b & 0x7F)) << 7
+			result = (result | (b & 0x7F)) << 7
 		b = this.byteArr.readUnsignedByte()
 		if (b < 128) return (result | b)
-		result = (result | (b & 0x7F)) << 8
+			result = (result | (b & 0x7F)) << 8
 		b = this.byteArr.readUnsignedByte()
 		return (result | b)
 	}
@@ -258,16 +258,16 @@ class AMF3 {
 	readString () {
 		let ref = this.readUInt29()
 		if ((ref & 1) == 0) return this.strings[ref >> 1]
-	    let str = {value: "", __traits: {type: "String", length: 0}}
-	    if (ref >> 1 == 0) {
-	    	return ""
-	    }
-	    if (ref >> 1 > 0) {
-	    	str.value = this.byteArr.readUTFBytes(ref >> 1)
-	    	str.__traits.length = ref >> 1
-	    	this.strings.push(str)
-	    }
-	    return str
+			let str = {value: "", __traits: {type: "String", length: 0}}
+		if (ref >> 1 == 0) {
+			return ""
+		}
+		if (ref >> 1 > 0) {
+			str.value = this.byteArr.readUTFBytes(ref >> 1)
+			str.__traits.length = ref >> 1
+			this.strings.push(str)
+		}
+		return str
 	}
 	/*
 	3.10 Date Type.
@@ -275,22 +275,22 @@ class AMF3 {
 	writeDate (value) {
 		this.byteArr.writeUnsignedByte(0x08)
 		if (!(value instanceof Date)) value = new Date(value)
-		if (!this.objectByReference(value)) {
-			this.writeUInt29(1)
-			this.byteArr.writeDouble(value.getTime())
+			if (!this.objectByReference(value)) {
+				this.writeUInt29(1)
+				this.byteArr.writeDouble(value.getTime())
+			}
+			return this.buffer
 		}
-		return this.buffer
-	}
-	readDate () {
-		if (this.byteArr.readUnsignedByte() == 0x08) {
-			let ref = this.readUInt29()
-			if ((ref & 1) == 0) return this.objects[ref >> 1]
-			let currentDate = this.byteArr.readDouble()
-			let date = {value: new Date(currentDate).toString(), date: currentDate, __traits: {type: "Date"}}
-			this.objects.push(date)
-			return date
+		readDate () {
+			if (this.byteArr.readUnsignedByte() == 0x08) {
+				let ref = this.readUInt29()
+				if ((ref & 1) == 0) return this.objects[ref >> 1]
+					let currentDate = this.byteArr.readDouble()
+				let date = {value: new Date(currentDate).toString(), date: currentDate, __traits: {type: "Date"}}
+				this.objects.push(date)
+				return date
+			}
 		}
-	}
 	/*
 	3.11 Array Type.
 	*/
@@ -299,11 +299,11 @@ class AMF3 {
 		if (!this.objectByReference(value)) {
 			this.writeUInt29((value.length << 1) | 1)
 			this.writeUInt29(1)
-		    if (value.length > 0) {
-		    	for (let i = 0; i < value.length; i++) {
-		    		this.writeValue(value[i])
-		    	}
-		    }
+			if (value.length > 0) {
+				for (let i = 0; i < value.length; i++) {
+					this.writeValue(value[i])
+				}
+			}
 		}
 	}
 	readArray () {
@@ -312,32 +312,32 @@ class AMF3 {
 		}
 		let ref = this.readUInt29()
 		if ((ref & 1) == 0) return this.objects[ref >> 1]
-		let len = (ref >> 1)
-	    let map = null
-	    while (true) {
-	    	let name = this.readString()
-	    	if (!name) {
-	    		break
-	    	}
-	    	if (!map) {
-	    		map = {}
-	    		this.objects.push(map)
-	    	}
-	    	map[name] = this.readValue()
-	    }
-	    if (!map) {
-	    	let array = new Array(len)
-	    	this.objects.push(array)
-	    	for (let i = 0; i < len; i++) {
-	    		array[i] = this.readValue()
-	    	}
-	    	return array
-	    } else {
-	    	for (let i = 0; i < len; i++) {
-	    		map[i] = this.readValue()
-	    	}
-	    	return map
-	    }
+			let len = (ref >> 1)
+		let map = null
+		while (true) {
+			let name = this.readString()
+			if (!name) {
+				break
+			}
+			if (!map) {
+				map = {}
+				this.objects.push(map)
+			}
+			map[name] = this.readValue()
+		}
+		if (!map) {
+			let array = new Array(len)
+			this.objects.push(array)
+			for (let i = 0; i < len; i++) {
+				array[i] = this.readValue()
+			}
+			return array
+		} else {
+			for (let i = 0; i < len; i++) {
+				map[i] = this.readValue()
+			}
+			return map
+		}
 	}
 	/*
 	3.12 Object Type.
@@ -389,9 +389,9 @@ class AMF3 {
 	readByteArray () {
 		let ref = this.readUInt29()
 		if ((ref & 1) == 0) return this.objects[ref >> 1]
-	    let val = {value: this.byteArr.readByteArray(ref >> 1), __traits: {type: "ByteArray"}}
-	    this.objects.push(val)
-	    return val
+			let val = {value: this.byteArr.readByteArray(ref >> 1), __traits: {type: "ByteArray"}}
+		this.objects.push(val)
+		return val
 	}
 	/*
 	3.15 Dictionary Type.
@@ -410,14 +410,14 @@ class AMF3 {
 	readDictionary () {
 		let ref = this.readUInt29()
 		if ((ref & 1) == 0) return this.objects[ref >> 1]
-		let hasWeakKeys = this.readBoolean()
-	    let dict = []
-	    for (let i = 0; i < value.length; i++) {
-	    	dict[i] = {key: this.readValue(), value: this.readValue(), __traits: {type: "DictionaryItem"}}
-	    }
-	    let val = {value: dict, __traits: {weakKeys: hasWeakKeys, type: "Dictionary"}}
-	    this.objects.push(dict)
-	    return val
+			let hasWeakKeys = this.readBoolean()
+		let dict = []
+		for (let i = 0; i < value.length; i++) {
+			dict[i] = {key: this.readValue(), value: this.readValue(), __traits: {type: "DictionaryItem"}}
+		}
+		let val = {value: dict, __traits: {weakKeys: hasWeakKeys, type: "Dictionary"}}
+		this.objects.push(dict)
+		return val
 	}
 	/*
 	Extra Type.
@@ -442,17 +442,17 @@ class AMF3 {
 	readMap () {
 		let ref = this.readUInt29()
 		if ((ref & 1) == 0) return this.objects[ref >> 1]
-		let map = null
-	    if (ref >> 1 > 0) {
-	    	map = {}
-	    	this.objects.push(map)
-	    	let name = this.readValue()
-	    	while (name != null) {
-	    		map[name] = this.readValue()
-	    		name = this.readValue()
-	    	}
-	    }
-	    return map
+			let map = null
+		if (ref >> 1 > 0) {
+			map = {}
+			this.objects.push(map)
+			let name = this.readValue()
+			while (name != null) {
+				map[name] = this.readValue()
+				name = this.readValue()
+			}
+		}
+		return map
 	}
 }
 
