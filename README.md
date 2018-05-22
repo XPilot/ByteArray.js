@@ -26,13 +26,9 @@
   <br>
   <sub><sup>ByteArray.js currently fully supports AMF0. AMF3 is currently being developed and should be finished by tomorrow so stay tuned!</sup></sub>
   <hr>
-  Compression support
-  <br>
-  <sub><sup>ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression.</sup></sub>
-  <hr>
   Unique data types support
   <br>
-  <sub><sup>ByteArray.js supports Var-integers, int64, dataview, and IEEE754 values.</sup></sub>
+  <sub><sup>ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression,  Var-integers, int64, dataview, and IEEE754 values.</sup></sub>
   <hr>
   Installation
   <br>
@@ -51,9 +47,5 @@
   Bugs & contributing
   <br>
   <sub><sup>Send an issue or pull request and I will review it asap. You can always contact me as well.</sup></sub>
-  <hr>
-  Contact
-  <br>
-  <sub>Discord: <b>Zaseth#7550</b></sub>
   <hr>
 </h1>
