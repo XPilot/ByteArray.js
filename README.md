@@ -36,13 +36,10 @@
   
   <sub>bower install bytearray.js</sub>
   <hr>
-  Examples
+  Examples & documentation
   <br>
-  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a></sub>
-  <hr>
-  Documentation
-  <br>
-  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a></sub>
+  <sub>Examples: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a></sub>
+  <sub>Documentation: <a href="https://github.com/Zaseth/ByteArray.js/wiki">wiki</a></sub>
   <hr>
   Bugs & contributing
   <br>
