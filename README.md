@@ -16,36 +16,36 @@
 <h1 align="center">
   But, why?
   <br>
-  I started this project since Flash will end in around 2020, resulting in losing these amazing packages.
+  <sub>I started this project since Flash will end in around 2020, resulting in losing these amazing packages.</sub>
   <hr>
   Is there a high performance version?
   <br>
-  Yes, there is. You can find it <a href="https://github.com/Zaseth/ByteArray.js/blob/master/ByteArrayHP.js">here.</a>
+  <sub>Yes, there is. You can find it <a href="https://github.com/Zaseth/ByteArray.js/blob/master/ByteArrayHP.js">here.</a></sub>
   <hr>
   AMF support
   <br>
-  ByteArray.js currently fully supports AMF0. AMF3 is currently being developed and should be finished by tomorrow so stay tuned!
+  <sub>ByteArray.js currently fully supports AMF0. AMF3 is currently being developed and should be finished by tomorrow so stay tuned!</sub>
   <hr>
   Unique data types support
   <br>
-  ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression,  Var-integers, int64, dataview, and IEEE754 values.
+  <sub>ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression,  Var-integers, int64, dataview, and IEEE754 values.</sub>
   <hr>
   Installation
   <br>
-  npm install bytearray.js
+  <sub>npm install bytearray.js</sub>
   
-  bower install bytearray.js
+  <sub>bower install bytearray.js</sub>
   <hr>
   Examples
   <br>
-  See: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a>
+  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a></sub>
   <hr>
   Documentation
   <br>
-  See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a>
+  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a></sub>
   <hr>
   Bugs & contributing
   <br>
-  Send an issue or pull request and I will review it asap. You can always contact me as well.
+  <sub>Send an issue or pull request and I will review it asap. You can always contact me as well.</sub>
   <hr>
 </h1>
