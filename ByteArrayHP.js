@@ -49,10 +49,10 @@ hp.ByteArray.prototype.writeIEEE754 = function (value, isLE, mLen, nBytes) {
 			e = 0
 		}
 	}
-	for (; mLen >= 8; this.data[this.pos + i] = m & 0xff, i += d, m /= 256, mLen -= 8) {}
+	for (; mLen >= 8; this.data[this.pos + i] = m & 0xff, i += d, m /= 256, mLen -= 8) { }
 	e = (e << mLen) | m
 	eLen += mLen
-	for (; eLen > 0; this.data[this.pos + i] = e & 0xff, i += d, e /= 256, eLen -= 8) {}
+	for (; eLen > 0; this.data[this.pos + i] = e & 0xff, i += d, e /= 256, eLen -= 8) { }
 	this.data[this.pos + i - d] |= s * 128
 }
 /* Big endian. */
@@ -65,9 +65,9 @@ hp.ByteArray.prototype.writeInt32BE = function (b) {
 	if (b > 0x7FFFFFFF || b < -0x80000000) throw new RangeError(`writeInt32BE - Error: ${b} is out of bounds`)
 	if (b < 0) b = 0xFFFFFFFF + b + 1
 	this.write((b >>> 24) & 0xFF)
-    this.write((b >>> 16) & 0xFF)
-    this.write((b >>> 8) & 0xFF)
-    this.write((b >>> 0) & 0xFF)
+	this.write((b >>> 16) & 0xFF)
+	this.write((b >>> 8) & 0xFF)
+	this.write((b >>> 0) & 0xFF)
 }
 hp.ByteArray.prototype.writeUInt16BE = function (b) {
 	if (b > 0xFFFF || b < 0) throw new RangeError(`writeUInt16BE - Error: ${b} is out of bounds`)
@@ -144,11 +144,11 @@ hp.ByteArray.prototype.readIEEE754 = function (isLE, mLen, nBytes) {
 	e = s & ((1 << (-nBits)) - 1)
 	s >>= (-nBits)
 	nBits += eLen
-	for (; nBits > 0; e = (e * 256) + this.data[this.pos + i], i += d, nBits -= 8) {}
+	for (; nBits > 0; e = (e * 256) + this.data[this.pos + i], i += d, nBits -= 8) { }
 	m = e & ((1 << (-nBits)) - 1)
 	e >>= (-nBits)
 	nBits += mLen
-	for (; nBits > 0; m = (m * 256) + this.data[this.pos + i], i += d, nBits -= 8) {}
+	for (; nBits > 0; m = (m * 256) + this.data[this.pos + i], i += d, nBits -= 8) { }
 	if (e === 0) {
 		e = 1 - eBias
 	} else if (e === eMax) {
@@ -165,31 +165,31 @@ hp.ByteArray.prototype.readInt16BE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readInt16BE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 2) - 2
 	let b = ((this.data[pos] & 0xFF) << 8) |
-	        ((this.data[++pos] & 0xFF) << 0)
+		((this.data[++pos] & 0xFF) << 0)
 	return (b >= 32768) ? b - 65536 : b
 }
 hp.ByteArray.prototype.readInt32BE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readInt32BE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 4) - 4
-    let b = ((this.data[pos] & 0xFF) << 24) |
-            ((this.data[++pos] & 0xFF) << 16) |
-            ((this.data[++pos] & 0xFF) << 8) |
-            ((this.data[++pos] & 0xFF) << 0)
-    return (b >= 2147483648) ? b - 4294967296 : b
+	let b = ((this.data[pos] & 0xFF) << 24) |
+		((this.data[++pos] & 0xFF) << 16) |
+		((this.data[++pos] & 0xFF) << 8) |
+		((this.data[++pos] & 0xFF) << 0)
+	return (b >= 2147483648) ? b - 4294967296 : b
 }
 hp.ByteArray.prototype.readUInt16BE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readUInt16BE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 2) - 2
 	return ((this.data[pos] & 0xFF) << 8) |
-	       ((this.data[++pos] & 0xFF) << 0)
+		((this.data[++pos] & 0xFF) << 0)
 }
 hp.ByteArray.prototype.readUInt32BE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readUInt32BE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 4) - 4
 	return ((this.data[pos] & 0xFF) << 24) |
-	       ((this.data[++pos] & 0xFF) << 16) |
-	       ((this.data[++pos] & 0xFF) << 8) |
-	       ((this.data[++pos] & 0xFF) << 0)
+		((this.data[++pos] & 0xFF) << 16) |
+		((this.data[++pos] & 0xFF) << 8) |
+		((this.data[++pos] & 0xFF) << 0)
 }
 hp.ByteArray.prototype.readFloat16BE = function () {
 	return this.readIEEE754(false, 10, 2)
@@ -204,32 +204,32 @@ hp.ByteArray.prototype.readDoubleBE = function () {
 hp.ByteArray.prototype.readInt16LE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readInt16LE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 2)
-    let b = ((this.data[--pos] & 0xFF) << 8) |
-            ((this.data[--pos] & 0xFF) << 0)
-    return (b >= 32768) ? b - 65536 : b
+	let b = ((this.data[--pos] & 0xFF) << 8) |
+		((this.data[--pos] & 0xFF) << 0)
+	return (b >= 32768) ? b - 65536 : b
 }
 hp.ByteArray.prototype.readInt32LE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readInt32LE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 4)
 	let b = ((this.data[--pos] & 0xFF) << 24) |
-	        ((this.data[--pos] & 0xFF) << 16) |
-	        ((this.data[--pos] & 0xFF) << 8) |
-	        ((this.data[--pos] & 0xFF) << 0)
+		((this.data[--pos] & 0xFF) << 16) |
+		((this.data[--pos] & 0xFF) << 8) |
+		((this.data[--pos] & 0xFF) << 0)
 	return (b >= 2147483648) ? b - 4294967296 : b
 }
 hp.ByteArray.prototype.readUInt16LE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readUInt16LE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 2)
-    return ((this.data[--pos] & 0xFF) << 8) |
-            ((this.data[--pos] & 0xFF) << 0)
+	return ((this.data[--pos] & 0xFF) << 8) |
+		((this.data[--pos] & 0xFF) << 0)
 }
 hp.ByteArray.prototype.readUInt32LE = function () {
 	if ((this.pos % 1) !== 0 || this.pos < 0) throw new RangeError(`readUInt32LE - Error: ${this.pos} is not uint`)
 	let pos = (this.pos += 4)
-    return ((this.data[--pos] & 0xFF) << 24) |
-           ((this.data[--pos] & 0xFF) << 16) |
-           ((this.data[--pos] & 0xFF) << 8) |
-           ((this.data[--pos] & 0xFF) << 0)
+	return ((this.data[--pos] & 0xFF) << 24) |
+		((this.data[--pos] & 0xFF) << 16) |
+		((this.data[--pos] & 0xFF) << 8) |
+		((this.data[--pos] & 0xFF) << 0)
 }
 hp.ByteArray.prototype.readFloat16LE = function () {
 	return this.readIEEE754(true, 10, 2)
