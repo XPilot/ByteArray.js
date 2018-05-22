@@ -16,36 +16,36 @@
 <h1 align="center">
   But, why?
   <br>
-  <sub><sup>I started this project since Flash will end in around 2020, resulting in losing these amazing packages.</sup></sub>
+  I started this project since Flash will end in around 2020, resulting in losing these amazing packages.
   <hr>
   Is there a high performance version?
   <br>
-  <sub><sup>Yes, there is. You can find it <a href="https://github.com/Zaseth/ByteArray.js/blob/master/ByteArrayHP.js">here.</a></sup>
+  Yes, there is. You can find it <a href="https://github.com/Zaseth/ByteArray.js/blob/master/ByteArrayHP.js">here.
   <hr>
   AMF support
   <br>
-  <sub><sup>ByteArray.js currently fully supports AMF0. AMF3 is currently being developed and should be finished by tomorrow so stay tuned!</sup></sub>
+  ByteArray.js currently fully supports AMF0. AMF3 is currently being developed and should be finished by tomorrow so stay tuned!
   <hr>
   Unique data types support
   <br>
-  <sub><sup>ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression,  Var-integers, int64, dataview, and IEEE754 values.</sup></sub>
+  ByteArray.js supports DEFLATE, ZLIB and LZMA compression and decompression,  Var-integers, int64, dataview, and IEEE754 values.
   <hr>
   Installation
   <br>
-  <sub>npm install bytearray.js</sub>
-
-  <sub>bower install bytearray.js</sub>
+  npm install bytearray.js
+  
+  bower install bytearray.js
   <hr>
   Examples
   <br>
-  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a></sub>
+  See: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a>
   <hr>
   Documentation
   <br>
-  <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a></sub>
+  See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a>
   <hr>
   Bugs & contributing
   <br>
-  <sub><sup>Send an issue or pull request and I will review it asap. You can always contact me as well.</sup></sub>
+  Send an issue or pull request and I will review it asap. You can always contact me as well.
   <hr>
 </h1>
