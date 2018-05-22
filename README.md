@@ -39,6 +39,7 @@
   Examples & documentation
   <br>
   <sub>Examples: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a></sub>
+  
   <sub>Documentation: <a href="https://github.com/Zaseth/ByteArray.js/wiki">wiki</a></sub>
   <hr>
   Bugs & contributing
