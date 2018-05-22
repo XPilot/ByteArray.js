@@ -32,11 +32,7 @@
   <hr>
   Unique data types support
   <br>
-  <sub><sup>ByteArray.js supports Var-integers, int64 and IEEE754 values.</sup></sub>
-  <hr>
-  DataView support
-  <br>
-  <sub><sup>ByteArray.js supports DataView. See <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a> on how to use it.</sup></sub>
+  <sub><sup>ByteArray.js supports Var-integers, int64, dataview, and IEEE754 values.</sup></sub>
   <hr>
   Installation
   <br>
@@ -52,13 +48,9 @@
   <br>
   <sub>See: <a href="https://github.com/Zaseth/ByteArray.js/wiki">Wiki</a></sub>
   <hr>
-  Bugs
+  Bugs & contributing
   <br>
-  <sub><sup>Send an issue and I will help you as soon as possible. You can always contact me as well.</sup></sub>
-  <hr>
-  Contributing
-  <br>
-  <sub><sup>Any help is welcome. Just send a pull request and I will gladly check it out!</sup></sub>
+  <sub><sup>Send an issue or pull request and I will review it asap. You can always contact me as well.</sup></sub>
   <hr>
   Contact
   <br>
