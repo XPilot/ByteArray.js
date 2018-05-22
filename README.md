@@ -20,7 +20,7 @@
   <hr>
   Is there a high performance version?
   <br>
-  Yes, there is. You can find it <a href="https://github.com/Zaseth/ByteArray.js/blob/master/ByteArrayHP.js">here.
+  Yes, there is. You can find it <a href="https://github.com/Zaseth/ByteArray.js/blob/master/ByteArrayHP.js">here.</a>
   <hr>
   AMF support
   <br>
