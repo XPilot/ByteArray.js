@@ -24,7 +24,7 @@
   <hr>
   AMF support
   <br>
-  <sub><sup>ByteArray.js currently fully supports AMF0. <b>AMF3 is currently being developed and should be finished by tomorrow so stay tuned!</b></sup></sub>
+  <sub><sup>ByteArray.js currently fully supports AMF0. AMF3 is currently being developed and should be finished by tomorrow so stay tuned!</sup></sub>
   <hr>
   Compression support
   <br>
