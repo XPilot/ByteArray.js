@@ -178,11 +178,11 @@ hp.ByteArray.prototype.readIEEE754 = function (isLE, mLen, nBytes) {
 	e = s & ((1 << (-nBits)) - 1)
 	s >>= (-nBits)
 	nBits += eLen
-	for (; nBits > 0; e = (e * 256) + this.data[this.pos + i -nBytes], i += d, nBits -= 8) { }
+	for (; nBits > 0; e = (e * 256) + this.data[this.pos + i - nBytes], i += d, nBits -= 8) { }
 	m = e & ((1 << (-nBits)) - 1)
 	e >>= (-nBits)
 	nBits += mLen
-	for (; nBits > 0; m = (m * 256) + this.data[this.pos + i -nBytes], i += d, nBits -= 8) { }
+	for (; nBits > 0; m = (m * 256) + this.data[this.pos + i - nBytes], i += d, nBits -= 8) { }
 	if (e === 0) {
 		e = 1 - eBias
 	} else if (e === eMax) {

@@ -177,10 +177,10 @@ amf3.Writer.prototype.calculateDouble = function (v) {
 		return r[0] = d | 2146435072, r
 	}
 	for (e = 0; v >= 2 && e <= 1023;) {
-		e++, v /= 2
+		e++ , v /= 2
 	}
 	for (; v < 1 && e >= -1022;) {
-		e--, v *= 2
+		e-- , v *= 2
 	}
 	e += 1023
 	if (e == 2047) {
@@ -188,8 +188,8 @@ amf3.Writer.prototype.calculateDouble = function (v) {
 	}
 	let i
 	e == 0
-	  ? (i = v * Math.pow(2, 23) / 2, v = Math.round(v * Math.pow(2, 52) / 2))
-	  : (i = v * Math.pow(2, 20) - Math.pow(2, 20), v = Math.round(v * Math.pow(2, 52) - Math.pow(2, 52)))
+		? (i = v * Math.pow(2, 23) / 2, v = Math.round(v * Math.pow(2, 52) / 2))
+		: (i = v * Math.pow(2, 20) - Math.pow(2, 20), v = Math.round(v * Math.pow(2, 52) - Math.pow(2, 52)))
 	r[0] = d | e << 20 & 2147418112 | i & 1048575
 	r[1] = v
 	return r
@@ -547,7 +547,7 @@ amf3.Reader.prototype.readDouble = function () {
 		return Number.POSITIVE_INFINITY
 	}
 	let c3 = this.read() & 255, c4 = this.read() & 255, c5 = this.read() & 255,
-	    c6 = this.read() & 255, c7 = this.read() & 255, c8 = this.read() & 255
+		c6 = this.read() & 255, c7 = this.read() & 255, c8 = this.read() & 255
 	if (!c1 && !c2 && !c3 && !c4) {
 		return 0
 	}
@@ -558,7 +558,7 @@ amf3.Reader.prototype.readDouble = function () {
 	}
 	let f = ((c5 & 127) << 24 | c6 << 16 | c7 << 8 | c8).toString(2)
 	for (let j = f.length; j < 31; j++) {
-		f=  "0" + f
+		f = "0" + f
 	}
 	let g = parseInt(e + (c5 >> 7 ? "1" : "0") + f, 2)
 	if (g == 0 && d == -1023) {
@@ -632,51 +632,51 @@ amf3.Reader.prototype.readObject = function () {
 	let type = this.read()
 	switch (type) {
 		case 0x06:
-		value = this.readString()
-		break
+			value = this.readString()
+			break
 		case 0x0A:
-		try {
-			value = this.readScriptObject()
-		} catch (e) {
-			throw new Error(`amf3.Reader::readObject - Error: Failed to deserialize: ${e}`)
-		}
-		break
+			try {
+				value = this.readScriptObject()
+			} catch (e) {
+				throw new Error(`amf3.Reader::readObject - Error: Failed to deserialize: ${e}`)
+			}
+			break
 		case 0x09:
-		value = this.readArray()
-		break
+			value = this.readArray()
+			break
 		case 0x02:
 		case 0x03:
-		value = this.readBoolean()
-		break
+			value = this.readBoolean()
+			break
 		case 0x04:
-		value = this.readInt()
-		break
+			value = this.readInt()
+			break
 		case 0x05:
-		value = this.readDouble()
-		break
+			value = this.readDouble()
+			break
 		case 0x00:
-		value = this.readUndefined()
-		break
+			value = this.readUndefined()
+			break
 		case 0x01:
-		value = this.readNull()
-		break
+			value = this.readNull()
+			break
 		case 0x08:
-		value = this.readDate()
-		break
+			value = this.readDate()
+			break
 		case 0x0C:
-		value = this.readByteArray()
-		break
+			value = this.readByteArray()
+			break
 		case 13:
 		case 14:
 		case 15:
 		case 16:
-		value = this.readVector()
-		break
+			value = this.readVector()
+			break
 		case 17:
-		value = this.readDictionary()
-		break
+			value = this.readDictionary()
+			break
 		default:
-		throw new Error(`amf3.Reader::readObject - Error: Unsupported AMF type: ${type}`)
+			throw new Error(`amf3.Reader::readObject - Error: Unsupported AMF type: ${type}`)
 	}
 	return value
 }
@@ -795,17 +795,17 @@ amf3.Reader.prototype.toVector = function (type, array, fixed) {
 		let typestr = "object"
 		switch (this.type) {
 			case 13:
-			typestr = "int"
-			break
+				typestr = "int"
+				break
 			case 14:
-			typestr = "uint"
-			break
+				typestr = "uint"
+				break
 			case 15:
-			typestr = "double"
-			break
+				typestr = "double"
+				break
 			case 16:
-			typestr = "object"
-			break
+				typestr = "object"
+				break
 		}
 		return "[Vector (" + typestr + ")" + (this.fixed ? " fixed" : "") + "]"
 	}
@@ -821,9 +821,9 @@ amf3.Reader.prototype.readDictionary = function () {
 	let dict = new Array(len)
 	let hasWeakKeys = this.readBoolean()
 	for (let i = 0; i < len; i++) {
-		dict[i] = {key: this.readObject(), value: this.readObject()}
+		dict[i] = { key: this.readObject(), value: this.readObject() }
 	}
-	let val = {value: dict, weakKeys: hasWeakKeys}
+	let val = { value: dict, weakKeys: hasWeakKeys }
 	this.rememberObject(val)
 	return val
 }

@@ -37,7 +37,7 @@ class ByteArray {
 		} else if (buff instanceof Buffer) {
 			if (isDataView) { /* It is a Buffer, but we want to convert the Buffer to ArrayBuffer to be used by DataView. */
 				let a = new ArrayBuffer(buff.length)
-				buff.forEach(i => {new Uint8Array(a)[i] = buff[i]})
+				buff.forEach(i => { new Uint8Array(a)[i] = buff[i] })
 				this.buffer = new DataView(a) /* It is now a DataView that we can use. Values could've been written using Buffer and can now be read by DataView. */
 			} else {
 				this.buffer = buff
@@ -279,12 +279,12 @@ class ByteArray {
 	readObject() {
 		switch (this.objectEncoding) {
 			case Values.AMF_0:
-			let AMF_0 = new AMF0()
-			return AMF_0.readObject(this.buffer)
-			break
+				let AMF_0 = new AMF0()
+				return AMF_0.readObject(this.buffer)
+				break
 			case Values.AMF_3:
-			let AMF_3 = new amf3.Reader(Array.prototype.slice.call(this.buffer, 0))
-			return AMF_3.readObject()
+				let AMF_3 = new amf3.Reader(Array.prototype.slice.call(this.buffer, 0))
+				return AMF_3.readObject()
 		}
 	}
 	/**
@@ -556,14 +556,14 @@ class ByteArray {
 	writeObject(object) {
 		switch (this.objectEncoding) {
 			case Values.AMF_0:
-			let AMF_0 = new AMF0()
-			this.buffer = Buffer.concat([AMF_0.writeObject(object), this.buffer])
-			break
+				let AMF_0 = new AMF0()
+				this.buffer = Buffer.concat([AMF_0.writeObject(object), this.buffer])
+				break
 			case Values.AMF_3:
-			let AMF_3 = new amf3.Writer()
-			AMF_3.writeObject(object)
-			this.buffer = Buffer.concat([Buffer.from(AMF_3.data), this.buffer])
-			break
+				let AMF_3 = new amf3.Writer()
+				AMF_3.writeObject(object)
+				this.buffer = Buffer.concat([Buffer.from(AMF_3.data), this.buffer])
+				break
 		}
 	}
 	/**

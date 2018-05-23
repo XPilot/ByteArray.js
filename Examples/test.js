@@ -34,7 +34,7 @@ tape("Write/read a byte without new constructor", (v) => {
 	v.end()
 })
 
-tape("Write/read a string", (v) =>{
+tape("Write/read a string", (v) => {
 	const wba = new ByteArray()
 	wba.writeUTF("ByteArray.js")
 	const rba = new ByteArray(wba)
@@ -45,7 +45,7 @@ tape("Write/read a string", (v) =>{
 tape("Write/read an AMF0 object", (v) => {
 	const wba = new ByteArray()
 	wba.objectEncoding = 0
-	wba.writeObject({id: 1})
+	wba.writeObject({ id: 1 })
 	v.deepEqual(wba.readObject(), { len: 17, value: { id: 1 } })
 	v.end()
 })
@@ -53,8 +53,8 @@ tape("Write/read an AMF0 object", (v) => {
 tape("Write/read an AMF3 object", (v) => {
 	const wba = new ByteArray()
 	wba.objectEncoding = 3
-	wba.writeObject({id: 1})
-	v.deepEqual(wba.readObject(), {id: 1})
+	wba.writeObject({ id: 1 })
+	v.deepEqual(wba.readObject(), { id: 1 })
 	v.end()
 })
 
@@ -84,9 +84,9 @@ tape("Write/read multiByte", (v) => {
 
 tape("Write/read int8array", (v) => {
 	const wba = new ByteArray()
-	wba.writeByteArray([1,2,3,4,5,6])
+	wba.writeByteArray([1, 2, 3, 4, 5, 6])
 	wba.position = 0
-	v.deepEqual(wba.readByteArray(6), [1,2,3,4,5,6])
+	v.deepEqual(wba.readByteArray(6), [1, 2, 3, 4, 5, 6])
 	v.end()
 })
 
@@ -129,7 +129,7 @@ tape("Decode AMF0 file", (v) => {
 	fs.readFile("test.amf0", (err, data) => {
 		if (err) throw err
 		wba.buffer = data
-	    wba.objectEncoding = 0
+		wba.objectEncoding = 0
 		v.deepEqual(wba.readObject(), { len: 56, value: { id: 1, username: "Zaseth", password: "Test123" } })
 	})
 	v.end()
@@ -140,8 +140,8 @@ tape("Decode AMF3 file", (v) => {
 	fs.readFile("test.amf3", (err, data) => {
 		if (err) throw err
 		wba.buffer = data
-	    wba.objectEncoding = 3
-	    v.deepEqual(wba.readObject(), {id: 1})
+		wba.objectEncoding = 3
+		v.deepEqual(wba.readObject(), { id: 1 })
 	})
 	v.end()
 })
