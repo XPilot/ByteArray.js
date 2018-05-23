@@ -4,7 +4,7 @@ const zlib = require("zlib")
 const lzma = require("lzma-native")
 const deasync = require("deasync")
 
-const AMF0 = require("./AMF/AMF0")
+require("./AMF/AMF0")
 require("./AMF/AMF3")
 
 const Values = {
@@ -279,7 +279,7 @@ class ByteArray {
 	readObject() {
 		switch (this.objectEncoding) {
 			case Values.AMF_0:
-				let AMF_0 = new AMF0()
+				let AMF_0 = new amf0.Reader()
 				return AMF_0.readObject(this.buffer)
 				break
 			case Values.AMF_3:
@@ -556,7 +556,7 @@ class ByteArray {
 	writeObject(object) {
 		switch (this.objectEncoding) {
 			case Values.AMF_0:
-				let AMF_0 = new AMF0()
+				let AMF_0 = new amf0.Writer()
 				this.buffer = Buffer.concat([AMF_0.writeObject(object), this.buffer])
 				break
 			case Values.AMF_3:
