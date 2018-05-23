@@ -1,7 +1,7 @@
 {
   "name": "bytearray.js",
-  "version": "1.2.7",
-  "description": "An equivalent to Actionscript 3's ByteArray for Javascript with AMF0 and AMF3 support.",
+  "version": "1.2.8",
+  "description": "An equivalent to Actionscript 3's ByteArray for Javascript with full AMF0 and AMF3 support.",
   "main": "ByteArray.js",
   "homepage": "https://github.com/Zaseth/ByteArray.js",
   "scripts": {
@@ -43,7 +43,8 @@
     "serialization",
     "deserialization",
     "format",
-    "parser"
+    "parser",
+    "action message format for javascript"
   ],
   "author": "Zaseth",
   "license": "MIT",

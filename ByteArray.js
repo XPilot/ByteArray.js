@@ -5,19 +5,17 @@ const lzma = require("lzma-native")
 const deasync = require("deasync")
 
 const AMF0 = require("./AMF/AMF0")
-const AMF3 = require("./AMF/AMF3")
+require("./AMF/AMF3")
 
 const Values = {
-	Int8: 1,
-	Double: 8,
-	Float: 4,
-	Int32: 4,
-	Int16: 2,
 	MAX_BUFFER_SIZE: 4096,
+
 	BIG_ENDIAN: true,
 	LITTLE_ENDIAN: false,
+
 	AMF_0: 0,
 	AMF_3: 3,
+
 	DEFLATE: "deflate",
 	LZMA: "lzma",
 	ZLIB: "zlib"
@@ -27,12 +25,13 @@ const Values = {
 class ByteArray {
 	/**
 	 * Create a ByteArray.
+	 * Standard values: {offset: 0, endian: BIG_ENDIAN, objectEncoding: AMF_3}
 	 * @param {buffer} buff - Custom length or another ByteArray to read from.
 	 */
 	constructor(buff, isDataView) {
 		this.offset = 0
 		this.endian = Values.BIG_ENDIAN
-		this._objectEncoding = Values.AMF_0
+		this._objectEncoding = Values.AMF_3
 		if (buff instanceof ByteArray) {
 			this.buffer = buff.buffer
 		} else if (buff instanceof Buffer) {
@@ -110,7 +109,7 @@ class ByteArray {
 		if (AMFV == Values.AMF_0 || AMFV == Values.AMF_3) {
 			this._objectEncoding = AMFV
 		} else {
-			throw new TypeError("Invalid AMF version or not supported yet")
+			throw new TypeError(`ByteArray.set::objectEncoding - Error: Invalid AMF version: ${AMFV}`)
 		}
 	}
 	/**
@@ -193,7 +192,7 @@ class ByteArray {
 	 */
 	updatePosition(n) {
 		if (n > Values.MAX_BUFFER_SIZE) {
-			throw new RangeError("Trying to access beyond buffer length")
+			throw new RangeError(`ByteArray::updatePosition - Error: Trying to access beyond buffer length with position: ${n}`)
 		}
 		let a = this.offset
 		this.offset += n
@@ -204,14 +203,14 @@ class ByteArray {
 	 * @returns {boolean}
 	 */
 	readBoolean() {
-		return Boolean(this.buffer.readInt8(this.updatePosition(Values.Int8)) & 0xFF)
+		return Boolean(this.buffer.readInt8(this.updatePosition(1)) & 0xFF)
 	}
 	/**
 	 * Reads a signed byte from the byte stream.
 	 * @returns {number}
 	 */
 	readByte() {
-		return this.buffer.readInt8(this.updatePosition(Values.Int8))
+		return this.buffer.readInt8(this.updatePosition(1))
 	}
 	/**
 	 * Reads the number of data bytes, specified by the length parameter, from the byte stream.
@@ -241,8 +240,8 @@ class ByteArray {
 	 */
 	readDouble() {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.readDoubleBE(this.updatePosition(Values.Double))
-			: this.buffer.readDoubleLE(this.updatePosition(Values.Double))
+			? this.buffer.readDoubleBE(this.updatePosition(8))
+			: this.buffer.readDoubleLE(this.updatePosition(8))
 	}
 	/**
 	 * Reads an IEEE 754 single-precision (32-bit) floating-point number from the byte stream.
@@ -250,8 +249,8 @@ class ByteArray {
 	 */
 	readFloat() {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.readFloatBE(this.updatePosition(Values.Float))
-			: this.buffer.readFloatLE(this.updatePosition(Values.Float))
+			? this.buffer.readFloatBE(this.updatePosition(4))
+			: this.buffer.readFloatLE(this.updatePosition(4))
 	}
 	/**
 	 * Reads a signed 32-bit integer from the byte stream.
@@ -259,8 +258,8 @@ class ByteArray {
 	 */
 	readInt() {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.readInt32BE(this.updatePosition(Values.Int32))
-			: this.buffer.readInt32LE(this.updatePosition(Values.Int32))
+			? this.buffer.readInt32BE(this.updatePosition(4))
+			: this.buffer.readInt32LE(this.updatePosition(4))
 	}
 	/**
 	 * Reads a multibyte string of specified length from the byte stream using the specified character set.
@@ -278,14 +277,14 @@ class ByteArray {
 	 * @returns {object}
 	 */
 	readObject() {
-		if (this.objectEncoding === Values.AMF_0) {
-			let amf = new AMF0()
-			let deserializedObject = amf.readObject(this.buffer)
-			return deserializedObject
-		} else if (this.objectEncoding === Values.AMF_3) {
-			throw new TypeError("Not supported yet")
-		} else {
-			throw new TypeError("Not supported yet")
+		switch (this.objectEncoding) {
+			case Values.AMF_0:
+			let AMF_0 = new AMF0()
+			return AMF_0.readObject(this.buffer)
+			break
+			case Values.AMF_3:
+			let AMF_3 = new amf3.Reader(Array.prototype.slice.call(this.buffer, 0))
+			return AMF_3.readObject()
 		}
 	}
 	/**
@@ -294,15 +293,15 @@ class ByteArray {
 	 */
 	readShort() {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.readInt16BE(this.updatePosition(Values.Int16))
-			: this.buffer.readInt16LE(this.updatePosition(Values.Int16))
+			? this.buffer.readInt16BE(this.updatePosition(2))
+			: this.buffer.readInt16LE(this.updatePosition(2))
 	}
 	/**
 	 * Reads an unsigned byte from the byte stream.
 	 * @returns {number}
 	 */
 	readUnsignedByte() {
-		return this.buffer.readUInt8(this.updatePosition(Values.Int8))
+		return this.buffer.readUInt8(this.updatePosition(1))
 	}
 	/**
 	 * Reads an unsigned 32-bit integer from the byte stream.
@@ -310,8 +309,8 @@ class ByteArray {
 	 */
 	readUnsignedInt() {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.readUInt32BE(this.updatePosition(Values.Int32))
-			: this.buffer.readUInt32LE(this.updatePosition(Values.Int32))
+			? this.buffer.readUInt32BE(this.updatePosition(4))
+			: this.buffer.readUInt32LE(this.updatePosition(4))
 	}
 	/**
 	 * Reads an unsigned 16-bit integer from the byte stream.
@@ -319,8 +318,8 @@ class ByteArray {
 	 */
 	readUnsignedShort() {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.readUInt16BE(this.updatePosition(Values.Int16))
-			: this.buffer.readUInt16LE(this.updatePosition(Values.Int16))
+			? this.buffer.readUInt16BE(this.updatePosition(2))
+			: this.buffer.readUInt16LE(this.updatePosition(2))
 	}
 	/**
 	 * Reads a UTF-8 string from the byte stream. The string is assumed to be prefixed with an unsigned short indicating the length in bytes.
@@ -471,14 +470,14 @@ class ByteArray {
 	 * @param {boolean} value
 	 */
 	writeBoolean(value) {
-		return this.buffer.writeInt8(Number(value), this.updatePosition(Values.Int8))
+		return this.buffer.writeInt8(Number(value), this.updatePosition(1))
 	}
 	/**
 	 * Writes a byte to the byte stream.
 	 * @param {number} value
 	 */
 	writeByte(value) {
-		return this.buffer.writeInt8(value, this.updatePosition(Values.Int8))
+		return this.buffer.writeInt8(value, this.updatePosition(1))
 	}
 	/**
 	 * Writes a sequence of length bytes from the specified byte array, bytes, starting offset(zero-based index) bytes into the byte stream.
@@ -518,8 +517,8 @@ class ByteArray {
 	 */
 	writeDouble(value) {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.writeDoubleBE(value, this.updatePosition(Values.Double))
-			: this.buffer.writeDoubleLE(value, this.updatePosition(Values.Double))
+			? this.buffer.writeDoubleBE(value, this.updatePosition(8))
+			: this.buffer.writeDoubleLE(value, this.updatePosition(8))
 	}
 	/**
 	 * Writes an IEEE 754 single-precision (32-bit) floating-point number to the byte stream.
@@ -527,8 +526,8 @@ class ByteArray {
 	 */
 	writeFloat(value) {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.writeFloatBE(value, this.updatePosition(Values.Float))
-			: this.buffer.writeFloatLE(value, this.updatePosition(Values.Float))
+			? this.buffer.writeFloatBE(value, this.updatePosition(4))
+			: this.buffer.writeFloatLE(value, this.updatePosition(4))
 	}
 	/**
 	 * Writes a 32-bit signed integer to the byte stream.
@@ -536,8 +535,8 @@ class ByteArray {
 	 */
 	writeInt(value) {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.writeInt32BE(value, this.updatePosition(Values.Int32))
-			: this.buffer.writeInt32LE(value, this.updatePosition(Values.Int32))
+			? this.buffer.writeInt32BE(value, this.updatePosition(4))
+			: this.buffer.writeInt32LE(value, this.updatePosition(4))
 	}
 	/**
 	 * Writes a multibyte string to the byte stream using the specified character set.
@@ -555,16 +554,16 @@ class ByteArray {
 	 * @param {object} object
 	 */
 	writeObject(object) {
-		if (this.objectEncoding === Values.AMF_0) {
-			let amf = new AMF0()
-			let serializedObject = amf.writeObject(object)
-			this.buffer = Buffer.concat([serializedObject, this.buffer])
-		} else if (this.objectEncoding === Values.AMF_3) {
-			let amf3 = new AMF3(this)
-			amf3.writeObject(object)
-			return amf3.buffer
-		} else {
-			throw new TypeError("Not supported yet")
+		switch (this.objectEncoding) {
+			case Values.AMF_0:
+			let AMF_0 = new AMF0()
+			this.buffer = Buffer.concat([AMF_0.writeObject(object), this.buffer])
+			break
+			case Values.AMF_3:
+			let AMF_3 = new amf3.Writer()
+			AMF_3.writeObject(object)
+			this.buffer = Buffer.concat([Buffer.from(AMF_3.data), this.buffer])
+			break
 		}
 	}
 	/**
@@ -573,15 +572,15 @@ class ByteArray {
 	 */
 	writeShort(value) {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.writeInt16BE(value, this.updatePosition(Values.Int16))
-			: this.buffer.writeInt16LE(value, this.updatePosition(Values.Int16))
+			? this.buffer.writeInt16BE(value, this.updatePosition(2))
+			: this.buffer.writeInt16LE(value, this.updatePosition(2))
 	}
 	/**
 	 * Writes an unsigned byte to the byte stream.
 	 * @param {number} value
 	 */
 	writeUnsignedByte(value) {
-		return this.buffer.writeUInt8(value, this.updatePosition(Values.Int8))
+		return this.buffer.writeUInt8(value, this.updatePosition(1))
 	}
 	/**
 	 * Writes a 32-bit unsigned integer to the byte stream.
@@ -589,8 +588,8 @@ class ByteArray {
 	 */
 	writeUnsignedInt(value) {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.writeUInt32BE(value, this.updatePosition(Values.Int32))
-			: this.buffer.writeUInt32LE(value, this.updatePosition(Values.Int32))
+			? this.buffer.writeUInt32BE(value, this.updatePosition(4))
+			: this.buffer.writeUInt32LE(value, this.updatePosition(4))
 	}
 	/**
 	 * Writes an unsigned 16-bit integer to the byte stream. The low 16 bits of the parameter are used. The high 16 bits are ignored.
@@ -598,8 +597,8 @@ class ByteArray {
 	 */
 	writeUnsignedShort(value) {
 		return this.endian === Values.BIG_ENDIAN
-			? this.buffer.writeUInt16BE(value, this.updatePosition(Values.Int16))
-			: this.buffer.writeUInt16LE(value, this.updatePosition(Values.Int16))
+			? this.buffer.writeUInt16BE(value, this.updatePosition(2))
+			: this.buffer.writeUInt16LE(value, this.updatePosition(2))
 	}
 	/**
 	 * Writes a UTF-8 string to the byte stream.
@@ -634,7 +633,7 @@ class ByteArray {
 	 */
 	writeByteArray(values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError("Expected an array of bytes")
+			throw new TypeError(`ByteArray::writeByteArray - Error: Argument is not an array`)
 		}
 		values.forEach(value => {
 			this.writeByte(value)
@@ -646,7 +645,7 @@ class ByteArray {
 	 */
 	writeShortArray(values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError("Expected an array of bytes")
+			throw new TypeError(`ByteArray::writeShortArray - Error: Argument is not an array`)
 		}
 		values.forEach(value => {
 			this.writeShort(value)
@@ -658,7 +657,7 @@ class ByteArray {
 	 */
 	writeIntArray(values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError("Expected an array of bytes")
+			throw new TypeError(`ByteArray::writeIntArray - Error: Argument is not an array`)
 		}
 		values.forEach(value => {
 			this.writeInt(value)
@@ -670,10 +669,10 @@ class ByteArray {
 	 */
 	writeLong(value) {
 		if (value > 0x7FFFFFFFFFFFFFFF || value < -0x8000000000000000) {
-			throw new RangeError("Value is out of bounds")
+			throw new RangeError(`ByteArray::writeLong - Error: ${value} is out of bounds`)
 		}
 		if (this.offset + 8 > this.length) {
-			throw new RangeError("Index is out of range")
+			throw new RangeError(`ByteArray::writeLong - Error: ${this.offset} is out of range`)
 		}
 		let high = Math.floor(value / 0x100000000)
 		let low = value - high * 0x100000000
@@ -687,10 +686,10 @@ class ByteArray {
 	 */
 	writeUnsignedLong(value) {
 		if (value > 0xFFFFFFFFFFFFFFFF || value < 0) {
-			throw new RangeError("Value is out of bounds")
+			throw new RangeError(`ByteArray::writeUnsignedLong - Error: ${value} is out of bounds`)
 		}
 		if (this.offset + 8 > this.length) {
-			throw new RangeError("Index is out of range")
+			throw new RangeError(`ByteArray::writeUnsignedLong - Error: ${this.offset} is out of range`)
 		}
 		let high = Math.floor(value / 0x100000000)
 		let low = value - high * 0x100000000
@@ -705,7 +704,7 @@ class ByteArray {
 	 */
 	writeIntegerWithLength(bytes, value) {
 		if (bytes > Values.MAX_BUFFER_SIZE || value > Values.MAX_BUFFER_SIZE) {
-			throw new RangeError("Out of bounds")
+			throw new RangeError(`ByteArray::writeIntegerWithLength - Error: ${bytes} | ${value} are out of bounds`)
 		}
 		for (let i = 0; i < bytes; i++) {
 			this.buffer[0 + i] = (value >> (i * 8)) & 0xFF
