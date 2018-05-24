@@ -39,7 +39,7 @@ ByteArray.js got you covered! If you want to compress some data, you can also us
 
 <p align="left">
 <h4>Variable-length quantity integers</h4>
-Now this isn't part of Actionscript 3's ByteArray, but it's still useful in case you ever need it. The supported types are: int32, int64, uint32, uint64.
+Now this isn't part of Actionscript 3's ByteArray, but it's still useful in case you ever need it. The supported types are: int32 and uint32.
 </p>
 
 <p align="left">
