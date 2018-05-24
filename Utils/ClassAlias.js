@@ -1,3 +1,4 @@
+/* This is a small class for class definitions and that kind of mumbo jumbo. */
 "use strict"
 
 class ClassAlias {
@@ -7,7 +8,6 @@ class ClassAlias {
 		this._definitionCache = []
 		this._global = []
 	}
-
 	getClassNameByAlias (aliasName) {
 		if (aliasName == null) {
 			throw new Error("Alias::getClassNameByAlias - Error: Null argument")

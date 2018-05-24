@@ -1,8 +1,8 @@
 "use strict"
 
-const zlib = require("zlib")
-const lzma = require("lzma-native")
-const deasync = require("deasync")
+const zlib = require("zlib"),
+      lzma = require("lzma-native"),
+      deasync = require("deasync")
 
 require("./AMF/AMF0")
 require("./AMF/AMF3")
@@ -27,6 +27,7 @@ class ByteArray {
 	 * Create a ByteArray.
 	 * Standard values: {offset: 0, endian: BIG_ENDIAN, objectEncoding: AMF_3}
 	 * @param {buffer} buff - Custom length or another ByteArray to read from.
+	 * @param {boolean} isDataView - The buff parameter is a Buffer but we want to convert it into DataView.
 	 */
 	constructor(buff, isDataView) {
 		this.offset = 0
@@ -67,20 +68,6 @@ class ByteArray {
 		return this.offset
 	}
 	/**
-	 * Returns the buffer length.
-	 * @returns {number}
-	 */
-	get length() {
-		return this.buffer.length
-	}
-	/**
-	 * Returns the buffer length minus the position.
-	 * @returns {number}
-	 */
-	get bytesAvailable() {
-		return this.length - this.offset
-	}
-	/**
 	 * Sets the position to value.
 	 * @param {number} value
 	 */
@@ -88,11 +75,25 @@ class ByteArray {
 		this.offset = value
 	}
 	/**
+	 * Returns the buffer length.
+	 * @returns {number}
+	 */
+	get length() {
+		return this.buffer.length
+	}
+	/**
 	 * Sets the length of the buffer to value.
 	 * @param {number} value
 	 */
 	set length(value) {
 		this.buffer.length = value
+	}
+	/**
+	 * Returns the buffer length minus the position.
+	 * @returns {number}
+	 */
+	get bytesAvailable() {
+		return this.length - this.offset
 	}
 	/**
 	 * Returns the AMF version.
@@ -203,7 +204,7 @@ class ByteArray {
 	 * @returns {boolean}
 	 */
 	readBoolean() {
-		return Boolean(this.buffer.readInt8(this.updatePosition(1)) & 0xFF)
+		return Boolean(this.buffer.readInt8(this.updatePosition(1)))
 	}
 	/**
 	 * Reads a signed byte from the byte stream.
@@ -263,11 +264,12 @@ class ByteArray {
 	}
 	/**
 	 * Reads a multibyte string of specified length from the byte stream using the specified character set.
+	 * The supported character sets for Node.js are: ascii, utf8, utf16le, ucs2, base64, latin1, binary and hex.
 	 * @param {number} length
 	 * @param {string} charset
 	 * @returns {string}
 	 */
-	readMultiByte(length, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
+	readMultiByte(length, charset) {
 		charset = this.axCoerceString(charset)
 		let offset = this.updatePosition(length)
 		return this.buffer.toString(charset || "utf8", offset, offset + length)
@@ -540,10 +542,11 @@ class ByteArray {
 	}
 	/**
 	 * Writes a multibyte string to the byte stream using the specified character set.
+	 * The supported character sets for Node.js are: ascii, utf8, utf16le, ucs2, base64, latin1, binary and hex.
 	 * @param {string} str
 	 * @param {string} charset
 	 */
-	writeMultiByte(str, charset) { /* ascii, utf8, utf16le, ucs2, base64, latin1, binary, hex */
+	writeMultiByte(str, charset) {
 		str = this.axCoerceString(str)
 		charset = this.axCoerceString(charset)
 		let length = Buffer.byteLength(str)
@@ -633,7 +636,7 @@ class ByteArray {
 	 */
 	writeByteArray(values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError(`ByteArray::writeByteArray - Error: Argument is not an array`)
+			throw new TypeError(`ByteArray::writeByteArray - Error: ${values} is not an array`)
 		}
 		values.forEach(value => {
 			this.writeByte(value)
@@ -645,7 +648,7 @@ class ByteArray {
 	 */
 	writeShortArray(values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError(`ByteArray::writeShortArray - Error: Argument is not an array`)
+			throw new TypeError(`ByteArray::writeShortArray - Error: ${values} is not an array`)
 		}
 		values.forEach(value => {
 			this.writeShort(value)
@@ -657,7 +660,7 @@ class ByteArray {
 	 */
 	writeIntArray(values) {
 		if (!Array.isArray(values)) {
-			throw new TypeError(`ByteArray::writeIntArray - Error: Argument is not an array`)
+			throw new TypeError(`ByteArray::writeIntArray - Error: ${values} is not an array`)
 		}
 		values.forEach(value => {
 			this.writeInt(value)
@@ -672,7 +675,7 @@ class ByteArray {
 			throw new RangeError(`ByteArray::writeLong - Error: ${value} is out of bounds`)
 		}
 		if (this.offset + 8 > this.length) {
-			throw new RangeError(`ByteArray::writeLong - Error: ${this.offset} is out of range`)
+			throw new RangeError(`ByteArray::writeLong - Error: ${this.offset + 8} is greater than ${this.length}`)
 		}
 		let high = Math.floor(value / 0x100000000)
 		let low = value - high * 0x100000000
@@ -689,7 +692,7 @@ class ByteArray {
 			throw new RangeError(`ByteArray::writeUnsignedLong - Error: ${value} is out of bounds`)
 		}
 		if (this.offset + 8 > this.length) {
-			throw new RangeError(`ByteArray::writeUnsignedLong - Error: ${this.offset} is out of range`)
+			throw new RangeError(`ByteArray::writeUnsignedLong - Error: ${this.offset + 8} is greater than ${this.length}`)
 		}
 		let high = Math.floor(value / 0x100000000)
 		let low = value - high * 0x100000000
