@@ -1,49 +1,63 @@
-<h1 align="center">
-  <a href="https://i.imgur.com/YNA8qWm.png"><img src="https://i.imgur.com/YNA8qWm.png" alt="ByteArray.js" style= "margin-bottom: 1rem"></a>
-  <br>
-  ByteArray.js <img src="https://raw.githubusercontent.com/benschwarz/bower-badges/gh-pages/badge%402x.png" width="130" height="30">
-  <br>
-  <sub><sup>An equivalent to Actionscript 3's ByteArray for Javascript with AMF0 and AMF3 support.</sup></sub>
-  <br>
-  <a href="https://travis-ci.org/Zaseth/ByteArray.js"><img src="https://travis-ci.org/Zaseth/ByteArray.js.svg?branch=master" alt="ByteArray.js travis" style= "margin-bottom: 1rem"></a>
-  <a href="https://www.npmjs.com/package/bytearray.js"><img src="https://img.shields.io/npm/v/bytearray.js.svg" alt="ByteAray.js npm" style="margin-bottom: 1rem"></a>
-  <a href="https://github.com/Zaseth/ByteArray.js/blob/master/LICENSE"><img src="https://img.shields.io/npm/l/bytearray.js.svg" alt="ByteAray.js license" style="margin-bottom: 1rem"></a>
-  <a href="https://npm-stat.com/charts.html?package=bytearray.js"><img src="https://img.shields.io/npm/dy/bytearray.js.svg" alt="ByteAray.js downloads" style="margin-bottom: 1rem"></a>
-  <a href="https://github.com/Zaseth/ByteArray.js/wiki"><img src="https://img.shields.io/readthedocs/pip/stable.svg" alt="ByteArray.js docs" style="margin-bottom: 1rem"></a>
-  <a href="https://npmjs.org/package/bytearray.js"><img src="https://nodei.co/npm/bytearray.js.png" alt="ByteAray.js npm" style="margin-bottom: 1rem"></a>
-</h1>
+<p align="center">
+<img src="https://i.imgur.com/YNA8qWm.png" alt="ByteArray.js GFX"/>
+</p>
 
 <h1 align="center">
-  But, why?
-  <br>
-  <sub>I started this project since Flash will end in around 2020, resulting in losing these amazing packages.</sub>
-  <hr>
-  Is there a high performance version?
-  <br>
-  <sub>Yes, there is. You can find it <a href="https://github.com/Zaseth/ByteArray.js/blob/master/ByteArrayHP.js">here.</a></sub>
-  <hr>
-  AMF support
-  <br>
-  <sub>ByteArray.js fully supports AMF0 and AMF3 serialization and deserialization.</sub>
-  <hr>
-  Unique data types support
-  <br>
-  <sub>ByteArray.js supports DEFLATE, ZLIB, LZMA compression and decompression, var-integers, int64, objects, arrays, the dataview method and IEEE754 values.</sub>
-  <hr>
-  Installation
-  <br>
-  <sub>npm install bytearray.js</sub>
-  
-  <sub>bower install bytearray.js</sub>
-  <hr>
-  Examples & documentation
-  <br>
-  <sub>Examples: <a href="https://github.com/Zaseth/ByteArray.js/blob/master/Examples/test.js">test.js</a></sub>
-  
-  <sub>Documentation: <a href="https://github.com/Zaseth/ByteArray.js/wiki">wiki</a></sub>
-  <hr>
-  Bugs & contributing
-  <br>
-  <sub>Send an issue or pull request and I will review it asap. You can always contact me as well.</sub>
-  <hr>
+ByteArray.js
 </h1>
+
+<p align="center">
+<a href="https://travis-ci.org/Zaseth/ByteArray.js"><img src="https://travis-ci.org/Zaseth/ByteArray.js.svg?branch=master" alt="ByteArray.js build"></a>
+<a href="https://npm-stat.com/charts.html?package=bytearray.js"><img src="https://img.shields.io/npm/dy/bytearray.js.svg" alt="ByteAray.js downloads"></a>
+<a href="https://www.npmjs.com/package/bytearray.js"><img src="https://img.shields.io/npm/v/bytearray.js.svg" alt="ByteAray.js npm"></a>
+</p>
+
+<p align="center">
+<b>npm install bytearray.js</b><br>
+<b>bower install bytearray.js</b>
+</p>
+
+<p align="left">
+<h4>Introduction</h4>
+ByteArray.js is an implementation of Actionscript 3's ByteArray, but then in pure Javascript. This library supports most of it's features from Actionscript 3. A small goal is to make Actionscript 3 developers switch to a newer platform by supporting a key library. The default length of the buffer is 4096 bytes, but if you want to use more, go ahead, you're a rebel.
+</p><hr>
+
+<p align="left">
+<h4>AMF (Action Message Format from Adobe)</h4>
+ByteArray.js provides support for both AMF0 and AMF3. It can serialize and deserialize your data. The data gets shared with the ByteArray byte stream, allowing you to directly do stuff with it by just calling the constructor for ByteArray, how handy.
+</p>
+
+<p align="left">
+<h4>Decimal values</h4>
+This library also supports IEEE 754 values in case you ever need to make something float.
+</p>
+
+<p align="left">
+<h4>Compression and decompression</h4>
+ByteArray.js got you covered! If you want to compress some data, you can also use this library. The supported compression types are: DEFLATE, LZMA and ZLIB.
+</p>
+
+<p align="left">
+<h4>Variable-length quantity integers</h4>
+Now this isn't part of Actionscript 3's ByteArray, but it's still useful in case you ever need it. The supported types are: int32, int64, uint32, uint64.
+</p>
+
+<p align="left">
+<h4>But... DataView?</h4>
+This is the part where some hacky stuff comes in. We can actually read data from ByteArray's byte stream with DataView. Take a look in <b>/Examples/test.js</b> on how to use it.
+</p>
+
+<p align="left">
+<h4>But... minified?</h4>
+There is a minifed part, but minified means that some functions are cut out, but don't worry! The minified version supports all of the mayor functions. You can find the minified version under the name <b>ByteArrayHP.js</b>
+</p>
+
+<p align="left">
+<h4>Documentation</h4>
+ByteArray.js has JSDOC. If you know what AMF is, you should know the documentation already, if you don't, you can find that by Adobe. In short terms: discover it's files and you'll discover the documentation, simple right?
+</p>
+
+<p align="left">
+<h4>Examples</h4>
+I have included a very simple file that basically shows you what to do. You can find it all in <b>/Examples/test.js</b>. This includes AMF tests, as well as compression tests.
+</p>
